@@ -30,19 +30,25 @@ public abstract class ResourceCalculator {
 
   public abstract int 
   compare(Resource clusterResource, Resource lhs, Resource rhs);
-  
+
   public static int divideAndCeil(int a, int b) {
-    if (b == 0) {
-      return 0;
-    }
+    if (b == 0) {    
+      return 0;    
+    } 
     return (a + (b - 1)) / b;
   }
 
   public static int roundUp(int a, int b) {
+   if(b == 0){
+      return a;
+   }
     return divideAndCeil(a, b) * b;
   }
 
   public static int roundDown(int a, int b) {
+   if (b == 0) {
+        return a;
+    }
     return (a / b) * b;
   }
 

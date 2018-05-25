@@ -40,19 +40,7 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.AccessControlList;
-import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.Container;
-import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.api.records.ContainerStatus;
-import org.apache.hadoop.yarn.api.records.NodeId;
-import org.apache.hadoop.yarn.api.records.Priority;
-import org.apache.hadoop.yarn.api.records.QueueACL;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.api.records.QueueState;
-import org.apache.hadoop.yarn.api.records.QueueUserACLInfo;
-import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.api.records.ResourceRequest;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.factories.RecordFactory;
 import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
 import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
@@ -449,7 +437,8 @@ public class LeafQueue extends AbstractCSQueue {
     Resource oldMax = getMaximumAllocation();
     Resource newMax = newlyParsedLeafQueue.getMaximumAllocation();
     if (newMax.getMemory() < oldMax.getMemory()
-        || newMax.getVirtualCores() < oldMax.getVirtualCores()) {
+        || newMax.getVirtualCores() < oldMax.getVirtualCores()
+        || newMax.getGPUs() < oldMax.getGPUs()) {
       throw new IOException(
           "Trying to reinitialize "
               + getQueuePath()
@@ -721,7 +710,7 @@ public class LeafQueue extends AbstractCSQueue {
   }
 
   private static final CSAssignment NULL_ASSIGNMENT =
-      new CSAssignment(Resources.createResource(0, 0), NodeType.NODE_LOCAL);
+      new CSAssignment(Resources.createResource(0, 0, 0), NodeType.NODE_LOCAL);
   
   private static final CSAssignment SKIP_ASSIGNMENT = new CSAssignment(true);
   
@@ -908,7 +897,7 @@ public class LeafQueue extends AbstractCSQueue {
   protected Resource getHeadroom(User user, Resource queueCurrentLimit,
       Resource clusterResource, FiCaSchedulerApp application, Resource required) {
     return getHeadroom(user, queueCurrentLimit, clusterResource,
-	  computeUserLimit(application, clusterResource, required, user, null));
+      computeUserLimit(application, clusterResource, required, user, null));
   }
   
   private Resource getHeadroom(User user, Resource currentResourceLimit,
@@ -996,7 +985,7 @@ public class LeafQueue extends AbstractCSQueue {
     //   with miniscule capacity (< 1 slot) make progress
     // * If we're running over capacity, then its
     //   (usedResources + required) (which extra resources we are allocating)
-    Resource queueCapacity = Resource.newInstance(0, 0);
+    Resource queueCapacity = Resource.newInstance(0, 0, 0);
     if (requestedLabels != null && !requestedLabels.isEmpty()) {
       // if we have multiple labels to request, we will choose to use the first
       // label
@@ -1036,7 +1025,7 @@ public class LeafQueue extends AbstractCSQueue {
     // queue-hard-limit * ulMin
     
     final int activeUsers = activeUsersManager.getNumActiveUsers();  
-    		
+            
     Resource limit =
         Resources.roundUp(
             resourceCalculator, 
@@ -1417,22 +1406,40 @@ public class LeafQueue extends AbstractCSQueue {
     }
     
     // check if the resource request can access the label
-    if (!SchedulerUtils.checkNodeLabelExpression(
+    String requestedResourceName = request.getResourceName();
+    if (requestedResourceName.equals(ResourceRequest.ANY)) {
+      // check if the resource request can access the label
+      if (!SchedulerUtils.checkNodeLabelExpression(
         node.getLabels(),
         request.getNodeLabelExpression())) {
-      // this is a reserved container, but we cannot allocate it now according
-      // to label not match. This can be caused by node label changed
-      // We should un-reserve this container.
-      if (rmContainer != null) {
-        unreserve(application, priority, node, rmContainer);
+        // this is a reserved container, but we cannot allocate it now according
+        // to label not match. This can be caused by node label changed
+        // We should un-reserve this container.
+        if (rmContainer != null) {
+          unreserve(application, priority, node, rmContainer);
+        }
+        return Resources.none();
       }
-      return Resources.none();
+    } else {
+      // In addition, we use the requested resource name to match the node.
+      // It is safe, since the node which is not accessible for the queue will
+      // not be sent here.
+      if (!requestedResourceName.equals(node.getNodeName()) &&
+        !requestedResourceName.equals(node.getRackName())) {
+        if (rmContainer != null) {
+          unreserve(application, priority, node, rmContainer);
+        }
+        return Resources.none();
+      }
     }
     
     Resource capability = request.getCapability();
     Resource available = node.getAvailableResource();
     Resource totalResource = node.getTotalResource();
 
+    if (!Resources.fitsIn(capability, available)) {
+         return Resources.none();
+    }
     if (!Resources.lessThanOrEqual(resourceCalculator, clusterResource,
         capability, totalResource)) {
       LOG.warn("Node : " + node.getNodeID()
@@ -1453,7 +1460,15 @@ public class LeafQueue extends AbstractCSQueue {
       LOG.warn("Couldn't get container for allocation!");
       return Resources.none();
     }
-    
+
+    //int allocated = Resources.allocateGPUs(capability, available, node.getTotalResource());
+    //container.setGPULocation(allocated);
+    if(capability.getGPUs() > 0) {
+      LOG.info("GPU/Ports allocation request: " + capability + " from availability: " + available);
+      long allocated = Resources.allocateGPUs(capability, available);
+      capability.setGPUAttribute(allocated);
+    }
+
     boolean shouldAllocOrReserveNewContainer = shouldAllocOrReserveNewContainer(
         application, priority, capability);
 
@@ -1721,7 +1736,7 @@ public class LeafQueue extends AbstractCSQueue {
   @VisibleForTesting
   public static class User {
     ResourceUsage userResourceUsage = new ResourceUsage();
-    volatile Resource userResourceLimit = Resource.newInstance(0, 0);
+    volatile Resource userResourceLimit = Resource.newInstance(0, 0, 0);
     int pendingApplications = 0;
     int activeApplications = 0;
 
@@ -1827,7 +1842,7 @@ public class LeafQueue extends AbstractCSQueue {
 
   // return a single Resource capturing the overal amount of pending resources
   public synchronized Resource getTotalResourcePending() {
-    Resource ret = BuilderUtils.newResource(0, 0);
+    Resource ret = BuilderUtils.newResource(0, 0, 0);
     for (FiCaSchedulerApp f : activeApplications) {
       Resources.addTo(ret, f.getTotalPendingRequests());
     }
