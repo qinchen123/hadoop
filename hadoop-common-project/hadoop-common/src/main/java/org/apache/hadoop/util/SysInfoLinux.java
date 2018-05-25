@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -116,11 +117,84 @@ public class SysInfoLinux extends SysInfo {
   private static final Pattern PROCFS_DISKSECTORFILE_FORMAT =
       Pattern.compile("^([0-9]+)");
 
+
+  public static final long REFRESH_INTERVAL_MS = 60 * 1000;
+
+  private static final String REFRESH_GPU_INFO_CMD = "nvidia-smi";
+  private static final String REFRESH_PORTS_CMD = "netstat -anlut";
+
+  /**
+   Wed Mar  7 08:28:10 2018
+   +-----------------------------------------------------------------------------+
+   | NVIDIA-SMI 384.111                Driver Version: 384.111                   |
+   |-------------------------------+----------------------+----------------------+
+   | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+   | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+   |===============================+======================+======================|
+   |   0  Tesla K80           Off  | 00006B24:00:00.0 Off |                    0 |
+   | N/A   26C    P8    34W / 149W |   3322MiB / 11439MiB |      0%      Default |
+   +-------------------------------+----------------------+----------------------+
+   |   1  Tesla K80           Off  | 000083D4:00:00.0 Off |                    1 |
+   | N/A   32C    P8    28W / 149W |     11MiB / 11439MiB |      0%      Default |
+   +-------------------------------+----------------------+----------------------+
+   |   2  Tesla K80           Off  | 00009D9C:00:00.0 Off |                    0 |
+   | N/A   29C    P8    25W / 149W |     12MiB / 11439MiB |      0%      Default |
+   +-------------------------------+----------------------+----------------------+
+   |   3  Tesla K80           Off  | 0000B6D4:00:00.0 Off |                  N/A |
+   | N/A   24C    P8    35W / 149W |      1MiB / 11439MiB |      0%      Default |
+   +-------------------------------+----------------------+----------------------+
+   |   4  Tesla K80           Off  | 00009D9C:00:00.0 Off |                    0 |
+   | N/A   29C    P8    25W / 149W |     12MiB / 11439MiB |      0%      Default |
+   +-------------------------------+----------------------+----------------------+
+   |   5  Tesla K80           Off  | 0000B6D4:00:00.0 Off |                  N/A |
+   | N/A   24C    P8    35W / 149W |      1MiB / 11439MiB |      0%      Default |
+   +-------------------------------+----------------------+----------------------+
+   |   6  Tesla K80           Off  | 00009D9C:00:00.0 Off |                    0 |
+   | N/A   29C    P8    25W / 149W |     12MiB / 11439MiB |      0%      Default |
+   +-------------------------------+----------------------+----------------------+
+   |   7  Tesla K80           Off  | 0000B6D4:00:00.0 Off |                    0 |
+   | N/A   24C    P8    35W / 149W |      1MiB / 11439MiB |      0%      Default |
+   +-------------------------------+----------------------+----------------------+
+
+   +-----------------------------------------------------------------------------+
+   | Processes:                                                       GPU Memory |
+   |  GPU       PID   Type   Process name                             Usage      |
+   |=============================================================================|
+   |  0         11111  c     test_process_.bin                        400MiB     |
+   |  2         12222  c     test_process_.bin                        401MiB     |
+   |  3         14441  c     test_process_.bin                        402MiB     |
+   |  4         11555  c     test_process_.bin                        403MiB     |
+   |  7         11777  c     test_process_.bin                        405MiB     |
+   +-----------------------------------------------------------------------------+
+   */
+  Pattern GPU_INFO_FORMAT =
+      Pattern.compile("\\s+([0-9]{1,2})\\s+[\\s\\S]*\\s+(0|1|N/A)\\s+");
+  Pattern GPU_MEM_FORMAT =
+      Pattern.compile("([0-9]+)MiB\\s*/\\s*([0-9]+)MiB");
+
+  Pattern GPU_PROCESS_FORMAT =
+      Pattern.compile("\\s+([0-9]{1,2})\\s+[\\s\\S]*\\s+([0-9]+)MiB");
+  /**
+   * the output format of the Ports information:
+   Proto Recv-Q Send-Q Local Address           Foreign Address         State
+   tcp        0      0 0.0.0.0:10022           0.0.0.0:*               LISTEN
+   tcp        0      0 10.0.3.4:38916          168.63.129.16:80        TIME_WAIT
+   tcp        0      0 10.0.3.4:56822          52.226.8.57:443         TIME_WAIT
+   tcp        0      0 10.0.3.4:38898          168.63.129.16:80        TIME_WAIT
+   tcp        0      0 10.0.3.4:56828          52.226.8.57:443         TIME_WAIT
+   */
+  private static final Pattern PORTS_FORMAT =
+      Pattern.compile(":([0-9]+)");
+
+
   private String procfsMemFile;
   private String procfsCpuFile;
   private String procfsStatFile;
   private String procfsNetFile;
   private String procfsDisksFile;
+  private String procfsGpuFile;
+  private String procfsGpuUsingFile;
+  private String procfsPortsFile;
   private long jiffyLengthInMillis;
 
   private long ramSize = 0;
@@ -132,6 +206,13 @@ public class SysInfoLinux extends SysInfo {
   private long hardwareCorruptSize = 0; // RAM corrupt and not available
   private long hugePagesTotal = 0; // # of hugepages reserved
   private long hugePageSize = 0; // # size of each hugepage
+
+  private int numGPUs = 0; // number of GPUs on the system
+  private Long gpuAttributeCapacity = 0L; // bit map of GPU utilization, 1 means free, 0 means occupied
+  private Long gpuAttributeUsed = 0L; // bit map of GPU utilization, 1 means free, 0 means occupied
+  private long lastRefreshGpuTime = 0L;
+  private long lastRefreshPortsTime = 0L;
+  private String usedPorts = "";
 
 
   /* number of logical processors on the system. */
@@ -178,7 +259,7 @@ public class SysInfoLinux extends SysInfo {
 
   public SysInfoLinux() {
     this(PROCFS_MEMFILE, PROCFS_CPUINFO, PROCFS_STAT,
-         PROCFS_NETFILE, PROCFS_DISKSFILE, JIFFY_LENGTH_IN_MILLIS);
+         PROCFS_NETFILE, PROCFS_DISKSFILE, null, null, null, JIFFY_LENGTH_IN_MILLIS);
   }
 
   /**
@@ -197,12 +278,18 @@ public class SysInfoLinux extends SysInfo {
                                        String procfsStatFile,
                                        String procfsNetFile,
                                        String procfsDisksFile,
+                                       String procfsGpuFile,
+                                       String procfsGpuUsingFile,
+                                       String procfsPortsFile,
                                        long jiffyLengthInMillis) {
     this.procfsMemFile = procfsMemFile;
     this.procfsCpuFile = procfsCpuFile;
     this.procfsStatFile = procfsStatFile;
     this.procfsNetFile = procfsNetFile;
     this.procfsDisksFile = procfsDisksFile;
+    this.procfsGpuFile = procfsGpuFile;
+    this.procfsGpuUsingFile = procfsGpuUsingFile;
+    this.procfsPortsFile = procfsPortsFile;
     this.jiffyLengthInMillis = jiffyLengthInMillis;
     this.cpuTimeTracker = new CpuTimeTracker(jiffyLengthInMillis);
     this.perDiskSectorSize = new HashMap<String, Integer>();
@@ -676,6 +763,154 @@ public class SysInfoLinux extends SysInfo {
     return numDisksBytesWritten;
   }
 
+  /** {@inheritDoc} */
+  @Override
+  public int getNumGPUs(boolean excludeOwnerlessUsingGpus, int gpuNotReadyMemoryThreshold) {
+    refreshGpuIfNeeded(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+    return numGPUs;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public long getGpuAttributeCapacity(boolean excludeOwnerlessUsingGpus, int gpuNotReadyMemoryThreshold) {
+    refreshGpuIfNeeded(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+    return gpuAttributeCapacity;
+  }
+
+  @Override
+  public String getPortsUsage() {
+    refreshPortsIfNeeded();
+    return usedPorts;
+  }
+
+
+  private InputStreamReader getInputGpuInfoStreamReader() throws Exception {
+    if (procfsGpuFile == null) {
+      Process pos = Runtime.getRuntime().exec(REFRESH_GPU_INFO_CMD);
+      pos.waitFor();
+      return new InputStreamReader(pos.getInputStream());
+    } else {
+      LOG.info("read GPU info from file:" + procfsGpuFile);
+      return new InputStreamReader(
+          new FileInputStream(procfsGpuFile), Charset.forName("UTF-8"));
+    }
+  }
+
+  private void refreshGpuIfNeeded(boolean excludeOwnerlessUsingGpus, int gpuNotReadyMemoryThreshold) {
+
+    long now = System.currentTimeMillis();
+    if (now - lastRefreshGpuTime > REFRESH_INTERVAL_MS) {
+      lastRefreshGpuTime = now;
+      try {
+        String ln = "";
+        Long gpuAttributeUsed = 0L;
+        Long gpuAttributeProcess = 0L;
+        Long gpuAttributeCapacity = 0L;
+        Map<String, String> usingMap = new HashMap<String, String>();
+
+        Matcher mat = null;
+        InputStreamReader ir = getInputGpuInfoStreamReader();
+        BufferedReader input = new BufferedReader(ir);
+
+        long currentIndex = 0;
+        while ((ln = input.readLine()) != null) {
+          mat = GPU_INFO_FORMAT.matcher(ln);
+          if (mat.find()) {
+            if (mat.group(1) != null && mat.group(2) != null) {
+              long index = Long.parseLong(mat.group(1));
+              currentIndex = index;
+
+              String errCode = mat.group(2);
+              if (!errCode.equals("1")) {
+                gpuAttributeCapacity |= (1L << index);
+              } else {
+                LOG.error("ignored error: gpu " + index + " ECC code is 1, will make this gpu unavailable");
+              }
+            }
+          }
+          mat = GPU_MEM_FORMAT.matcher(ln);
+          if (mat.find()) {
+            if (mat.group(1) != null && mat.group(2) != null) {
+              int usedMem = Integer.parseInt(mat.group(1));
+              if (usedMem > gpuNotReadyMemoryThreshold) {
+                gpuAttributeUsed |= (1L << currentIndex);
+              }
+            }
+          }
+          mat = GPU_PROCESS_FORMAT.matcher(ln);
+          if (mat.find()) {
+            if (mat.group(1) != null && mat.group(2) != null) {
+              long index = Long.parseLong(mat.group(1));
+              gpuAttributeProcess |= (1 << index);
+            }
+          }
+        }
+        input.close();
+        ir.close();
+        Long ownerLessGpus = (gpuAttributeUsed & ~gpuAttributeProcess);
+        if ((ownerLessGpus != 0)) {
+          LOG.info("GpuAttributeCapacity:" + Long.toBinaryString(gpuAttributeCapacity) + " GpuAttributeUsed:" + Long.toBinaryString(gpuAttributeUsed) + " GpuAttributeProcess:" + Long.toBinaryString(gpuAttributeProcess));
+          if (excludeOwnerlessUsingGpus) {
+            gpuAttributeCapacity = (gpuAttributeCapacity & ~ownerLessGpus);
+            LOG.error("GPU:" + Long.toBinaryString(ownerLessGpus) + " is using by unknown process, will exclude these Gpus and won't schedule jobs into these Gpus");
+          } else {
+            LOG.error("GPU: " + Long.toBinaryString(ownerLessGpus) + " is using by unknown process, will ignore it and schedule jobs on these GPU. ");
+          }
+        }
+        numGPUs = Long.bitCount(gpuAttributeCapacity);
+        this.gpuAttributeCapacity = gpuAttributeCapacity;
+        this.gpuAttributeUsed = gpuAttributeUsed;
+
+      } catch (Exception e) {
+        LOG.warn("error get GPU status info:" + e.toString());
+      }
+    }
+  }
+
+  private InputStreamReader getInputPortsStreamReader(String cmdLine) throws Exception {
+    if (procfsPortsFile == null) {
+      Process pos = Runtime.getRuntime().exec(cmdLine);
+      pos.waitFor();
+      return new InputStreamReader(pos.getInputStream());
+
+    } else {
+      LOG.info("read Ports info from file:" + procfsPortsFile);
+      return new InputStreamReader(
+          new FileInputStream(procfsPortsFile), Charset.forName("UTF-8"));
+    }
+  }
+
+  private void refreshPortsIfNeeded() {
+
+    long now = System.currentTimeMillis();
+    if (now - lastRefreshPortsTime > REFRESH_INTERVAL_MS) {
+      lastRefreshPortsTime = now;
+      try {
+        InputStreamReader ir = getInputPortsStreamReader(REFRESH_PORTS_CMD);
+        BufferedReader input = new BufferedReader(ir);
+        String ln = "";
+        Matcher mat = null;
+        usedPorts = "";
+        while ((ln = input.readLine()) != null) {
+          mat = PORTS_FORMAT.matcher(ln);
+          if (mat.find()) {
+            String port = mat.group().substring(1);
+            if (usedPorts.isEmpty()) {
+              usedPorts = port;
+            } else {
+              usedPorts = usedPorts + "," + port;
+            }
+          }
+        }
+        input.close();
+        ir.close();
+      } catch (Exception e) {
+        LOG.warn("error get Ports usage info:" + e.toString());
+      }
+    } else {
+    }
+  }
+
   /**
    * Test the {@link SysInfoLinux}.
    *
@@ -703,6 +938,11 @@ public class SysInfoLinux extends SysInfo {
             + plugin.getStorageBytesRead());
     System.out.println("Total storage written (bytes) : "
             + plugin.getStorageBytesWritten());
+
+    System.out.println("Number of GPUs : " + plugin.getNumGPUs(true, 0));
+    System.out.println("GPUs attribute : " + plugin.getGpuAttributeCapacity(true, 0));
+    System.out.println("used Ports : " + plugin.getPortsUsage());
+
     try {
       // Sleep so we can compute the CPU usage
       Thread.sleep(500L);

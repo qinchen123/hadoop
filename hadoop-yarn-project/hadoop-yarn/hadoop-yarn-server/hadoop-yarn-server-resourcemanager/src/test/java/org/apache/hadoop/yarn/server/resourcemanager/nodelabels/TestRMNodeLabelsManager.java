@@ -61,9 +61,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 public class TestRMNodeLabelsManager extends NodeLabelTestBase {
-  private final Resource EMPTY_RESOURCE = Resource.newInstance(0, 0);
-  private final Resource SMALL_RESOURCE = Resource.newInstance(100, 0);
-  private final Resource LARGE_NODE = Resource.newInstance(1000, 0);
+  private final Resource EMPTY_RESOURCE = Resource.newInstance(0, 0, 0);
+  private final Resource SMALL_RESOURCE = Resource.newInstance(100, 0, 0);
+  private final Resource LARGE_NODE = Resource.newInstance(1000, 0, 0);
   
   NullRMNodeLabelsManager mgr = null;
   RMNodeLabelsManager lmgr = null;
@@ -228,7 +228,7 @@ public class TestRMNodeLabelsManager extends NodeLabelTestBase {
   
   @Test(timeout=5000)
   public void testGetQueueResource() throws Exception {
-    Resource clusterResource = Resource.newInstance(9999, 1);
+    Resource clusterResource = Resource.newInstance(9999, 1, 1);
     
     /*
      * Node->Labels:
@@ -678,7 +678,7 @@ public class TestRMNodeLabelsManager extends NodeLabelTestBase {
   @Test(timeout = 5000)
   public void testLabelsToNodesOnNodeActiveDeactive() throws Exception {
     // Activate a node without assigning any labels
-    mgr.activateNode(NodeId.newInstance("n1", 1), Resource.newInstance(10, 0));
+    mgr.activateNode(NodeId.newInstance("n1", 1), Resource.newInstance(10, 0, 0));
     Assert.assertTrue(mgr.getLabelsToNodes().isEmpty());
     assertLabelsToNodesEquals(
         mgr.getLabelsToNodes(), transposeNodeToLabels(mgr.getNodeLabels()));
@@ -692,7 +692,7 @@ public class TestRMNodeLabelsManager extends NodeLabelTestBase {
         mgr.getLabelsToNodes(), transposeNodeToLabels(mgr.getNodeLabels()));
 
     // Activate a node for which host to label mapping exists
-    mgr.activateNode(NodeId.newInstance("n1", 2), Resource.newInstance(10, 0));
+    mgr.activateNode(NodeId.newInstance("n1", 2), Resource.newInstance(10, 0, 0));
     // p1 -> n1, n1:1, n1:2
     Assert.assertEquals(3, mgr.getLabelsToNodes().get("p1").size());
     assertLabelsToNodesEquals(

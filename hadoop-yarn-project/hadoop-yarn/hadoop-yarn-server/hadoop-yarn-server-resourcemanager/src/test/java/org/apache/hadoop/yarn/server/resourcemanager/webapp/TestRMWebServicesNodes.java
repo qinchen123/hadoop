@@ -695,7 +695,8 @@ public class TestRMWebServicesNodes extends JerseyTestBase {
           WebServicesTestUtils.getXmlLong(element, "availMemoryMB"),
           WebServicesTestUtils.getXmlLong(element, "usedVirtualCores"),
           WebServicesTestUtils.getXmlLong(element,  "availableVirtualCores"),
-          WebServicesTestUtils.getXmlString(element, "version"),
+          WebServicesTestUtils.getXmlLong(element, "usedGPUs"),
+          WebServicesTestUtils.getXmlLong(element,  "availableGPUs"),
           WebServicesTestUtils.getXmlInt(element, "nodePhysicalMemoryMB"),
           WebServicesTestUtils.getXmlInt(element, "nodeVirtualMemoryMB"),
           WebServicesTestUtils.getXmlFloat(element, "nodeCPUUsage"),
@@ -724,7 +725,8 @@ public class TestRMWebServicesNodes extends JerseyTestBase {
         nodeInfo.getString("healthReport"), nodeInfo.getInt("numContainers"),
         nodeInfo.getLong("usedMemoryMB"), nodeInfo.getLong("availMemoryMB"),
         nodeInfo.getLong("usedVirtualCores"), nodeInfo.getLong("availableVirtualCores"),
-        nodeInfo.getString("version"),
+        nodeInfo.getLong("usedGPUs"), nodeInfo.getLong("availableGPUs"),
+        nodeInfo.getString("version"));
         resourceInfo.getInt("nodePhysicalMemoryMB"),
         resourceInfo.getInt("nodeVirtualMemoryMB"),
         resourceInfo.getDouble("nodeCPUUsage"),
@@ -735,13 +737,14 @@ public class TestRMWebServicesNodes extends JerseyTestBase {
         nodeInfo.getLong("usedMemoryOpportGB"),
         nodeInfo.getInt("usedVirtualCoresOpport"),
         nodeInfo.getInt("numQueuedContainers"));
+
   }
 
   public void verifyNodeInfoGeneric(RMNode node, String state, String rack,
       String id, String nodeHostName,
       String nodeHTTPAddress, long lastHealthUpdate, String healthReport,
       int numContainers, long usedMemoryMB, long availMemoryMB,
-      long usedVirtualCores, long availVirtualCores, String version,
+      long usedVirtualCores, long availVirtualCores, long usedGPUs, long availGPUs,String version,
       int nodePhysicalMemoryMB, int nodeVirtualMemoryMB, double nodeCPUUsage,
       int containersPhysicalMemoryMB, int containersVirtualMemoryMB,
       double containersCPUUsage, int numRunningOpportContainers,
@@ -799,6 +802,10 @@ public class TestRMWebServicesNodes extends JerseyTestBase {
           .getUsedResource().getVirtualCores(), usedVirtualCores);
       assertEquals("availVirtualCores doesn't match: " + availVirtualCores, report
           .getAvailableResource().getVirtualCores(), availVirtualCores);
+      assertEquals("usedGPUs doesn't match: " + usedGPUs, report
+          .getUsedResource().getGPUs(), usedGPUs);
+      assertEquals("availGPUs doesn't match: " + availGPUs, report
+          .getAvailableResource().getGPUs(), availGPUs);
     }
 
     if (opportunisticStatus != null) {

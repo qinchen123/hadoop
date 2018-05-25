@@ -48,8 +48,11 @@ public class TestSysInfoLinux {
                                              String procfsStatFile,
 			                                       String procfsNetFile,
                                              String procfsDisksFile,
+                                             String procfsGpuFile,
+                                             String procfsGpuUsingFile,
+                                             String procfsPortsFile,
                                              long jiffyLengthInMillis) {
-      super(procfsMemFile, procfsCpuFile, procfsStatFile, procfsNetFile,
+      super(procfsMemFile, procfsCpuFile, procfsStatFile, procfsGpuFile, procfsGpuUsingFile, procfsPortsFile, procfsNetFile,
           procfsDisksFile, jiffyLengthInMillis);
     }
     @Override
@@ -72,6 +75,9 @@ public class TestSysInfoLinux {
   private static final String FAKE_STATFILE;
   private static final String FAKE_NETFILE;
   private static final String FAKE_DISKSFILE;
+  private static final String FAKE_GPUFILE;
+  private static final String FAKE_GPU_USINGFILE;
+  private static final String FAKE_PORTSFILE;
   private static final long FAKE_JIFFY_LENGTH = 10L;
   static {
     int randomNum = (new Random()).nextInt(1000000000);
@@ -80,10 +86,17 @@ public class TestSysInfoLinux {
     FAKE_STATFILE = TEST_ROOT_DIR + File.separator + "STATINFO_" + randomNum;
     FAKE_NETFILE = TEST_ROOT_DIR + File.separator + "NETINFO_" + randomNum;
     FAKE_DISKSFILE = TEST_ROOT_DIR + File.separator + "DISKSINFO_" + randomNum;
+    FAKE_GPUFILE = TEST_ROOT_DIR + File.separator + "GPUINFO_" + randomNum;
+    FAKE_GPU_USINGFILE = TEST_ROOT_DIR + File.separator + "GPUUSINGINFO_" + randomNum;
+    FAKE_PORTSFILE = TEST_ROOT_DIR + File.separator + "PORTSINFO_" + randomNum;
+
     plugin = new FakeLinuxResourceCalculatorPlugin(FAKE_MEMFILE, FAKE_CPUFILE,
                                                    FAKE_STATFILE,
                                                    FAKE_NETFILE,
                                                    FAKE_DISKSFILE,
+                                                   FAKE_GPUFILE,
+                                                   FAKE_GPU_USINGFILE,
+                                                   FAKE_PORTSFILE,
                                                    FAKE_JIFFY_LENGTH);
   }
   static final String MEMINFO_FORMAT =
@@ -243,6 +256,62 @@ public class TestSysInfoLinux {
       "2669389056 0 26164719 2813746308\n"+
       "8     129 sdi1 10078602 657936 2056552626 108362198 6134036 403851153 3279882064 " +
       "2639256086 0 26260432 2747601085\n";
+
+
+
+  static final String NVIDIA_GPU_INFO_FORMAT =
+      "Wed Mar  7 08:28:10 2018" +
+          "+-----------------------------------------------------------------------------+" +
+          "| NVIDIA-SMI 384.111                Driver Version: 384.111                   |" +
+          "|-------------------------------+----------------------+----------------------+" +
+          "| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |" +
+          "| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |" +
+          "|===============================+======================+======================|" +
+          "|   0  Tesla K80           Off  | 00006B24:00:00.0 Off |                    0 |" +
+          "| N/A   26C    P8    34W / 149W |   3322MiB / 11439MiB |      0%      Default |" +
+          "+-------------------------------+----------------------+----------------------+" +
+          "|   1  Tesla K80           Off  | 000083D4:00:00.0 Off |                    1 |" +
+          "| N/A   32C    P8    28W / 149W |     11MiB / 11439MiB |      0%      Default |" +
+          "+-------------------------------+----------------------+----------------------+" +
+          "|   2  Tesla K80           Off  | 00009D9C:00:00.0 Off |                    0 |" +
+          "| N/A   29C    P8    25W / 149W |     12MiB / 11439MiB |      0%      Default |" +
+          "+-------------------------------+----------------------+----------------------+" +
+          "|   3  Tesla K80           Off  | 0000B6D4:00:00.0 Off |                  N/A |" +
+          "| N/A   24C    P8    35W / 149W |      1MiB / 11439MiB |      0%      Default |" +
+          "+-------------------------------+----------------------+----------------------+" +
+          "|   4  Tesla K80           Off  | 00009D9C:00:00.0 Off |                    0 |" +
+          "| N/A   29C    P8    25W / 149W |     12MiB / 11439MiB |      0%      Default |" +
+          "+-------------------------------+----------------------+----------------------+" +
+          "|   5  Tesla K80           Off  | 0000B6D4:00:00.0 Off |                   N/A|" +
+          "| N/A   24C    P8    35W / 149W |      1MiB / 11439MiB |      0%      Default |" +
+          "+-------------------------------+----------------------+----------------------+" +
+          "|   6  Tesla K80           Off  | 00009D9C:00:00.0 Off |                    0 |" +
+          "| N/A   29C    P8    25W / 149W |     12MiB / 11439MiB |      0%      Default |" +
+          "+-------------------------------+----------------------+----------------------+" +
+          "|   7  Tesla K80           Off  | 0000B6D4:00:00.0 Off |                    0 |" +
+          "| N/A   24C    P8    35W / 149W |      1MiB / 11439MiB |      0%      Default |" +
+          "+-------------------------------+----------------------+----------------------+" +
+          "\r\n" +
+          "+-----------------------------------------------------------------------------+" +
+          "| Processes:                                                       GPU Memory |" +
+          "|  GPU       PID   Type   Process name                             Usage      |" +
+          "|=============================================================================|" +
+          "|  0         11111  c     test_process_.bin                        400MiB     |" +
+          "|  2         12222  c     test_process_.bin                        401MiB     |" +
+          "|  3         14441  c     test_process_.bin                        402MiB     |" +
+          "|  4         11555  c     test_process_.bin                        403MiB     |" +
+          "|  7         11777  c     test_process_.bin                        405MiB     |" +
+          "+-----------------------------------------------------------------------------+";
+
+
+  static final String PORTSINFO_FORMAT =
+      "Proto Recv-Q Send-Q Local Address           Foreign Address         State\n" +
+          "tcp        0      0 0.0.0.0:%d           0.0.0.0:*               LISTEN\n" +
+          "tcp        0      0 10.0.3.4:%d          168.63.129.16:80        TIME_WAIT\n" +
+          "tcp        0      0 10.0.3.4:%d          52.226.8.57:443         TIME_WAIT\n" +
+          "tcp        0      0 10.0.3.4:%d          168.63.129.16:80        TIME_WAIT\n" +
+          "tcp        0      0 10.0.3.4:%d          52.226.8.57:443         TIME_WAIT\n";
+
 
   /**
    * Test parsing /proc/stat and /proc/cpuinfo
@@ -522,4 +591,53 @@ public class TestSysInfoLinux {
     assertEquals(expectedNumSectorsWritten * diskSectorSize,
         plugin.getStorageBytesWritten());
   }
+
+
+  private void InitialGPUTestFile()  throws IOException {
+    File tempFile = new File(FAKE_GPUFILE);
+    tempFile.deleteOnExit();
+    FileWriter fWriter = new FileWriter(FAKE_GPUFILE);
+    fWriter.write(NVIDIA_GPU_INFO_FORMAT);
+    fWriter.close();
+  }
+  /**
+   * Test parsing GPU information
+   * @throws IOException
+   */
+  @Test
+  public void parsingGPUFile() throws Exception {
+
+    InitialGPUTestFile();
+    assertEquals(8,plugin.getNumGPUs(false, 0));
+    assertEquals(plugin.getGpuAttributeCapacity(false, 0),0xFC);
+
+    Thread.sleep(LinuxResourceCalculatorPlugin.REFRESH_INTERVAL_MS +1);
+    assertEquals(8,plugin.getNumGPUs(false, 0));
+    assertEquals(plugin.getGpuAttributeCapacity(false, 0),0xFC);
+  }
+
+
+  private void InitialPortsTestFile(int port1, int port2, int port3, int port4, int port5) throws IOException {
+    File tempFile = new File(FAKE_PORTSFILE);
+    tempFile.deleteOnExit();
+    FileWriter fWriter = new FileWriter(FAKE_PORTSFILE);
+    fWriter.write(String.format(PORTSINFO_FORMAT,
+        port1, port2, port3, port4, port5));
+    fWriter.close();
+  }
+
+  @Test
+  public void parsingPortsFile() throws Exception {
+
+    InitialPortsTestFile(0, 0, 0, 0, 0);
+    assertEquals("0,0,0,0,0", plugin.getPortsUsage());
+
+    InitialPortsTestFile(25, 27, 28, 100, 1000);
+    assertEquals("25,27,28,100,1000", plugin.getPortsUsage());
+
+    Thread.sleep(LinuxResourceCalculatorPlugin.REFRESH_INTERVAL_MS + 1);
+    assertEquals("25,27,28,100,1000", plugin.getPortsUsage());
+  }
+
+
 }

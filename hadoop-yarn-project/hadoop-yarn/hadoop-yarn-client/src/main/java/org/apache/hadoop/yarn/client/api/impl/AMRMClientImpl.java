@@ -121,7 +121,7 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
   }
 
   /**
-   * Class compares Resource by memory then cpu in reverse order
+   * Class compares Resource by memory then cpu then gpu in reverse order
    */
   static class ResourceReverseMemoryThenCpuComparator implements
       Comparator<Resource>, Serializable {
@@ -132,9 +132,18 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
       long mem1 = arg1.getMemorySize();
       long cpu0 = arg0.getVirtualCores();
       long cpu1 = arg1.getVirtualCores();
+      int gpu0 = arg0.getGPUs();
+      int gpu1 = arg1.getGPUs();
+
       if(mem0 == mem1) {
         if(cpu0 == cpu1) {
-          return 0;
+          if(gpu0 == gpu1) {
+            return 0;
+          }
+          if(gpu0 < gpu1) {
+            return 1;
+          }
+          return -1;
         }
         if(cpu0 < cpu1) {
           return 1;
@@ -153,8 +162,12 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
     long mem1 = arg1.getMemorySize();
     long cpu0 = arg0.getVirtualCores();
     long cpu1 = arg1.getVirtualCores();
-    
-    return (mem0 <= mem1 && cpu0 <= cpu1);
+    int gpu0 = arg0.getGPUs();
+    int gpu1 = arg1.getGPUs();
+
+    if(mem0 <= mem1 && cpu0 <= cpu1 && gpu0 <= gpu1) {
+      return true;
+    }
   }
 
   private final Map<Long, RemoteRequestsTable<T>> remoteRequests =
@@ -859,7 +872,6 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
         .addResourceRequest(req.getAllocationRequestId(), priority,
             resourceName, execTypeReq, capability, req, relaxLocality,
             labelExpression);
-
     // Note this down for next interaction with ResourceManager
     addResourceRequestToAsk(resourceRequestInfo.remoteRequest);
 
@@ -867,8 +879,9 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
       LOG.debug("addResourceRequest:" + " applicationId="
           + " priority=" + priority.getPriority()
           + " resourceName=" + resourceName + " numContainers="
-          + resourceRequestInfo.remoteRequest.getNumContainers() 
-          + " #asks=" + ask.size());
+          + resourceRequestInfo.remoteRequest.getNumContainers()
+          + "remoteRequest=" + resourceRequestInfo.remoteRequest
+        + " #asks=" + ask.size() + " capacity=" + capability);
     }
   }
 

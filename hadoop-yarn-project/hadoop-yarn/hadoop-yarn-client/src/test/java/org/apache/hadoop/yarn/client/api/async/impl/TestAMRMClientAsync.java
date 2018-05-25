@@ -49,7 +49,11 @@ import org.apache.hadoop.yarn.api.records.ContainerUpdateType;
 import org.apache.hadoop.yarn.api.records.NMToken;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.Resource;
+<<<<<<< HEAD
 import org.apache.hadoop.yarn.api.records.UpdatedContainer;
+=======
+import org.apache.hadoop.yarn.api.records.PreemptionMessage;
+>>>>>>> d043e33dfd7... check-in gpu port
 import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
@@ -533,6 +537,9 @@ public class TestAMRMClientAsync {
     }
 
     @Override
+    public void onPreemptionMessage(PreemptionMessage message) {}
+
+    @Override
     public void onShutdownRequest() {
       reboot = true;
       synchronized (notifier) {
@@ -578,8 +585,12 @@ public class TestAMRMClientAsync {
     public void onContainersAllocated(List<Container> containers) {}
 
     @Override
+<<<<<<< HEAD
     public void onContainersUpdated(
         List<UpdatedContainer> containers) {}
+=======
+    public void onPreemptionMessage(PreemptionMessage message) {}
+>>>>>>> d043e33dfd7... check-in gpu port
 
     @Override
     public void onShutdownRequest() {}

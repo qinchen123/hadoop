@@ -343,7 +343,7 @@ public class TestApplicationCleanup {
     // alloc another container on nm2
     AllocateResponse allocResponse =
         am0.allocate(Arrays.asList(ResourceRequest.newInstance(
-            Priority.newInstance(1), "*", Resource.newInstance(1024, 0), 1)),
+            Priority.newInstance(1), "*", Resource.newInstance(1024, 0, 0), 1)),
             null);
     while (null == allocResponse.getAllocatedContainers()
         || allocResponse.getAllocatedContainers().isEmpty()) {

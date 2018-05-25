@@ -29,19 +29,8 @@ import org.apache.hadoop.security.AccessControlException;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.AccessControlList;
 import org.apache.hadoop.util.Time;
-import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.Container;
-import org.apache.hadoop.yarn.api.records.ContainerExitStatus;
-import org.apache.hadoop.yarn.api.records.ContainerStatus;
-import org.apache.hadoop.yarn.api.records.ExecutionType;
-import org.apache.hadoop.yarn.api.records.Priority;
-import org.apache.hadoop.yarn.api.records.QueueACL;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.api.records.QueueState;
-import org.apache.hadoop.yarn.api.records.QueueUserACLInfo;
-import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.factories.RecordFactory;
 import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
 import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
@@ -541,13 +530,13 @@ public class LeafQueue extends AbstractCSQueue {
       Resource oldMax = getMaximumAllocation();
       Resource newMax = newlyParsedLeafQueue.getMaximumAllocation();
       if (newMax.getMemorySize() < oldMax.getMemorySize()
-          || newMax.getVirtualCores() < oldMax.getVirtualCores()) {
+          || newMax.getVirtualCores() < oldMax.getVirtualCores()
+          || newMax.getGPUs() < oldMax.getGPUs()) {
         throw new IOException("Trying to reinitialize " + getQueuePath()
             + " the maximum allocation size can not be decreased!"
             + " Current setting: " + oldMax + ", trying to set it to: "
             + newMax);
       }
-
       setupQueueConfigs(clusterResource);
 
       // queue metrics are updated, more resource may be available
@@ -1487,7 +1476,6 @@ public class LeafQueue extends AbstractCSQueue {
       User user = getUser(userName);
 
       currentResourceLimits.setAmountNeededUnreserve(Resources.none());
-
       // Note: We aren't considering the current request since there is a fixed
       // overhead of the AM, but it's a > check, not a >= check, so...
       if (Resources.greaterThan(resourceCalculator, clusterResource,
@@ -1784,7 +1772,6 @@ public class LeafQueue extends AbstractCSQueue {
         nodeLabel, true);
     super.incUsedResource(nodeLabel, resourceToInc, application);
   }
-
   @Override
   public void decUsedResource(String nodeLabel, Resource resourceToDec,
       SchedulerApplicationAttempt application) {

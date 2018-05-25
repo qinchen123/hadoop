@@ -547,7 +547,7 @@ public class TestZKRMStateStore extends RMStateStoreTestBase {
     when(mockAttempt.getRMAppAttemptMetrics())
         .thenReturn(mockRmAppAttemptMetrics);
     when(mockRmAppAttemptMetrics.getAggregateAppResourceUsage())
-        .thenReturn(new AggregateAppResourceUsage(0,0));
+        .thenReturn(new AggregateAppResourceUsage(0,0,0));
     store.storeNewApplicationAttempt(mockAttempt);
     assertEquals("RMStateStore should have been in fenced state",
             true, store.isFencedState());

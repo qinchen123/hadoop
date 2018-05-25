@@ -396,7 +396,7 @@ public class ReservationSystemTestUtil {
     int par = (rand.nextInt(1000) + 1) * gang;
     long dur = rand.nextInt(2 * 3600 * 1000); // random duration within 2h
     ReservationRequest r = ReservationRequest
-        .newInstance(Resource.newInstance(1024, 1), par, gang, dur);
+        .newInstance(Resource.newInstance(1024, 1, 1), par, gang, dur);
     ReservationRequests reqs = new ReservationRequestsPBImpl();
     reqs.setReservationResources(Collections.singletonList(r));
     rand.nextInt(3);
@@ -437,7 +437,6 @@ public class ReservationSystemTestUtil {
             continue;
           }
         }
-
         req.put(new ReservationInterval(rStart, rEnd),
             ReservationSystemUtil.toResource(ReservationRequest
                 .newInstance(Resource.newInstance(1024, 1), alloc[i])));

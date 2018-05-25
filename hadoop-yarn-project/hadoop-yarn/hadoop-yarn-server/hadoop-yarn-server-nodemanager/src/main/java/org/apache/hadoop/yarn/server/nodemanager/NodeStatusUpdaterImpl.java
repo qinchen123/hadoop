@@ -1,20 +1,20 @@
 /**
-* Licensed to the Apache Software Foundation (ASF) under one
-* or more contributor license agreements.  See the NOTICE file
-* distributed with this work for additional information
-* regarding copyright ownership.  The ASF licenses this file
-* to you under the Apache License, Version 2.0 (the
-* "License"); you may not use this file except in compliance
-* with the License.  You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package org.apache.hadoop.yarn.server.nodemanager;
 
@@ -63,6 +63,7 @@ import org.apache.hadoop.yarn.factories.impl.pb.RecordFactoryPBImpl;
 import org.apache.hadoop.yarn.nodelabels.CommonNodeLabelsManager;
 import org.apache.hadoop.yarn.server.api.ResourceManagerConstants;
 import org.apache.hadoop.yarn.server.api.ResourceTracker;
+import org.apache.hadoop.yarn.api.records.ValueRanges;
 import org.apache.hadoop.yarn.server.api.ServerRMProxy;
 import org.apache.hadoop.yarn.server.api.protocolrecords.LogAggregationReport;
 import org.apache.hadoop.yarn.server.api.protocolrecords.NMContainerStatus;
@@ -90,14 +91,17 @@ import org.apache.hadoop.yarn.server.nodemanager.util.NodeManagerHardwareUtils;
 import org.apache.hadoop.yarn.util.resource.Resources;
 import org.apache.hadoop.yarn.util.ResourceCalculatorPlugin;
 import org.apache.hadoop.yarn.util.YarnVersionInfo;
+import org.apache.hadoop.yarn.util.ResourceCalculatorPlugin;
+import org.apache.hadoop.yarn.util.PortsInfo;
+import org.apache.hadoop.yarn.api.records.ValueRange;
 
 import com.google.common.annotations.VisibleForTesting;
 
 public class NodeStatusUpdaterImpl extends AbstractService implements
-    NodeStatusUpdater {
+  NodeStatusUpdater {
 
   public static final String YARN_NODEMANAGER_DURATION_TO_TRACK_STOPPED_CONTAINERS =
-      YarnConfiguration.NM_PREFIX + "duration-to-track-stopped-containers";
+    YarnConfiguration.NM_PREFIX + "duration-to-track-stopped-containers";
 
   private static final Logger LOG =
        LoggerFactory.getLogger(NodeStatusUpdaterImpl.class);
@@ -121,7 +125,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   private long tokenRemovalDelayMs;
   /** Keeps track of when the next keep alive request should be sent for an app*/
   private Map<ApplicationId, Long> appTokenKeepAliveMap =
-      new HashMap<ApplicationId, Long>();
+    new HashMap<ApplicationId, Long>();
   private Random keepAliveDelayRandom = new Random();
   // It will be used to track recently stopped containers on node manager, this
   // is to avoid the misleading no-such-container exception messages on NM, when
@@ -141,12 +145,29 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   private final NodeHealthCheckerService healthChecker;
   private final NodeManagerMetrics metrics;
 
+  private ResourceCalculatorPlugin resourceCalculatorPlugin;
+
   private Runnable statusUpdaterRunnable;
   private Thread  statusUpdater;
   private boolean failedToConnect = false;
+
   private long rmIdentifier = ResourceManagerConstants.RM_INVALID_IDENTIFIER;
   private boolean registeredWithRM = false;
   Set<ContainerId> pendingContainersToRemove = new HashSet<ContainerId>();
+  private boolean enablePortsAsResource;
+  private boolean enablePortsBitSetStore;
+
+  // Exclude the Gpus are being used by un-know program.
+  // Usually, the Gpu memory status is non-zero, but the process of this GPU is empty.
+  private boolean excludeOwnerlessUsingGpus;
+  private int gpuNotReadyMemoryThreshold;
+
+  /**
+   * this parameter is circle controller for updating local allocated ports
+   * info, since the ports info is big. we can control the update frequency to
+   * have balance with cluster scale and ports info's accuracy
+   */
+  private int numOfRoundsToUpdatePorts;
 
   private NMNodeLabelsHandler nodeLabelsHandler;
   private final NodeLabelsProvider nodeLabelsProvider;
@@ -185,7 +206,41 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     LOG.info("Nodemanager resources: memory set to " + memoryMb + "MB.");
     LOG.info("Nodemanager resources: vcores set to " + virtualCores + ".");
 
-    this.totalResource = Resource.newInstance(memoryMb, virtualCores);
+    numOfRoundsToUpdatePorts =
+      conf.getInt(YarnConfiguration.NM_PORTS_UPDATE_ROUNDS,
+        YarnConfiguration.DEFAULT_NM_PORTS_UPDATE_ROUNDS);
+
+    enablePortsAsResource =
+      conf.getBoolean(YarnConfiguration.PORTS_AS_RESOURCE_ENABLE,
+        YarnConfiguration.DEFAULT_PORTS_AS_RESOURCE_ENABLE);
+
+    enablePortsBitSetStore =
+      conf.getBoolean(YarnConfiguration.PORTS_BITSET_STORE_ENABLE,
+        YarnConfiguration.DEFAULT_PORTS_BITSET_STORE_ENABLE);
+
+    excludeOwnerlessUsingGpus =
+      conf.getBoolean(YarnConfiguration.GPU_EXCLUDE_OWNERLESS_GPUS,
+        YarnConfiguration.DEFAULT_GPU_EXCLUDE_OWNERLESS_GPUS);
+
+    gpuNotReadyMemoryThreshold =
+      conf.getInt(YarnConfiguration.GPU_NOT_READY_MEMORY_THRESHOLD,
+        YarnConfiguration.DEFAULT_GPU_NOT_READY_MEMORY_THRESHOLD);
+
+    resourceCalculatorPlugin = ResourceCalculatorPlugin.getResourceCalculatorPlugin(null, null);
+    int GPUs = resourceCalculatorPlugin.getNumGPUs(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+    long GPUAttribute = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+
+    ValueRanges ports = null;
+
+    if (enablePortsAsResource) {
+
+      ports = ValueRanges.iniFromExpression(conf.get(YarnConfiguration.NM_PORTS, YarnConfiguration.DEFAULT_NM_PORTS), enablePortsBitSetStore);
+      ValueRanges usedPorts = ValueRanges.iniFromExpression(resourceCalculatorPlugin.getPortsUsage(), enablePortsBitSetStore);
+      ports = ports.minusSelf(usedPorts);
+    }
+
+    this.totalResource = Resource.newInstance(memoryMb, virtualCores, GPUs, GPUAttribute, ports);
+
     metrics.addResource(totalResource);
 
     // Get actual node physical resources
@@ -202,8 +257,8 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
     this.tokenKeepAliveEnabled = isTokenKeepAliveEnabled(conf);
     this.tokenRemovalDelayMs =
-        conf.getInt(YarnConfiguration.RM_NM_EXPIRY_INTERVAL_MS,
-            YarnConfiguration.DEFAULT_RM_NM_EXPIRY_INTERVAL_MS);
+      conf.getInt(YarnConfiguration.RM_NM_EXPIRY_INTERVAL_MS,
+        YarnConfiguration.DEFAULT_RM_NM_EXPIRY_INTERVAL_MS);
 
     this.minimumResourceManagerVersion = conf.get(
         YarnConfiguration.NM_RESOURCEMANAGER_MINIMUM_VERSION,
@@ -214,12 +269,12 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     // This should not be assigned very large value as it will remember all the
     // containers stopped during that time.
     durationToTrackStoppedContainers =
-        conf.getLong(YARN_NODEMANAGER_DURATION_TO_TRACK_STOPPED_CONTAINERS,
-          600000);
+      conf.getLong(YARN_NODEMANAGER_DURATION_TO_TRACK_STOPPED_CONTAINERS,
+        600000);
     if (durationToTrackStoppedContainers < 0) {
       String message = "Invalid configuration for "
         + YARN_NODEMANAGER_DURATION_TO_TRACK_STOPPED_CONTAINERS + " default "
-          + "value is 10Min(600000).";
+        + "value is 10Min(600000).";
       LOG.error(message);
       throw new YarnException(message);
     }
@@ -228,13 +283,14 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
         + durationToTrackStoppedContainers);
     }
     super.serviceInit(conf);
-    LOG.info("Initialized nodemanager with :" +
-        " physical-memory=" + memoryMb + " virtual-memory=" + virtualMemoryMb +
-        " virtual-cores=" + virtualCores);
-
     this.logAggregationEnabled =
         conf.getBoolean(YarnConfiguration.LOG_AGGREGATION_ENABLED,
           YarnConfiguration.DEFAULT_LOG_AGGREGATION_ENABLED);
+
+    LOG.info("Initialized nodeManager for " + nodeId + ":" +
+      " physical-memory=" + memoryMb + " virtual-memory=" + virtualMemoryMb +
+      " virtual-cores=" + virtualCores + " gpus=" + GPUs + " gpu-attribute=" + GPUAttribute + " ports=" + ports +
+      " excludeOwnerlessUsingGpus=" + excludeOwnerlessUsingGpus + " enablePortsAsResource=" + enablePortsAsResource  + " gpuNotReadyMemoryThreshold=" + gpuNotReadyMemoryThreshold);
   }
 
   @Override
@@ -323,7 +379,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
   @VisibleForTesting
   protected void stopRMProxy() {
-    if(this.resourceTracker != null) {
+    if (this.resourceTracker != null) {
       RPC.stopProxy(this.resourceTracker);
     }
   }
@@ -331,8 +387,8 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   @Private
   protected boolean isTokenKeepAliveEnabled(Configuration conf) {
     return conf.getBoolean(YarnConfiguration.LOG_AGGREGATION_ENABLED,
-        YarnConfiguration.DEFAULT_LOG_AGGREGATION_ENABLED)
-        && UserGroupInformation.isSecurityEnabled();
+      YarnConfiguration.DEFAULT_LOG_AGGREGATION_ENABLED)
+      && UserGroupInformation.isSecurityEnabled();
   }
 
   @VisibleForTesting
@@ -346,7 +402,12 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
       throws YarnException, IOException {
     RegisterNodeManagerResponse regNMResponse;
     Set<NodeLabel> nodeLabels = nodeLabelsHandler.getNodeLabelsForRegistration();
- 
+
+    ValueRanges ports = null;
+    if (enablePortsAsResource) {
+      ports = ValueRanges.iniFromExpression(resourceCalculatorPlugin.getPortsUsage(), enablePortsBitSetStore);
+    }
+
     // Synchronize NM-RM registration with
     // ContainerManagerImpl#increaseContainersResource and
     // ContainerManagerImpl#startContainers to avoid race condition
@@ -356,7 +417,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
       RegisterNodeManagerRequest request =
           RegisterNodeManagerRequest.newInstance(nodeId, httpPort, totalResource,
               nodeManagerVersionId, containerReports, getRunningApplications(),
-              nodeLabels, physicalResource);
+              nodeLabels, physicalResource, ports);
       if (containerReports != null) {
         LOG.info("Registering with RM using containers :" + containerReports);
       }
@@ -369,31 +430,31 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     // if the Resource Manager instructs NM to shutdown.
     if (NodeAction.SHUTDOWN.equals(regNMResponse.getNodeAction())) {
       String message =
-          "Message from ResourceManager: "
-              + regNMResponse.getDiagnosticsMessage();
+        "Message from ResourceManager: "
+          + regNMResponse.getDiagnosticsMessage();
       throw new YarnRuntimeException(
         "Recieved SHUTDOWN signal from Resourcemanager, Registration of NodeManager failed, "
             + message);
     }
 
     // if ResourceManager version is too old then shutdown
-    if (!minimumResourceManagerVersion.equals("NONE")){
-      if (minimumResourceManagerVersion.equals("EqualToNM")){
+    if (!minimumResourceManagerVersion.equals("NONE")) {
+      if (minimumResourceManagerVersion.equals("EqualToNM")) {
         minimumResourceManagerVersion = nodeManagerVersionId;
       }
       String rmVersion = regNMResponse.getRMVersion();
       if (rmVersion == null) {
         String message = "The Resource Manager's did not return a version. "
-            + "Valid version cannot be checked.";
+          + "Valid version cannot be checked.";
         throw new YarnRuntimeException("Shutting down the Node Manager. "
-            + message);
+          + message);
       }
-      if (VersionUtil.compareVersions(rmVersion,minimumResourceManagerVersion) < 0) {
+      if (VersionUtil.compareVersions(rmVersion, minimumResourceManagerVersion) < 0) {
         String message = "The Resource Manager's version ("
-            + rmVersion +") is less than the minimum "
-            + "allowed version " + minimumResourceManagerVersion;
+          + rmVersion + ") is less than the minimum "
+          + "allowed version " + minimumResourceManagerVersion;
         throw new YarnRuntimeException("Shutting down the Node Manager on RM "
-            + "version error, " + message);
+          + "version error, " + message);
       }
     }
     this.registeredWithRM = true;
@@ -405,7 +466,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     if (masterKey != null) {
       this.context.getContainerTokenSecretManager().setMasterKey(masterKey);
     }
-    
+
     masterKey = regNMResponse.getNMTokenMasterKey();
     if (masterKey != null) {
       this.context.getNMTokenSecretManager().setMasterKey(masterKey);
@@ -438,7 +499,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
     List<ApplicationId> appList = new ArrayList<ApplicationId>();
     for (Iterator<Entry<ApplicationId, Long>> i =
-        this.appTokenKeepAliveMap.entrySet().iterator(); i.hasNext();) {
+         this.appTokenKeepAliveMap.entrySet().iterator(); i.hasNext(); ) {
       Entry<ApplicationId, Long> e = i.next();
       ApplicationId appId = e.getKey();
       Long nextKeepAlive = e.getValue();
@@ -464,7 +525,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
       .getLastHealthReportTime());
     if (LOG.isDebugEnabled()) {
       LOG.debug("Node's health-status : " + nodeHealthStatus.getIsNodeHealthy()
-          + ", " + nodeHealthStatus.getHealthReport());
+        + ", " + nodeHealthStatus.getHealthReport());
     }
     List<ContainerStatus> containersStatuses = getContainerStatuses();
     ResourceUtilization containersUtilization = getContainersUtilization();
@@ -541,14 +602,14 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     for (Container container : this.context.getContainers().values()) {
       ContainerId containerId = container.getContainerId();
       ApplicationId applicationId = containerId.getApplicationAttemptId()
-          .getApplicationId();
+        .getApplicationId();
       org.apache.hadoop.yarn.api.records.ContainerStatus containerStatus =
-          container.cloneAndGetContainerStatus();
+        container.cloneAndGetContainerStatus();
       if (containerStatus.getState() == ContainerState.COMPLETE) {
         if (isApplicationStopped(applicationId)) {
           if (LOG.isDebugEnabled()) {
             LOG.debug(applicationId + " is completing, " + " remove "
-                + containerId + " from NM context.");
+              + containerId + " from NM context.");
           }
           context.getContainers().remove(containerId);
           pendingCompletedContainers.put(containerId, containerStatus);
@@ -570,7 +631,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Sending out " + containerStatuses.size()
-          + " container statuses: " + containerStatuses);
+        + " container statuses: " + containerStatuses);
     }
     return containerStatuses;
   }
@@ -584,17 +645,17 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   // These NMContainerStatus are sent on NM registration and used by YARN only.
   private List<NMContainerStatus> getNMContainerStatuses() throws IOException {
     List<NMContainerStatus> containerStatuses =
-        new ArrayList<NMContainerStatus>();
+      new ArrayList<NMContainerStatus>();
     for (Container container : this.context.getContainers().values()) {
       ContainerId containerId = container.getContainerId();
       ApplicationId applicationId = containerId.getApplicationAttemptId()
-          .getApplicationId();
+        .getApplicationId();
       if (!this.context.getApplications().containsKey(applicationId)) {
         context.getContainers().remove(containerId);
         continue;
       }
       NMContainerStatus status =
-          container.getNMContainerStatus();
+        container.getNMContainerStatus();
       containerStatuses.add(status);
       if (status.getContainerState() == ContainerState.COMPLETE) {
         // Adding to finished containers cache. Cache will keep it around at
@@ -614,10 +675,10 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     }
 
     ApplicationState applicationState = this.context.getApplications().get(
-        applicationId).getApplicationState();
+      applicationId).getApplicationState();
     if (applicationState == ApplicationState.FINISHING_CONTAINERS_WAIT
-        || applicationState == ApplicationState.APPLICATION_RESOURCES_CLEANINGUP
-        || applicationState == ApplicationState.FINISHED) {
+      || applicationState == ApplicationState.APPLICATION_RESOURCES_CLEANINGUP
+      || applicationState == ApplicationState.FINISHED) {
       return true;
     } else {
       return false;
@@ -630,7 +691,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
       removeVeryOldStoppedContainersFromCache();
       if (!recentlyStoppedContainers.containsKey(containerId)) {
         recentlyStoppedContainers.put(containerId,
-            System.currentTimeMillis() + durationToTrackStoppedContainers);
+          System.currentTimeMillis() + durationToTrackStoppedContainers);
       }
     }
   }
@@ -638,7 +699,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   @VisibleForTesting
   @Private
   public void removeOrTrackCompletedContainersFromContext(
-      List<ContainerId> containerIds) throws IOException {
+    List<ContainerId> containerIds) throws IOException {
     Set<ContainerId> removedContainers = new HashSet<ContainerId>();
     Set<ContainerId> removedNullContainers = new HashSet<ContainerId>();
 
@@ -661,7 +722,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
     if (!removedContainers.isEmpty()) {
       LOG.info("Removed completed containers from NM context: "
-          + removedContainers);
+        + removedContainers);
     }
     pendingCompletedContainers.clear();
   }
@@ -678,8 +739,8 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     // Next keepAlive request for app between 0.7 & 0.9 of when the token will
     // likely expire.
     long nextTime = System.currentTimeMillis()
-    + (long) (0.7 * tokenRemovalDelayMs + (0.2 * tokenRemovalDelayMs
-        * keepAliveDelayRandom.nextInt(100))/100);
+      + (long) (0.7 * tokenRemovalDelayMs + (0.2 * tokenRemovalDelayMs
+      * keepAliveDelayRandom.nextInt(100)) / 100);
     appTokenKeepAliveMap.put(appId, nextTime);
   }
 
@@ -714,7 +775,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     synchronized (recentlyStoppedContainers) {
       long currentTime = System.currentTimeMillis();
       Iterator<ContainerId> i =
-          recentlyStoppedContainers.keySet().iterator();
+        recentlyStoppedContainers.keySet().iterator();
       while (i.hasNext()) {
         ContainerId cid = i.next();
         if (recentlyStoppedContainers.get(cid) < currentTime) {
@@ -732,16 +793,16 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
       }
     }
   }
-  
+
   @Override
   public long getRMIdentifier() {
     return this.rmIdentifier;
   }
 
   private static Map<ApplicationId, Credentials> parseCredentials(
-      Map<ApplicationId, ByteBuffer> systemCredentials) throws IOException {
+    Map<ApplicationId, ByteBuffer> systemCredentials) throws IOException {
     Map<ApplicationId, Credentials> map =
-        new HashMap<ApplicationId, Credentials>();
+      new HashMap<ApplicationId, Credentials>();
     for (Map.Entry<ApplicationId, ByteBuffer> entry : systemCredentials.entrySet()) {
       Credentials credentials = new Credentials();
       DataInputByteBuffer buf = new DataInputByteBuffer();
@@ -754,7 +815,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     if (LOG.isDebugEnabled()) {
       for (Map.Entry<ApplicationId, Credentials> entry : map.entrySet()) {
         LOG.debug("Retrieved credentials form RM for " + entry.getKey() + ": "
-            + entry.getValue().getAllTokens());
+          + entry.getValue().getAllTokens());
       }
     }
     return map;
@@ -774,6 +835,28 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
             Set<NodeLabel> nodeLabelsForHeartbeat =
                 nodeLabelsHandler.getNodeLabelsForHeartbeat();
             NodeStatus nodeStatus = getNodeStatus(lastHeartbeatID);
+
+            ValueRanges lastUpdatePorts = null;
+            int rounds = 0;
+
+            if (enablePortsAsResource) {
+              if (rounds++ >= numOfRoundsToUpdatePorts) {
+                ValueRanges ports =
+                    new PortsInfo().GetAllocatedPorts(enablePortsBitSetStore);
+                if (lastUpdatePorts == null || !lastUpdatePorts.equals(ports)) {
+                  nodeStatus.setLocalUsedPortsSnapshot(ports);
+                  lastUpdatePorts = ports;
+                }
+                rounds = 0;
+              }
+            }
+
+            int GPUs = resourceCalculatorPlugin.getNumGPUs(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+            long GPUAttribute = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+            totalResource.setGPUAttribute(GPUAttribute);
+            totalResource.setGPUs(GPUs);
+            nodeStatus.setResource(totalResource);
+
             NodeHeartbeatRequest request =
                 NodeHeartbeatRequest.newInstance(nodeStatus,
                     NodeStatusUpdaterImpl.this.context
@@ -794,7 +877,6 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
                 request.setLogAggregationReportsForApps(logAggregationReports);
               }
             }
-
             response = resourceTracker.nodeHeartbeat(request);
             //get next heartbeat interval from response
             nextHeartBeatInterval = response.getNextHeartBeatInterval();
@@ -891,8 +973,8 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
           } finally {
             synchronized (heartbeatMonitor) {
               nextHeartBeatInterval = nextHeartBeatInterval <= 0 ?
-                  YarnConfiguration.DEFAULT_RM_NM_HEARTBEAT_INTERVAL_MS :
-                    nextHeartBeatInterval;
+                YarnConfiguration.DEFAULT_RM_NM_HEARTBEAT_INTERVAL_MS :
+                nextHeartBeatInterval;
               try {
                 heartbeatMonitor.wait(nextHeartBeatInterval);
               } catch (InterruptedException e) {
@@ -955,7 +1037,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
           // Will be non-null only on roll-over on RM side
           context.getContainerTokenSecretManager().setMasterKey(updatedMasterKey);
         }
-        
+
         updatedMasterKey = response.getNMTokenMasterKey();
         if (updatedMasterKey != null) {
           context.getNMTokenSecretManager().setMasterKey(updatedMasterKey);
@@ -963,7 +1045,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
       }
     };
     statusUpdater =
-        new Thread(statusUpdaterRunnable, "Node Status Updater");
+      new Thread(statusUpdaterRunnable, "Node Status Updater");
     statusUpdater.start();
   }
 

@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.ValueRanges;
 
 /**
  * A {@link ResourceCalculator} which uses the concept of  
@@ -36,7 +37,7 @@ import org.apache.hadoop.yarn.api.records.Resource;
  * all entities. 
  * 
  * For example, if user A runs CPU-heavy tasks and user B runs
- * memory-heavy tasks, it attempts to equalize CPU share of user A 
+ * memory-heavy tasks, it attempts to equalize CPU share of user A
  * with Memory-share of user B. 
  * 
  * In the single resource case, it reduces to max-min fairness for that resource.
@@ -89,12 +90,24 @@ public class DominantResourceCalculator extends ResourceCalculator {
         return 1;
       }
     }
+
+    int diff = 0;
+    ValueRanges lPorts = lhs.getPorts();
+    ValueRanges rPorts = rhs.getPorts();
+    if (lPorts == null) {
+      diff = rPorts == null ? 0 : 1;
+    } else if (rPorts == null) {
+      diff = -1;
+    } else {
+      diff = lPorts.compareTo(rPorts);
+    }
     
-    return 0;
+    return diff;
   }
 
+
   /**
-   * Use 'dominant' for now since we only have 2 resources - gives us a slight
+   * Use 'dominant' for now since we only have 3 resources - gives us a slight
    * performance boost.
    * 
    * Once we add more resources, we'll need a more complicated (and slightly
@@ -103,23 +116,39 @@ public class DominantResourceCalculator extends ResourceCalculator {
   protected float getResourceAsValue(
       Resource clusterResource, Resource resource, boolean dominant) {
     // Just use 'dominant' resource
-    return (dominant) ?
-        Math.max(
-            (float)resource.getMemorySize() / clusterResource.getMemorySize(),
-            (float)resource.getVirtualCores() / clusterResource.getVirtualCores()
-            ) 
-        :
-          Math.min(
+      float maxV =  Math.max(
+                (float)resource.getMemorySize() / clusterResource.getMemorySize(),
+                (float)resource.getVirtualCores() / clusterResource.getVirtualCores()
+                );
+      float minV =  Math.min(
               (float)resource.getMemorySize() / clusterResource.getMemorySize(),
               (float)resource.getVirtualCores() / clusterResource.getVirtualCores()
               ); 
+      
+      if(resource.getGPUs() != 0 && clusterResource.getGPUs() != 0) {
+          maxV = Math.max(maxV, (float)resource.getGPUs()/clusterResource.getGPUs());
+          minV = Math.min(minV, (float)resource.getGPUs()/clusterResource.getGPUs());
+      }
+      return (dominant) ? maxV:minV;
   }
-  
+
   @Override
-  public long computeAvailableContainers(Resource available, Resource required) {
-    return Math.min(
-        available.getMemorySize() / required.getMemorySize(),
-        available.getVirtualCores() / required.getVirtualCores());
+  public int computeAvailableContainers(Resource available, Resource required) {
+
+    int num = Integer.MAX_VALUE;
+    if (required.getPorts() != null && required.getPorts().getRangesCount() > 0) {
+      // required ports resource, so we can not allocate more than one container
+      num = 1;
+    }
+    num = Math.min(
+        (int) Math.min(
+            available.getMemorySize() / required.getMemorySize(),
+            available.getVirtualCores() / required.getVirtualCores()), num);
+
+    if (required.getGPUs() != 0) {
+      num = Math.min(num, available.getGPUs() / required.getGPUs());
+    }
+    return num;
   }
 
   @Override
@@ -140,25 +169,29 @@ public class DominantResourceCalculator extends ResourceCalculator {
 
   @Override
   public float ratio(Resource a, Resource b) {
-    return Math.max(
+      float rate = Math.max(
         (float)a.getMemorySize()/b.getMemorySize(),
         (float)a.getVirtualCores()/b.getVirtualCores()
         );
+       if(b.getGPUs() != 0) {
+           rate = Math.max(rate, (float)a.getGPUs() /b.getGPUs());
+       }
+       return rate;
   }
 
   @Override
   public Resource divideAndCeil(Resource numerator, int denominator) {
-    return Resources.createResource(
-        divideAndCeil(numerator.getMemorySize(), denominator),
-        divideAndCeil(numerator.getVirtualCores(), denominator)
-        );
+    return divideAndCeil(numerator, (float)denominator);
   }
 
   @Override
   public Resource divideAndCeil(Resource numerator, float denominator) {
     return Resources.createResource(
         divideAndCeil(numerator.getMemorySize(), denominator),
-        divideAndCeil(numerator.getVirtualCores(), denominator)
+        divideAndCeil(numerator.getVirtualCores(), denominator),
+        divideAndCeil(numerator.getGPUs(), denominator),
+        numerator.getGPUAttribute(),
+        numerator.getPorts()
         );
   }
 
@@ -194,15 +227,23 @@ public class DominantResourceCalculator extends ResourceCalculator {
         Math.max(r.getVirtualCores(), minimumResource.getVirtualCores()),
         stepFactor.getVirtualCores()),
       maximumResource.getVirtualCores());
+    int normalizedGPUs = Math.min(
+      roundUp(
+        Math.max(r.getGPUs(), minimumResource.getGPUs()),
+        stepFactor.getGPUs()),
+      maximumResource.getGPUs());
+
     return Resources.createResource(normalizedMemory,
-      normalizedCores);
+      normalizedCores, normalizedGPUs, r.getGPUAttribute(), r.getPorts());
   }
 
   @Override
   public Resource roundUp(Resource r, Resource stepFactor) {
     return Resources.createResource(
         roundUp(r.getMemorySize(), stepFactor.getMemorySize()),
-        roundUp(r.getVirtualCores(), stepFactor.getVirtualCores())
+        roundUp(r.getVirtualCores(), stepFactor.getVirtualCores()),
+        roundUp(r.getGPUs(), stepFactor.getGPUs()),
+        r.getGPUAttribute(), r.getPorts()
         );
   }
 
@@ -210,7 +251,9 @@ public class DominantResourceCalculator extends ResourceCalculator {
   public Resource roundDown(Resource r, Resource stepFactor) {
     return Resources.createResource(
         roundDown(r.getMemorySize(), stepFactor.getMemorySize()),
-        roundDown(r.getVirtualCores(), stepFactor.getVirtualCores())
+        roundDown(r.getVirtualCores(), stepFactor.getVirtualCores()),
+        roundDown(r.getGPUs(), stepFactor.getGPUs()),
+        r.getGPUAttribute(), r.getPorts()
         );
   }
 
@@ -221,7 +264,13 @@ public class DominantResourceCalculator extends ResourceCalculator {
         roundUp((long) Math.ceil((float) (r.getMemorySize() * by)),
             stepFactor.getMemorySize()),
         roundUp((int) Math.ceil((float) (r.getVirtualCores() * by)),
-            stepFactor.getVirtualCores()));
+            stepFactor.getVirtualCores()),
+        roundUp(
+            (int)Math.ceil(r.getGPUs() * by),
+            stepFactor.getGPUs()),
+        r.getGPUAttribute(),
+        r.getPorts()
+        );
   }
 
   @Override
@@ -230,14 +279,33 @@ public class DominantResourceCalculator extends ResourceCalculator {
     return Resources.createResource(
         roundDown((long) (r.getMemorySize() * by), stepFactor.getMemorySize()),
         roundDown((int) (r.getVirtualCores() * by),
-            stepFactor.getVirtualCores()));
+            stepFactor.getVirtualCores()),
+        roundDown(
+            (int)(r.getGPUs() * by),
+            stepFactor.getGPUs()
+            ),
+        r.getGPUAttribute(),
+        r.getPorts()
+        );
   }
 
   @Override
   public boolean fitsIn(Resource cluster,
       Resource smaller, Resource bigger) {
-    return smaller.getMemorySize() <= bigger.getMemorySize()
-        && smaller.getVirtualCores() <= bigger.getVirtualCores();
+    boolean fitsIn = smaller.getMemorySize() <= bigger.getMemorySize() &&
+        smaller.getVirtualCores() <= bigger.getVirtualCores() &&
+        smaller.getGPUs() <= bigger.getGPUs();
+    if (fitsIn) {
+      if((smaller.getGPUAttribute() & bigger.getGPUAttribute()) != smaller.getGPUAttribute()) {
+        fitsIn = false;
+      }
+      if (fitsIn) {
+        if (smaller.getPorts() != null && !(smaller.getPorts().isLessOrEqual(bigger.getPorts()))) {
+          fitsIn = false;
+        }
+      }
+    }
+    return fitsIn;
   }
 
   @Override

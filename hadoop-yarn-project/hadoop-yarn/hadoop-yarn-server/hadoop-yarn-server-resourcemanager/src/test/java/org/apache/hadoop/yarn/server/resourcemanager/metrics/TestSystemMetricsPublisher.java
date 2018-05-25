@@ -233,6 +233,10 @@ public class TestSystemMetricsPublisher {
             Long.parseLong(entity.getOtherInfo()
                 .get(ApplicationMetricsConstants.APP_CPU_PREEMPT_METRICS)
                 .toString()));
+        Assert.assertEquals(
+            app.getRMAppMetrics().getGPUSeconds(),
+            Long.parseLong(entity.getOtherInfo()
+                .get(ApplicationMetricsConstants.APP_GPU_METRICS).toString()));
       }
       Assert.assertEquals("context", entity.getOtherInfo()
           .get(ApplicationMetricsConstants.YARN_APP_CALLER_CONTEXT));
@@ -458,6 +462,10 @@ public class TestSystemMetricsPublisher {
         entity.getOtherInfo().get(
             ContainerMetricsConstants.ALLOCATED_VCORE_INFO));
     Assert.assertEquals(
+        container.getAllocatedResource().getGPUs(),
+        entity.getOtherInfo().get(
+            ContainerMetricsConstants.ALLOCATED_GPU_ENTITY_INFO));
+    Assert.assertEquals(
         container.getAllocatedPriority().getPriority(),
         entity.getOtherInfo().get(
             ContainerMetricsConstants.ALLOCATED_PRIORITY_INFO));
@@ -559,7 +567,7 @@ public class TestSystemMetricsPublisher {
     when(container.getAllocatedNode()).thenReturn(
         NodeId.newInstance("test host", -100));
     when(container.getAllocatedResource()).thenReturn(
-        Resource.newInstance(-1, -1));
+        Resource.newInstance(-1, -1, -1));
     when(container.getAllocatedPriority()).thenReturn(Priority.UNDEFINED);
     when(container.getCreationTime()).thenReturn(Integer.MAX_VALUE + 1L);
     when(container.getFinishTime()).thenReturn(Integer.MAX_VALUE + 2L);

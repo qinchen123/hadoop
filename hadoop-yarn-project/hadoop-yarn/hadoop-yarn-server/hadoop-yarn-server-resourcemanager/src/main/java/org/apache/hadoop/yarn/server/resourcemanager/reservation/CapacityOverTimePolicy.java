@@ -272,20 +272,30 @@ public class CapacityOverTimePolicy extends NoOverCommitPolicy {
   private static class IntegralResource {
     long memory;
     long vcores;
+    long gpus;
 
     public IntegralResource(Resource resource) {
       this.memory = resource.getMemorySize();
       this.vcores = resource.getVirtualCores();
+      this.gpus = resource.getGPUs();
     }
 
     public IntegralResource(long mem, long vcores) {
       this.memory = mem;
       this.vcores = vcores;
+      this.gpus = 0;
+    }
+
+    public IntegralResource(long mem, long vcores, long GPUs) {
+      this.memory = mem;
+      this.vcores = vcores;
+      this.gpus = GPUs;
     }
 
     public void add(Resource r) {
       memory += r.getMemorySize();
       vcores += r.getVirtualCores();
+      gpus += r.getGPUs();
     }
 
     public void add(IntegralResource r) {
@@ -296,6 +306,7 @@ public class CapacityOverTimePolicy extends NoOverCommitPolicy {
     public void subtract(Resource r) {
       memory -= r.getMemorySize();
       vcores -= r.getVirtualCores();
+      gpus -= r.getGPUs();
     }
 
     public IntegralResource negate() {
@@ -305,19 +316,23 @@ public class CapacityOverTimePolicy extends NoOverCommitPolicy {
     public void multiplyBy(long window) {
       memory = memory * window;
       vcores = vcores * window;
+      gpus = gpus * window;
     }
 
     public long compareTo(IntegralResource other) {
       long diff = memory - other.memory;
       if (diff == 0) {
         diff = vcores - other.vcores;
+        if (diff == 0) {
+          diff = gpus - other.gpus;
+        }
       }
       return diff;
     }
 
     @Override
     public String toString() {
-      return "<memory:" + memory + ", vCores:" + vcores + ">";
+      return "<memory:" + memory + ", vCores:" + vcores + ", GPUs:" + gpus + ">";
     }
 
   }

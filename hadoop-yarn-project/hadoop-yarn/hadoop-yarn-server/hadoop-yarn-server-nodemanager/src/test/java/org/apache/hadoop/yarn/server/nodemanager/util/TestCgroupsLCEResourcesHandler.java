@@ -297,6 +297,7 @@ public class TestCgroupsLCEResourcesHandler {
 
     // check the controller paths map isn't empty
     ContainerId id = ContainerId.fromString("container_1_1_1_1");
+
     handler.preExecute(id, Resource.newInstance(1024, 1));
     Assert.assertNotNull(handler.getControllerPaths());
     // check values
@@ -316,7 +317,7 @@ public class TestCgroupsLCEResourcesHandler {
         true);
     handler.initConfig();
     handler.preExecute(id,
-        Resource.newInstance(1024, YarnConfiguration.DEFAULT_NM_VCORES));
+        Resource.newInstance(1024, YarnConfiguration.DEFAULT_NM_VCORES, YarnConfiguration.DEFAULT_NM_GPUS));
     Assert.assertTrue(containerCpuDir.exists());
     Assert.assertTrue(containerCpuDir.isDirectory());
     periodFile = new File(containerCpuDir, "cpu.cfs_period_us");
@@ -331,7 +332,7 @@ public class TestCgroupsLCEResourcesHandler {
         true);
     handler.initConfig();
     handler.preExecute(id,
-        Resource.newInstance(1024, YarnConfiguration.DEFAULT_NM_VCORES / 2));
+        Resource.newInstance(1024, YarnConfiguration.DEFAULT_NM_VCORES / 2, YarnConfiguration.DEFAULT_NM_GPUS / 2));
     Assert.assertTrue(containerCpuDir.exists());
     Assert.assertTrue(containerCpuDir.isDirectory());
     periodFile = new File(containerCpuDir, "cpu.cfs_period_us");
@@ -351,7 +352,7 @@ public class TestCgroupsLCEResourcesHandler {
     handler.initConfig();
     handler.init(mockLCE, plugin);
     handler.preExecute(id,
-        Resource.newInstance(1024, YarnConfiguration.DEFAULT_NM_VCORES / 2));
+        Resource.newInstance(1024, YarnConfiguration.DEFAULT_NM_VCORES / 2, YarnConfiguration.DEFAULT_NM_GPUS / 2));
     Assert.assertTrue(containerCpuDir.exists());
     Assert.assertTrue(containerCpuDir.isDirectory());
     periodFile = new File(containerCpuDir, "cpu.cfs_period_us");

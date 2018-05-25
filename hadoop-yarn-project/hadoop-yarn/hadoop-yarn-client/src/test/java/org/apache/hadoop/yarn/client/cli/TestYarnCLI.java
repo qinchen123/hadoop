@@ -120,7 +120,11 @@ public class TestYarnCLI {
       ApplicationId applicationId = ApplicationId.newInstance(1234, 5);
       ApplicationResourceUsageReport usageReport = i == 0 ? null :
           ApplicationResourceUsageReport.newInstance(
+<<<<<<< HEAD
               2, 0, null, null, null, 123456, 4567, 0, 0, 1111, 2222);
+=======
+              2, 0, null, null, null, 123456, 4567, 4567);
+>>>>>>> d043e33dfd7... check-in gpu port
       ApplicationReport newApplicationReport = ApplicationReport.newInstance(
           applicationId, ApplicationAttemptId.newInstance(applicationId, 1),
           "user", "queue", "appname", "host", 124, null,
@@ -157,10 +161,14 @@ public class TestYarnCLI {
       pw.println("\tRPC Port : 124");
       pw.println("\tAM Host : host");
       pw.println("\tAggregate Resource Allocation : " +
+<<<<<<< HEAD
           (i == 0 ? "N/A" : "123456 MB-seconds, 4567 vcore-seconds"));
       pw.println("\tAggregate Resource Preempted : " +
           (i == 0 ? "N/A" : "1111 MB-seconds, 2222 vcore-seconds"));
       pw.println("\tLog Aggregation Status : SUCCEEDED");
+=======
+          (i == 0 ? "N/A" : "123456 MB-seconds, 4567 vcore-seconds, 4567 GPU-seconds"));
+>>>>>>> d043e33dfd7... check-in gpu port
       pw.println("\tDiagnostics : diagnostics");
       pw.println("\tUnmanaged Application : false");
       pw.println("\tApplication Node Label Expression : high-mem");
@@ -1554,6 +1562,8 @@ public class TestYarnCLI {
     pw.println("\tMemory-Capacity : 0MB");
     pw.println("\tCPU-Used : 0 vcores");
     pw.println("\tCPU-Capacity : 0 vcores");
+    pw.println("\tGPU-Used : 0 GPUs");
+    pw.println("\tGPU-Capacity : 0 GPUs");
     pw.println("\tNode-Labels : a,b,c,x,y,z");
     pw.println("\tResource Utilization by Node : PMem:2048 MB, VMem:4096 MB, VCores:8.0");
     pw.println("\tResource Utilization by Containers : PMem:1024 MB, VMem:2048 MB, VCores:4.0");
@@ -1590,6 +1600,8 @@ public class TestYarnCLI {
     pw.println("\tMemory-Capacity : 0MB");
     pw.println("\tCPU-Used : 0 vcores");
     pw.println("\tCPU-Capacity : 0 vcores");
+    pw.println("\tGPU-Used : 0 GPUs");
+    pw.println("\tGPU-Capacity : 0 GPUs");
     pw.println("\tNode-Labels : ");
     pw.println("\tResource Utilization by Node : PMem:2048 MB, VMem:4096 MB, VCores:8.0");
     pw.println("\tResource Utilization by Containers : PMem:1024 MB, VMem:2048 MB, VCores:4.0");

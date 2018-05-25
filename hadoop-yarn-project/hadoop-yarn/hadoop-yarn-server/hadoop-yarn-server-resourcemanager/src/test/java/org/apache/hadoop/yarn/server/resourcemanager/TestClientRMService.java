@@ -355,6 +355,7 @@ public class TestClientRMService {
         // when a null application id is provided
         Assert.assertTrue(e instanceof ApplicationNotFoundException);
       }
+      Assert.assertEquals(3, usageReport.getGPUSeconds());
     } finally {
       rmService.close();
     }
@@ -1089,8 +1090,9 @@ public class TestClientRMService {
 
   private RMAppImpl getRMApp(RMContext rmContext, YarnScheduler yarnScheduler,
       ApplicationId applicationId3, YarnConfiguration config, String queueName,
-      final long memorySeconds, final long vcoreSeconds,
+      final long memorySeconds, final long vcoreSeconds, final long gpuSeconds
       String appNodeLabelExpression, String amNodeLabelExpression) {
+
     ApplicationSubmissionContext asContext = mock(ApplicationSubmissionContext.class);
     when(asContext.getMaxAppAttempts()).thenReturn(1);
     when(asContext.getNodeLabelExpression()).thenReturn(appNodeLabelExpression);
@@ -1111,6 +1113,7 @@ public class TestClientRMService {
                         report.getApplicationResourceUsageReport();
                     usageReport.setMemorySeconds(memorySeconds);
                     usageReport.setVcoreSeconds(vcoreSeconds);
+                    usageReport.setGPUSeconds(gpuSeconds);
                     report.setApplicationResourceUsageReport(usageReport);
                     return report;
                   }
@@ -1187,7 +1190,7 @@ public class TestClientRMService {
     MockRM rm = new MockRM(conf);
     rm.start();
     try {
-      rm.registerNode("127.0.0.1:1", 102400, 100);
+      rm.registerNode("127.0.0.1:1", 102400, 100, 32);
       // allow plan follower to synchronize
       Thread.sleep(1050);
     } catch (Exception e) {

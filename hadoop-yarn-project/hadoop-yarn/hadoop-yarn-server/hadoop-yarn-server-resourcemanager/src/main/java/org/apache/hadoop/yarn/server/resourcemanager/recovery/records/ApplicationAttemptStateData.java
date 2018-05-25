@@ -40,7 +40,7 @@ public abstract class ApplicationAttemptStateData {
       Credentials attemptTokens, long startTime, RMAppAttemptState finalState,
       String finalTrackingUrl, String diagnostics,
       FinalApplicationStatus amUnregisteredFinalStatus, int exitStatus,
-      long finishTime, long memorySeconds, long vcoreSeconds,
+      long finishTime, long memorySeconds, long vcoreSeconds, long gpuSeconds,
       long preemptedMemorySeconds, long preemptedVcoreSeconds) {
     ApplicationAttemptStateData attemptStateData =
         Records.newRecord(ApplicationAttemptStateData.class);
@@ -58,20 +58,20 @@ public abstract class ApplicationAttemptStateData {
     attemptStateData.setVcoreSeconds(vcoreSeconds);
     attemptStateData.setPreemptedMemorySeconds(preemptedMemorySeconds);
     attemptStateData.setPreemptedVcoreSeconds(preemptedVcoreSeconds);
+    attemptStateData.setGPUSeconds(gpuSeconds);
     return attemptStateData;
   }
 
   public static ApplicationAttemptStateData newInstance(
       ApplicationAttemptId attemptId, Container masterContainer,
       Credentials attemptTokens, long startTime, long memorySeconds,
-      long vcoreSeconds, long preemptedMemorySeconds,
+      long vcoreSeconds, long gpuSeconds, long preemptedMemorySeconds,
       long preemptedVcoreSeconds) {
     return newInstance(attemptId, masterContainer, attemptTokens,
         startTime, null, "N/A", "", null, ContainerExitStatus.INVALID, 0,
-        memorySeconds, vcoreSeconds,
+        memorySeconds, vcoreSeconds, gpuSeconds,
         preemptedMemorySeconds, preemptedVcoreSeconds);
     }
-
 
   public abstract ApplicationAttemptStateDataProto getProto();
 
@@ -189,6 +189,18 @@ public abstract class ApplicationAttemptStateData {
   public abstract void setVcoreSeconds(long vcoreSeconds);
 
   /**
+   * Get the <em>GPU seconds</em> of the application.
+   * @return <em>GPU seconds</em> of the application
+   */
+  @Public
+  @Unstable
+  public abstract long getGPUSeconds();
+
+  @Public
+  @Unstable
+  public abstract void setGPUSeconds(long gpuSeconds);
+
+  /**
    * Get the <em>preempted memory seconds</em>
    * (in MB seconds) of the application.
    * @return <em>preempted memory seconds</em>
@@ -215,4 +227,19 @@ public abstract class ApplicationAttemptStateData {
   @Public
   @Unstable
   public abstract void setPreemptedVcoreSeconds(long vcoreSeconds);
+
+  /**
+   * Get the <em>preempted GPU seconds</em>
+   * of the application.
+   * @return <em>preempted GPU seconds</em>
+   * of the application
+   */
+  @Public
+  @Unstable
+  public abstract long getPreemptedGPUSeconds();
+
+  @Public
+  @Unstable
+  public abstract void setPreemptedGPUSeconds(long gpuSeconds);
+
 }

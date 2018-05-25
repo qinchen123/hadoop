@@ -109,6 +109,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
   protected long lastMemoryAggregateAllocationUpdateTime = 0;
   private long lastMemorySeconds = 0;
   private long lastVcoreSeconds = 0;
+  private long lastGPUSeconds = 0;
 
   protected final AppSchedulingInfo appSchedulingInfo;
   protected ApplicationAttemptId attemptId;
@@ -121,6 +122,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
       ConcurrentHashMultiset.create();
   
   private volatile Resource resourceLimit = Resource.newInstance(0, 0);
+
   private boolean unmanagedAM = true;
   private boolean amRunning = false;
   private LogAggregationContext logAggregationContext;
@@ -622,7 +624,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
               ps.getOutstandingAsksCount(ResourceRequest.ANY) > 0) {
             LOG.debug("showRequests:" + " application=" + getApplicationId()
                 + " headRoom=" + getHeadroom() + " currentConsumption="
-                + attemptResourceUsage.getUsed().getMemorySize());
+                + attemptResourceUsage.getUsed());
             ps.showRequests();
           }
         }
@@ -1004,20 +1006,24 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
         > MEM_AGGREGATE_ALLOCATION_CACHE_MSECS) {
       long memorySeconds = 0;
       long vcoreSeconds = 0;
+      long gpuSeconds = 0;
       for (RMContainer rmContainer : this.liveContainers.values()) {
         long usedMillis = currentTimeMillis - rmContainer.getCreationTime();
         Resource resource = rmContainer.getContainer().getResource();
         memorySeconds += resource.getMemorySize() * usedMillis /
             DateUtils.MILLIS_PER_SECOND;
-        vcoreSeconds += resource.getVirtualCores() * usedMillis  
-            / DateUtils.MILLIS_PER_SECOND;
+        vcoreSeconds += resource.getVirtualCores() * usedMillis /
+            DateUtils.MILLIS_PER_SECOND;
+        gpuSeconds += resource.getGPUs() * usedMillis /
+            DateUtils.MILLIS_PER_SECOND;
       }
 
       lastMemoryAggregateAllocationUpdateTime = currentTimeMillis;
       lastMemorySeconds = memorySeconds;
       lastVcoreSeconds = vcoreSeconds;
+      lastGPUSeconds = gpuSeconds;
     }
-    return new AggregateAppResourceUsage(lastMemorySeconds, lastVcoreSeconds);
+    return new AggregateAppResourceUsage(lastMemorySeconds, lastVcoreSeconds, lastGPUSeconds);
   }
 
   public ApplicationResourceUsageReport getResourceUsageReport() {
@@ -1048,7 +1054,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
           reservedContainers.size(), usedResourceClone, reservedResourceClone,
           Resources.add(usedResourceClone, reservedResourceClone),
           runningResourceUsage.getMemorySeconds(),
-          runningResourceUsage.getVcoreSeconds(), queueUsagePerc,
+          runningResourceUsage.getVcoreSeconds(),  runningResourceUsage.getGPUSeconds(), queueUsagePerc,
           clusterUsagePerc, 0, 0);
     } finally {
       writeLock.unlock();

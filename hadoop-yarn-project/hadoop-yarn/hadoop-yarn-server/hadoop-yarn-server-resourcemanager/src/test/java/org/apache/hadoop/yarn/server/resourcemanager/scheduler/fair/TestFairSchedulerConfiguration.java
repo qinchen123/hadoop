@@ -81,6 +81,7 @@ public class TestFairSchedulerConfiguration {
     assertEquals(BuilderUtils.newResource((int)(1024 * 10 * 0.109), 2),
         parseResourceConfigValue("10.9% memory, 50.6% cpu").
             getResource(clusterResource));
+
   }
   
   @Test(expected = AllocationConfigurationException.class)

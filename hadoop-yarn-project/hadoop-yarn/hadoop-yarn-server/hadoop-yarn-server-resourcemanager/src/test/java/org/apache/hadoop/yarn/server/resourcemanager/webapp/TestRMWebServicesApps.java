@@ -1504,11 +1504,13 @@ public class TestRMWebServicesApps extends JerseyTestBase {
           WebServicesTestUtils.getXmlString(element, "amContainerLogs"),
           WebServicesTestUtils.getXmlInt(element, "allocatedMB"),
           WebServicesTestUtils.getXmlInt(element, "allocatedVCores"),
+          WebServicesTestUtils.getXmlInt(element, "allocatedGPUs"),
           WebServicesTestUtils.getXmlInt(element, "runningContainers"),
           WebServicesTestUtils.getXmlFloat(element, "queueUsagePercentage"),
           WebServicesTestUtils.getXmlFloat(element, "clusterUsagePercentage"),
           WebServicesTestUtils.getXmlInt(element, "preemptedResourceMB"),
           WebServicesTestUtils.getXmlInt(element, "preemptedResourceVCores"),
+          WebServicesTestUtils.getXmlInt(element, "preemptedResourceGPUs"),
           WebServicesTestUtils.getXmlInt(element, "numNonAMContainerPreempted"),
           WebServicesTestUtils.getXmlInt(element, "numAMContainerPreempted"),
           WebServicesTestUtils.getXmlString(element, "logAggregationStatus"),
@@ -1572,18 +1574,16 @@ public class TestRMWebServicesApps extends JerseyTestBase {
         info.length());
     verifyAppInfoGeneric(app, info.getString("id"), info.getString("user"),
         info.getString("name"), info.getString("applicationType"),
-        info.getString("queue"), info.getInt("priority"),
-        info.getString("state"), info.getString("finalStatus"),
-        (float) info.getDouble("progress"), info.getString("trackingUI"),
-        info.getString("diagnostics"), info.getLong("clusterId"),
-        info.getLong("startedTime"), info.getLong("finishedTime"),
-        info.getLong("elapsedTime"), info.getString("amHostHttpAddress"),
-        info.getString("amContainerLogs"), info.getInt("allocatedMB"),
-        info.getInt("allocatedVCores"), info.getInt("runningContainers"),
-        (float) info.getDouble("queueUsagePercentage"),
-        (float) info.getDouble("clusterUsagePercentage"),
+        info.getString("queue"), info.getString("state"),
+        info.getString("finalStatus"), (float) info.getDouble("progress"),
+        info.getString("trackingUI"), info.getString("diagnostics"),
+        info.getLong("clusterId"), info.getLong("startedTime"),
+        info.getLong("finishedTime"), info.getLong("elapsedTime"),
+        info.getString("amHostHttpAddress"), info.getString("amContainerLogs"),
+        info.getInt("allocatedMB"), info.getInt("allocatedVCores"), info.getInt("allocatedGPUs"),
+        info.getInt("runningContainers"), 
         info.getInt("preemptedResourceMB"),
-        info.getInt("preemptedResourceVCores"),
+        info.getInt("preemptedResourceVCores"), info.getInt("preemptedResourceGPUs"),
         info.getInt("numNonAMContainerPreempted"),
         info.getInt("numAMContainerPreempted"),
         info.getString("logAggregationStatus"),
@@ -1602,13 +1602,14 @@ public class TestRMWebServicesApps extends JerseyTestBase {
       String state, String finalStatus, float progress, String trackingUI,
       String diagnostics, long clusterId, long startedTime, long finishedTime,
       long elapsedTime, String amHostHttpAddress, String amContainerLogs,
-      int allocatedMB, int allocatedVCores, int numContainers,
+      int allocatedMB, int allocatedVCores, int allocatedGPUs, int numContainers,
       float queueUsagePerc, float clusterUsagePerc,
-      int preemptedResourceMB, int preemptedResourceVCores,
+      int preemptedResourceMB, int preemptedResourceVCores, int preemptedResourceGPUs,
       int numNonAMContainerPreempted, int numAMContainerPreempted,
       String logAggregationStatus, boolean unmanagedApplication,
       String appNodeLabelExpression, String amNodeLabelExpression,
       String amRPCAddress) throws JSONException, Exception {
+
 
     WebServicesTestUtils.checkStringMatch("id", app.getApplicationId()
         .toString(), id);
@@ -1644,8 +1645,10 @@ public class TestRMWebServicesApps extends JerseyTestBase {
         amContainerLogs.endsWith("/" + app.getUser()));
     assertEquals("allocatedMB doesn't match", 1024, allocatedMB);
     assertEquals("allocatedVCores doesn't match", 1, allocatedVCores);
+
     assertEquals("queueUsagePerc doesn't match", 50.0f, queueUsagePerc, 0.01f);
     assertEquals("clusterUsagePerc doesn't match", 50.0f, clusterUsagePerc, 0.01f);
+    assertEquals("allocatedGPUs doesn't match", 1, allocatedGPUs);
     assertEquals("numContainers doesn't match", 1, numContainers);
     assertEquals("preemptedResourceMB doesn't match", app
         .getRMAppMetrics().getResourcePreempted().getMemorySize(),
@@ -1653,6 +1656,9 @@ public class TestRMWebServicesApps extends JerseyTestBase {
     assertEquals("preemptedResourceVCores doesn't match", app
         .getRMAppMetrics().getResourcePreempted().getVirtualCores(),
         preemptedResourceVCores);
+    assertEquals("preemptedResourceGPUs doesn't match", app
+        .getRMAppMetrics().getResourcePreempted().getGPUs(),
+        preemptedResourceGPUs);
     assertEquals("numNonAMContainerPreempted doesn't match", app
         .getRMAppMetrics().getNumNonAMContainersPreempted(),
         numNonAMContainerPreempted);

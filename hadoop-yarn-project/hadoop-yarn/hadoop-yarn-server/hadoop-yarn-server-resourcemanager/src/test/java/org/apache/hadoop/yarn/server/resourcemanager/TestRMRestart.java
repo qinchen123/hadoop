@@ -23,6 +23,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -1018,10 +1019,11 @@ public class TestRMRestart extends ParameterizedSchedulerTestBase {
     List<ApplicationReport> appList2 = response2.getApplicationList();
     Assert.assertTrue(3 == appList2.size());
 
-    // check application summary is logged for the completed apps with timeout
-    // to make sure APP_COMPLETED events are processed, after RM restart.
-    verify(rm2.getRMAppManager(), timeout(1000).times(3)).
-        logApplicationSummary(isA(ApplicationId.class));
+    // check application summary is logged for the completed apps after RM restart.
+    // WENCONG: fix a test failure
+    // Detail: https://issues.apache.org/jira/browse/YARN-2871
+    verify(rm2.getRMAppManager(), timeout(1000).times(3)).logApplicationSummary(
+      isA(ApplicationId.class));
   }
 
   private MockAM launchAM(RMApp app, MockRM rm, MockNM nm)
@@ -2112,7 +2114,7 @@ public class TestRMRestart extends ParameterizedSchedulerTestBase {
     ContainerId containerId = ContainerId.newContainerId(appAttemptId, id);
     NMContainerStatus containerReport =
         NMContainerStatus.newInstance(containerId, 0, containerState,
-            Resource.newInstance(1024, 1), "recover container", 0,
+            Resource.newInstance(1024, 1, 1), "recover container", 0,
             Priority.newInstance(0), 0, nodeLabelExpression,
             ExecutionType.GUARANTEED);
     return containerReport;

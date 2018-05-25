@@ -36,8 +36,9 @@ public abstract class ApplicationResourceUsageReport {
   public static ApplicationResourceUsageReport newInstance(
       int numUsedContainers, int numReservedContainers, Resource usedResources,
       Resource reservedResources, Resource neededResources, long memorySeconds,
-      long vcoreSeconds, float queueUsagePerc, float clusterUsagePerc,
+      long vcoreSeconds, long GPUSeconds, float queueUsagePerc, float clusterUsagePerc,
       long preemptedMemorySeconds, long preemptedVcoresSeconds) {
+
     ApplicationResourceUsageReport report =
         Records.newRecord(ApplicationResourceUsageReport.class);
     report.setNumUsedContainers(numUsedContainers);
@@ -47,6 +48,7 @@ public abstract class ApplicationResourceUsageReport {
     report.setNeededResources(neededResources);
     report.setMemorySeconds(memorySeconds);
     report.setVcoreSeconds(vcoreSeconds);
+    report.setGPUSeconds(GPUSeconds);
     report.setQueueUsagePercentage(queueUsagePerc);
     report.setClusterUsagePercentage(clusterUsagePerc);
     report.setPreemptedMemorySeconds(preemptedMemorySeconds);
@@ -229,4 +231,22 @@ public abstract class ApplicationResourceUsageReport {
   @Public
   @Unstable
   public abstract long getPreemptedVcoreSeconds();
+
+  /**
+   * Set the aggregated number of GPUs that the application has allocated
+   * times the number of seconds the application has been running.
+   * @param GPUSeconds the aggregated number of GPU seconds
+   */
+  @Private
+  @Unstable
+  public abstract void setGPUSeconds(long gpuSeconds);
+
+  /**
+   * Get the aggregated number of GPUs that the application has allocated
+   * times the number of seconds the application has been running.
+   * @return the aggregated number of GPU seconds
+   */
+  @Public
+  @Unstable
+  public abstract long getGPUSeconds();
 }

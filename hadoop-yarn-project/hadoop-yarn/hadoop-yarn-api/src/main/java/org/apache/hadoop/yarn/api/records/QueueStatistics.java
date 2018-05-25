@@ -33,6 +33,20 @@ public abstract class QueueStatistics {
       long availableMemoryMB, long allocatedMemoryMB, long pendingMemoryMB,
       long reservedMemoryMB, long availableVCores, long allocatedVCores,
       long pendingVCores, long reservedVCores) {
+
+    return newInstance(submitted, running, pending, completed, killed, failed, activeUsers,
+        availableMemoryMB, allocatedMemoryMB, pendingMemoryMB, reservedMemoryMB,
+        availableVCores, allocatedVCores, pendingVCores, reservedVCores, 0, 0, 0, 0);
+  }
+
+  @InterfaceAudience.Private
+  @InterfaceStability.Unstable
+  public static QueueStatistics newInstance(long submitted, long running,
+      long pending, long completed, long killed, long failed, long activeUsers,
+      long availableMemoryMB, long allocatedMemoryMB, long pendingMemoryMB,
+      long reservedMemoryMB, long availableVCores, long allocatedVCores,
+      long pendingVCores, long reservedVCores, int availableGPUs, int allocatedGPUs,
+      int pendingGPUs, int reservedGPUs) {
     QueueStatistics statistics = Records.newRecord(QueueStatistics.class);
     statistics.setNumAppsSubmitted(submitted);
     statistics.setNumAppsRunning(running);
@@ -49,6 +63,10 @@ public abstract class QueueStatistics {
     statistics.setAllocatedVCores(allocatedVCores);
     statistics.setPendingVCores(pendingVCores);
     statistics.setReservedVCores(reservedVCores);
+    statistics.setAvailableGPUs(availableGPUs);
+    statistics.setAllocatedGPUs(allocatedGPUs);
+    statistics.setPendingGPUs(pendingGPUs);
+    statistics.setReservedGPUs(reservedGPUs);
     return statistics;
   }
 
@@ -312,4 +330,65 @@ public abstract class QueueStatistics {
    *          the reserved vcores
    */
   public abstract void setReservedVCores(long reservedVCores);
+
+
+  /**
+   * Get the available gpus
+   *
+   * @return the available gpus
+   */
+  public abstract long getAvailableGPUs();
+
+  /**
+   * Set the available gpus
+   *
+   * @param availableGPUs
+   *          the available gpus
+   */
+  public abstract void setAvailableGPUs(long availableGPUs);
+
+  /**
+   * Get the allocated gpus
+   *
+   * @return the allocated gpus
+   */
+  public abstract long getAllocatedGPUs();
+
+  /**
+   * Set the allocated gpus
+   *
+   * @param allocatedGPUs
+   *          the allocated gpus
+   */
+  public abstract void setAllocatedGPUs(long allocatedGPUs);
+
+  /**
+   * Get the pending gpus
+   *
+   * @return the pending gpus
+   */
+  public abstract long getPendingGPUs();
+
+  /**
+   * Set the pending gpus
+   *
+   * @param pendingGPUs
+   *          the pending gpus
+   */
+  public abstract void setPendingGPUs(long pendingGPUs);
+
+  /**
+   * Get the reserved gpus
+   *
+   * @return the reserved gpus
+   */
+  public abstract long getReservedGPUs();
+
+  /**
+   * Set the reserved gpus
+   *
+   * @param reservedGPUs
+   *          the reserved gpus
+   */
+  public abstract void setReservedGPUs(long reservedGPUs);
 }

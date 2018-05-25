@@ -151,5 +151,4 @@ public class TestSysInfoWindows {
     // call a method to refresh values
     tester.getAvailablePhysicalMemorySize();
   }
-
 }

@@ -26,6 +26,7 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.NodeLabel;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.util.Records;
+import org.apache.hadoop.yarn.api.records.ValueRanges;
 
 public abstract class RegisterNodeManagerRequest {
 
@@ -50,6 +51,15 @@ public abstract class RegisterNodeManagerRequest {
       List<NMContainerStatus> containerStatuses,
       List<ApplicationId> runningApplications, Set<NodeLabel> nodeLabels,
       Resource physicalResource) {
+    return newInstance(nodeId, httpPort, resource, nodeManagerVersionId,
+        containerStatuses, runningApplications, nodeLabels, physicalResource, null);
+  }
+
+  public static RegisterNodeManagerRequest newInstance(NodeId nodeId,
+      int httpPort, Resource resource, String nodeManagerVersionId,
+      List<NMContainerStatus> containerStatuses,
+      List<ApplicationId> runningApplications, Set<NodeLabel> nodeLabels,
+      Resource physicalResource, ValueRanges ports) {
     RegisterNodeManagerRequest request =
         Records.newRecord(RegisterNodeManagerRequest.class);
     request.setHttpPort(httpPort);
@@ -60,6 +70,7 @@ public abstract class RegisterNodeManagerRequest {
     request.setRunningApplications(runningApplications);
     request.setNodeLabels(nodeLabels);
     request.setPhysicalResource(physicalResource);
+    request.setLocalUsedPortsSnapshot(ports);
     return request;
   }
   
@@ -112,4 +123,9 @@ public abstract class RegisterNodeManagerRequest {
    * @param physicalResource Physical resources in the node.
    */
   public abstract void setPhysicalResource(Resource physicalResource);
+
+
+  public abstract void setLocalUsedPortsSnapshot(ValueRanges ports);
+
+  public abstract ValueRanges getLocalUsedPortsSnapshot();
 }

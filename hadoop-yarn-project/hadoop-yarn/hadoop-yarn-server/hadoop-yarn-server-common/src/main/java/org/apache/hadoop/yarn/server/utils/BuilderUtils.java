@@ -447,12 +447,14 @@ public class BuilderUtils {
       queue, priority, amContainer, isUnmanagedAM, cancelTokensWhenComplete,
       maxAppAttempts, resource, null);
   }
-  
+
+
   public static ApplicationResourceUsageReport newApplicationResourceUsageReport(
       int numUsedContainers, int numReservedContainers, Resource usedResources,
-      Resource reservedResources, Resource neededResources, long memorySeconds, 
-      long vcoreSeconds, long preemptedMemorySeconds,
+      Resource reservedResources, Resource neededResources, long memorySeconds,
+      long vcoreSeconds, long gpuSeconds, long preemptedMemorySeconds,
       long preemptedVcoreSeconds) {
+
     ApplicationResourceUsageReport report =
         recordFactory.newRecordInstance(ApplicationResourceUsageReport.class);
     report.setNumUsedContainers(numUsedContainers);
@@ -464,6 +466,7 @@ public class BuilderUtils {
     report.setVcoreSeconds(vcoreSeconds);
     report.setPreemptedMemorySeconds(preemptedMemorySeconds);
     report.setPreemptedVcoreSeconds(preemptedVcoreSeconds);
+    report.setGPUSeconds(gpuSeconds);
     return report;
   }
 
@@ -471,6 +474,26 @@ public class BuilderUtils {
     Resource resource = recordFactory.newRecordInstance(Resource.class);
     resource.setMemorySize(memory);
     resource.setVirtualCores(vCores);
+    resource.setGPUs(0);
+    resource.setGPUAttribute(0);
+    return resource;
+  }
+
+  public static Resource newResource(long memory, int vCores, int GPUs) {
+    Resource resource = recordFactory.newRecordInstance(Resource.class);
+    resource.setMemorySize(memory);
+    resource.setVirtualCores(vCores);
+    resource.setGPUs(GPUs);
+    resource.setGPUAttribute(0);
+    return resource;
+  }
+
+  public static Resource newResource(long memory, int vCores, int GPUs, long GPUAttribute) {
+    Resource resource = recordFactory.newRecordInstance(Resource.class);
+    resource.setMemorySize(memory);
+    resource.setVirtualCores(vCores);
+    resource.setGPUs(GPUs);
+    resource.setGPUAttribute(GPUAttribute);
     return resource;
   }
 

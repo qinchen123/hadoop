@@ -38,8 +38,12 @@ public class DefaultResourceCalculator extends ResourceCalculator {
 
   @Override
   public long computeAvailableContainers(Resource available, Resource required) {
-    // Only consider memory
-    return available.getMemorySize() / required.getMemorySize();
+
+      if(!isInvalidDivisor(required))    {
+        return available.getMemorySize() / required.getMemorySize();
+    }
+    else 
+        return available.getMemorySize();
   }
 
   @Override
@@ -57,19 +61,26 @@ public class DefaultResourceCalculator extends ResourceCalculator {
 
   @Override
   public float ratio(Resource a, Resource b) {
-    return (float)a.getMemorySize() / b.getMemorySize();
+      if(!isInvalidDivisor(b))    {
+          return (float)a.getMemorySize() / b.getMemorySize();
+      }
+      return (float)a.getMemorySize();
   }
 
   @Override
   public Resource divideAndCeil(Resource numerator, int denominator) {
-    return Resources.createResource(
-        divideAndCeil(numerator.getMemorySize(), denominator));
+    return divideAndCeil(numerator, (float) denominator);
   }
 
   @Override
   public Resource divideAndCeil(Resource numerator, float denominator) {
     return Resources.createResource(
-        divideAndCeil(numerator.getMemorySize(), denominator));
+        divideAndCeil(numerator.getMemorySize(), denominator),
+        numerator.getVirtualCores(), 
+        numerator.getGPUs(), 
+        numerator.getGPUAttribute(),
+        numerator.getPorts()
+        );
   }
 
   @Override
@@ -81,34 +92,52 @@ public class DefaultResourceCalculator extends ResourceCalculator {
           + "Please ensure the scheduler configuration is correct.");
       stepFactor = minimumResource;
     }
-
     long normalizedMemory = Math.min(
         roundUp(
             Math.max(r.getMemorySize(), minimumResource.getMemorySize()),
             stepFactor.getMemorySize()),
             maximumResource.getMemorySize());
-    return Resources.createResource(normalizedMemory);
+
+    return Resources.createResource(normalizedMemory,
+        r.getVirtualCores(),
+        r.getGPUs(),
+        r.getGPUAttribute(),
+        r.getPorts()
+    );
   }
 
   @Override
   public Resource roundUp(Resource r, Resource stepFactor) {
     return Resources.createResource(
-        roundUp(r.getMemorySize(), stepFactor.getMemorySize())
+        roundUp(r.getMemorySize(), stepFactor.getMemorySize()),
+        r.getVirtualCores(), 
+        r.getGPUs(), 
+        r.getGPUAttribute(),
+        r.getPorts()
         );
   }
 
   @Override
   public Resource roundDown(Resource r, Resource stepFactor) {
     return Resources.createResource(
-        roundDown(r.getMemorySize(), stepFactor.getMemorySize()));
+        roundDown(r.getMemorySize(), stepFactor.getMemorySize()),
+        r.getVirtualCores(),
+        r.getGPUs(), 
+        r.getGPUAttribute(),
+        r.getPorts()
+        );
   }
 
   @Override
   public Resource multiplyAndNormalizeUp(Resource r, double by,
       Resource stepFactor) {
     return Resources.createResource(
-        roundUp((long) (r.getMemorySize() * by + 0.5),
-            stepFactor.getMemorySize()));
+        roundUp((int)(r.getMemorySize() * by + 0.5), stepFactor.getMemorySize()),
+        r.getVirtualCores(),
+        r.getGPUs(), 
+        r.getGPUAttribute(),
+        r.getPorts()
+        );
   }
 
   @Override
@@ -116,9 +145,13 @@ public class DefaultResourceCalculator extends ResourceCalculator {
       Resource stepFactor) {
     return Resources.createResource(
         roundDown(
-            (long)(r.getMemorySize() * by),
+            (int)(r.getMemorySize() * by),
             stepFactor.getMemorySize()
-            )
+            ),
+        r.getVirtualCores(), 
+        r.getGPUs(), 
+        r.getGPUAttribute(),
+        r.getPorts()
         );
   }
 

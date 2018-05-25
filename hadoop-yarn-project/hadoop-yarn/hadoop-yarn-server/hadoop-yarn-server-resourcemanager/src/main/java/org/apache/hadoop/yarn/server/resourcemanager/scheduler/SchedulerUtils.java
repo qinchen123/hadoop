@@ -246,7 +246,7 @@ public class SchedulerUtils {
 
   /**
    * Utility method to validate a resource request, by insuring that the
-   * requested memory/vcore is non-negative and not greater than max
+   * requested memory/vcore/GPU is non-negative and not greater than max
    * 
    * @throws InvalidResourceRequestException when there is invalid request
    */
@@ -270,6 +270,14 @@ public class SchedulerUtils {
           + ", requestedVirtualCores="
           + resReq.getCapability().getVirtualCores()
           + ", maxVirtualCores=" + maximumResource.getVirtualCores());
+    }
+    if (resReq.getCapability().getGPUs() < 0 ||
+        resReq.getCapability().getGPUs() > maximumResource.getGPUs()) {
+      throw new InvalidResourceRequestException("Invalid resource request"
+          + ", requested GPUs < 0"
+          + ", or requested GPUs > max configured"
+          + ", requestedGPUs=" + resReq.getCapability().getGPUs()
+          + ", maxGPUs=" + maximumResource.getGPUs());
     }
     String labelExp = resReq.getNodeLabelExpression();
     // we don't allow specify label expression other than resourceName=ANY now

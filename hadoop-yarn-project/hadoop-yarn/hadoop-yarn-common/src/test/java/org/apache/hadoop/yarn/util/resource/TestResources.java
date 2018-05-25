@@ -69,4 +69,45 @@ public class TestResources {
     assertEquals(memoryErrorMsg, result.getMemorySize(), 0);
     assertEquals(vcoreErrorMsg, result.getVirtualCores(), 0);
   }
+
+  @Test
+  public void GpuResourcesAllocated()
+  {
+
+    Resource clusterResource = Resource.newInstance(0, 0);
+    // For lhs == rhs
+    Resource lhs = Resource.newInstance(2L, 2, 8, 0xFFL);
+    Resource rhs = Resource.newInstance(1L, 1, 2, 3L);
+
+    Resource ret = Resources.subtract(lhs, rhs);
+    assertTrue(ret.equalsWithGPUAttribute(Resource.newInstance(1L, 1, 6, 0xFCL)));
+
+    assertTrue(Resources.fitsIn(rhs, lhs));
+
+    long allcatedGPU = Resources.allocateGPUs(rhs, lhs);
+    assertEquals(allcatedGPU, 3);
+
+    ret = Resources.add(ret, rhs);
+    assertTrue(ret.equalsWithGPUAttribute(lhs));
+
+    lhs = Resource.newInstance(2L, 2, 4, 0x33L);
+    rhs = Resource.newInstance(1L, 1, 4, 0x33L);
+
+    ret = Resources.subtract(lhs, rhs);
+    assertTrue(Resources.fitsIn(rhs, lhs));
+
+    assertTrue(ret.equalsWithGPUAttribute(Resource.newInstance(1L, 1, 0, 0L)));
+
+    ret = Resources.add(ret, rhs);
+    assertTrue(ret.equalsWithGPUAttribute(lhs));
+
+    allcatedGPU = Resources.allocateGPUs(rhs, lhs);
+    assertEquals(allcatedGPU, 0x33);
+
+    lhs = Resource.newInstance(2L, 2, 4, 0x33L);
+    rhs = Resource.newInstance(1L, 1, 2, 0L);
+
+    allcatedGPU = Resources.allocateGPUs(rhs, lhs);
+    assertEquals(allcatedGPU, 0x30);
+  }
 }

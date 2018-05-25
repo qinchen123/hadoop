@@ -141,4 +141,25 @@ public abstract class SysInfo {
    */
   public abstract long getStorageBytesWritten();
 
+  /**
+   * Obtain the total number of GPUs present on the system.
+   *
+   * @return number of GPUs
+   */
+  public abstract int getNumGPUs(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold);
+
+  /**
+   * Obtain the GPUs utilization information.
+   *
+   * @return bit map set of gpu capacity.
+   */
+  public abstract long getGpuAttributeCapacity(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold);
+
+  /**
+   * Obtain the PORTs utilization information.
+   *
+   * @return a string with ports like: "25,110,23,42"
+   */
+  public abstract String getPortsUsage();
 }
+

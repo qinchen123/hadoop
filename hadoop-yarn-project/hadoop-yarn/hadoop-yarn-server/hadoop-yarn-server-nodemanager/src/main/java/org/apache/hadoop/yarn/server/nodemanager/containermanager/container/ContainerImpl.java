@@ -1011,11 +1011,12 @@ public class ContainerImpl implements Container {
         YarnConfiguration.DEFAULT_NM_VMEM_PMEM_RATIO);
     long vmemBytes = (long) (pmemRatio * pmemBytes);
     int cpuVcores = getResource().getVirtualCores();
+    int gpus = getResource().getGPUs();
     long localizationDuration = containerLaunchStartTime -
         containerLocalizationStartTime;
     dispatcher.getEventHandler().handle(
         new ContainerStartMonitoringEvent(containerId,
-        vmemBytes, pmemBytes, cpuVcores, launchDuration,
+        vmemBytes, pmemBytes, cpuVcores, gpus, launchDuration,
         localizationDuration));
   }
 

@@ -77,7 +77,10 @@ class NodesPage extends RmView {
               .th(".nodeaddress", "Node Address")
               .th(".nodehttpaddress", "Node HTTP Address")
               .th(".lastHealthUpdate", "Last health-update")
-              .th(".healthReport", "Health-report");
+              .th(".healthReport", "Health-report")
+              .th(".GPUs", "GPUs Used")
+              .th(".GPUs", "GPUs Avail")
+              .th(".GPUs", "GPUs Avail attribute");
 
       if (!this.opportunisticContainersEnabled) {
         trbody.th(".containers", "Containers")
@@ -162,10 +165,28 @@ class NodesPage extends RmView {
           nodeTableData.append("\",\"<a ").append("href='" + "//" + httpAddress)
               .append("'>").append(httpAddress).append("</a>\",").append("\"");
         }
+
+        int totalGPU = info.getUsedGPUs() + info.getAvailableGPUs();
+        String gpuAttribute = "";
+        //Append '0' before the gpu attribute to match GPU capacity.
+        if(totalGPU > 0){
+          gpuAttribute = Long.toBinaryString(info.getAvailableGPUAttribute());
+          StringBuffer sb = new StringBuffer();
+          int needZero = totalGPU - gpuAttribute.length();
+          while(needZero-- > 0){
+            sb.append("0");
+          }
+          sb.append(gpuAttribute);
+          gpuAttribute = sb.toString();
+        }
+
         nodeTableData.append("<br title='")
             .append(String.valueOf(info.getLastHealthUpdate())).append("'>")
             .append(Times.format(info.getLastHealthUpdate())).append("\",\"")
             .append(info.getHealthReport()).append("\",\"")
+            .append(String.valueOf(info.getUsedGPUs()))
+            .append(String.valueOf(info.getAvailableGPUs()))
+            .append(gpuAttribute)
             .append(String.valueOf(info.getNumContainers())).append("\",\"")
             .append("<br title='").append(String.valueOf(usedMemory))
             .append("'>").append(StringUtils.byteDesc(usedMemory * BYTES_IN_MB))

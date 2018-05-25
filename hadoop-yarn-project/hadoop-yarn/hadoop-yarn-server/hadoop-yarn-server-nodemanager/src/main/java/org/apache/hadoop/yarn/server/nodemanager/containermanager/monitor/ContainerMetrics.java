@@ -53,6 +53,7 @@ public class ContainerMetrics implements MetricsSource {
   public static final String PMEM_LIMIT_METRIC_NAME = "pMemLimitMBs";
   public static final String VMEM_LIMIT_METRIC_NAME = "vMemLimitMBs";
   public static final String VCORE_LIMIT_METRIC_NAME = "vCoreLimit";
+  public static final String GPU_LIMIT_METRIC_NAME = "gpuLimit";
   public static final String PMEM_USAGE_METRIC_NAME = "pMemUsageMBs";
   public static final String PMEM_USAGE_QUANTILES_NAME = "pMemUsageMBHistogram";
   public static final String LAUNCH_DURATION_METRIC_NAME = "launchDurationMs";
@@ -61,6 +62,7 @@ public class ContainerMetrics implements MetricsSource {
   private static final String PHY_CPU_USAGE_METRIC_NAME = "pCpuUsagePercent";
   private static final String PHY_CPU_USAGE_QUANTILES_NAME =
       "pCpuUsagePercentHistogram";
+  private static final String PHY_GPU_USAGE_METRIC_NAME = "pGpuUsagePercent";
 
   // Use a multiplier of 1000 to avoid losing too much precision when
   // converting to integers
@@ -81,6 +83,9 @@ public class ContainerMetrics implements MetricsSource {
 
   @Metric
   public  MutableQuantiles cpuCoreUsagePercentQuantiles;
+
+  @Metric
+  public MutableStat gpuUsagePercent;
 
   @Metric
   public MutableStat milliVcoresUsed;
@@ -108,6 +113,9 @@ public class ContainerMetrics implements MetricsSource {
 
   @Metric
   public MutableGaugeInt exitCode;
+
+  @Metric
+  public MutableGaugeInt gpuLimit;
 
   static final MetricsInfo RECORD_INFO =
       info("ContainerResource", "Resource limit and usage by container");
@@ -161,6 +169,7 @@ public class ContainerMetrics implements MetricsSource {
     this.cpuCoreUsagePercent = registry.newStat(
         PHY_CPU_USAGE_METRIC_NAME, "Physical Cpu core percent usage stats",
         "Usage", "Percents", true);
+
     this.cpuCoreUsagePercentQuantiles = registry
         .newQuantiles(PHY_CPU_USAGE_QUANTILES_NAME,
             "Physical Cpu core percent usage quantiles", "Usage", "Percents",
@@ -168,6 +177,10 @@ public class ContainerMetrics implements MetricsSource {
     ContainerMetricsQuantiles cpuEstimator =
         new ContainerMetricsQuantiles(MutableQuantiles.quantiles);
     cpuCoreUsagePercentQuantiles.setEstimator(cpuEstimator);
+
+    this.gpuUsagePercent = registry.newStat(
+        PHY_GPU_USAGE_METRIC_NAME, "Physical GPU percent usage stats",
+        "Usage", "Percents", true);
     this.milliVcoresUsed = registry.newStat(
         VCORE_USAGE_METRIC_NAME, "1000 times Vcore usage", "Usage",
         "MilliVcores", true);
@@ -181,6 +194,8 @@ public class ContainerMetrics implements MetricsSource {
         LAUNCH_DURATION_METRIC_NAME, "Launch duration in MS", 0L);
     this.localizationDurationMs = registry.newGauge(
         LOCALIZATION_DURATION_METRIC_NAME, "Localization duration in MS", 0L);
+    this.gpuLimit = registry.newGauge(
+        GPU_LIMIT_METRIC_NAME, "GPU limit in number of GPUs", 0);
   }
 
   ContainerMetrics tag(MetricsInfo info, ContainerId containerId) {
@@ -273,14 +288,21 @@ public class ContainerMetrics implements MetricsSource {
     }
   }
 
+  public void recordGPUUsage(int totalPhysicalGPUPercent) {
+    if (totalPhysicalGPUPercent >= 0) {
+      this.gpuUsagePercent.add(totalPhysicalGPUPercent);
+    }
+  }
+
   public void recordProcessId(String processId) {
     registry.tag(PROCESSID_INFO, processId);
   }
 
-  public void recordResourceLimit(int vmemLimit, int pmemLimit, int cpuVcores) {
+  public void recordResourceLimit(int vmemLimit, int pmemLimit, int cpuVcores, int gpus) {
     this.vMemLimitMbs.set(vmemLimit);
     this.pMemLimitMbs.set(pmemLimit);
     this.cpuVcoreLimit.set(cpuVcores);
+    this.gpuLimit.set(gpus);
   }
 
   public void recordStateChangeDurations(long launchDuration,

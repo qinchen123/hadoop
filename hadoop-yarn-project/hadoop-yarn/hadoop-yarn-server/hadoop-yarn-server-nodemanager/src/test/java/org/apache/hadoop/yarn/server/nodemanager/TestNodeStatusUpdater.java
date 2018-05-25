@@ -246,7 +246,7 @@ public class TestNodeStatusUpdater {
             ContainerId.newContainerId(appAttemptID, heartBeatID);
         ContainerLaunchContext launchContext = recordFactory
             .newRecordInstance(ContainerLaunchContext.class);
-        Resource resource = BuilderUtils.newResource(2, 1);
+        Resource resource = BuilderUtils.newResource(2, 1, 1);
         long currentTime = System.currentTimeMillis();
         String user = "testUser";
         ContainerTokenIdentifier containerToken = BuilderUtils
@@ -289,7 +289,7 @@ public class TestNodeStatusUpdater {
             .newRecordInstance(ContainerLaunchContext.class);
         long currentTime = System.currentTimeMillis();
         String user = "testUser";
-        Resource resource = BuilderUtils.newResource(3, 1);
+        Resource resource = BuilderUtils.newResource(3, 1, 1);
         ContainerTokenIdentifier containerToken = BuilderUtils
             .newContainerTokenIdentifier(BuilderUtils.newContainerToken(
                 secondContainerID, 0, InetAddress.getByName("localhost")
@@ -1014,7 +1014,7 @@ public class TestNodeStatusUpdater {
     ContainerId cId = ContainerId.newContainerId(appAttemptId, 1);
     Token containerToken =
         BuilderUtils.newContainerToken(cId, 0, "anyHost", 1234, "anyUser",
-            BuilderUtils.newResource(1024, 1), 0, 123,
+            BuilderUtils.newResource(1024, 1, 1), 0, 123,
             "password".getBytes(), 0);
     Container anyCompletedContainer = new ContainerImpl(conf, null,
         null, null, null,
@@ -1036,7 +1036,7 @@ public class TestNodeStatusUpdater {
         ContainerId.newContainerId(appAttemptId, 3);
     Token runningContainerToken =
         BuilderUtils.newContainerToken(runningContainerId, 0, "anyHost",
-          1234, "anyUser", BuilderUtils.newResource(1024, 1), 0, 123,
+          1234, "anyUser", BuilderUtils.newResource(1024, 1, 1), 0, 123,
           "password".getBytes(), 0);
     Container runningContainer =
         new ContainerImpl(conf, null, null, null, null,
@@ -1095,7 +1095,7 @@ public class TestNodeStatusUpdater {
     ContainerId containerId = ContainerId.newContainerId(appAttemptId, 1);
     Token containerToken =
         BuilderUtils.newContainerToken(containerId, 0, "host", 1234, "user",
-            BuilderUtils.newResource(1024, 1), 0, 123,
+            BuilderUtils.newResource(1024, 1, 1), 0, 123,
             "password".getBytes(), 0);
 
     Container completedContainer = new ContainerImpl(conf, null,

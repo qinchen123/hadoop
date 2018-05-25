@@ -338,8 +338,10 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
             ApplicationMetricsConstants.APP_MEM_PREEMPT_METRICS);
         long preemptedVcoreSeconds = parseLong(entityInfo,
             ApplicationMetricsConstants.APP_CPU_PREEMPT_METRICS);
+        long GPUSeconds = Long.parseLong(entityInfo.get(
+            ApplicationMetricsConstants.APP_GPU_METRICS).toString());
         appResources = ApplicationResourceUsageReport.newInstance(0, 0, null,
-            null, null, memorySeconds, vcoreSeconds, 0, 0,
+            null, null, memorySeconds, vcoreSeconds, GPUSeconds, 0, 0,
             preemptedMemorySeconds, preemptedVcoreSeconds);
       }
 
@@ -551,6 +553,7 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
       TimelineEntity entity, String serverHttpAddress, String user) {
     int allocatedMem = 0;
     int allocatedVcore = 0;
+    int allocatedGPU = 0;
     String allocatedHost = null;
     int allocatedPort = -1;
     int allocatedPriority = 0;
@@ -578,6 +581,11 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
             entityInfo
                 .get(ContainerMetricsConstants.ALLOCATED_HOST_INFO)
                 .toString();
+      }
+      if (entityInfo
+          .containsKey(ContainerMetricsConstants.ALLOCATED_GPU_ENTITY_INFO)) {
+        allocatedGPU = (Integer) entityInfo.get(
+            ContainerMetricsConstants.ALLOCATED_GPU_ENTITY_INFO);
       }
       if (entityInfo
           .containsKey(ContainerMetricsConstants.ALLOCATED_PORT_INFO)) {
@@ -644,8 +652,9 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
           user);
     }
     return ContainerReport.newInstance(
-        ContainerId.fromString(entity.getEntityId()),
-        Resource.newInstance(allocatedMem, allocatedVcore), allocatedNode,
+        ConverterUtils.toContainerId(entity.getEntityId()),
+        Resource.newInstance(allocatedMem, allocatedVcore, allocatedGPU),
+            allocatedNode,
         Priority.newInstance(allocatedPriority),
         createdTime, finishedTime, diagnosticsInfo, logUrl, exitStatus, state,
         nodeHttpAddress);

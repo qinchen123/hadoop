@@ -550,7 +550,6 @@ public class ParentQueue extends AbstractCSQueue {
           ActivitiesLogger.NODE.finishSkippedNodeAllocation(activitiesManager,
               node);
         }
-
         break;
       }
 
@@ -715,6 +714,7 @@ public class ParentQueue extends AbstractCSQueue {
     CSAssignment assignment = CSAssignment.NULL_ASSIGNMENT;
 
     Resource parentLimits = limits.getLimit();
+
     printChildQueues();
 
     // Try to assign to most 'under-served' sub-queue

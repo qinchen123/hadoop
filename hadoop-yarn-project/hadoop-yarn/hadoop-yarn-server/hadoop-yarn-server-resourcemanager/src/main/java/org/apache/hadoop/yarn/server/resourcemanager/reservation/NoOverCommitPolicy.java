@@ -45,7 +45,6 @@ public class NoOverCommitPolicy implements SharingPolicy {
 
     // test the reservation does not exceed what is available
     try {
-
       RLESparseResourceAllocation ask = reservation.getResourcesOverTime(
               reservation.getStartTime(), reservation.getEndTime());
       RLESparseResourceAllocation

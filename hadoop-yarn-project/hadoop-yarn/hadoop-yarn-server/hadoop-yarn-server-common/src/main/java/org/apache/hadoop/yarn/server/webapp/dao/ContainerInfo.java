@@ -38,6 +38,8 @@ public class ContainerInfo {
   protected String containerId;
   protected long allocatedMB;
   protected long allocatedVCores;
+  protected int allocatedGPUs;
+  protected long allocatedGPUAttribute;
   protected String assignedNodeId;
   protected int priority;
   protected long startedTime;
@@ -59,6 +61,8 @@ public class ContainerInfo {
     if (container.getAllocatedResource() != null) {
       allocatedMB = container.getAllocatedResource().getMemorySize();
       allocatedVCores = container.getAllocatedResource().getVirtualCores();
+      allocatedGPUs = container.getAllocatedResource().getGPUs();
+      allocatedGPUAttribute = container.getAllocatedResource().getGPUAttribute();
     }
     if (container.getAssignedNode() != null) {
       assignedNodeId = container.getAssignedNode().toString();
@@ -85,6 +89,14 @@ public class ContainerInfo {
 
   public long getAllocatedVCores() {
     return allocatedVCores;
+  }
+
+  public int getAllocatedGPUs() {
+    return allocatedGPUs;
+  }
+
+  public long getAllocatedGPUAttribute() {
+    return allocatedGPUAttribute;
   }
 
   public String getAssignedNodeId() {

@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
+import org.apache.hadoop.yarn.api.records.ValueRanges;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -141,6 +141,12 @@ public class RMNodeImpl implements RMNode, EventHandler<RMNodeEvent> {
   private OpportunisticContainersStatus opportunisticContainersStatus;
 
   private final ContainerAllocationExpirer containerAllocationExpirer;
+
+  /** Port ranges used in the host. */
+  private ValueRanges localUsedPortsSnapshot = null;
+  private ValueRanges containerAllocatedPorts = null;
+  private ValueRanges availabelPorts = null;
+
   /* set of containers that have just launched */
   private final Set<ContainerId> launchedContainers =
     new HashSet<ContainerId>();
@@ -361,15 +367,17 @@ public class RMNodeImpl implements RMNode, EventHandler<RMNodeEvent> {
                              RMNodeEvent> stateMachine;
 
   public RMNodeImpl(NodeId nodeId, RMContext context, String hostName,
-      int cmPort, int httpPort, Node node, Resource capability,
-      String nodeManagerVersion) {
-    this(nodeId, context, hostName, cmPort, httpPort, node, capability,
-        nodeManagerVersion, null);
+      int cmPort, int httpPort, Node node, Resource capability, String nodeManagerVersion) {
+    this(nodeId, context, hostName, cmPort, httpPort, node, capability, nodeManagerVersion, null);
   }
+  public RMNodeImpl(NodeId nodeId, RMContext context, String hostName,
+      int cmPort, int httpPort, Node node, Resource capability, String nodeManagerVersion, ValueRanges ports) {
+      this(nodeId, context, hostName, cmPort, httpPort, node, capability, nodeManagerVersion, ports, null);
+    }
 
   public RMNodeImpl(NodeId nodeId, RMContext context, String hostName,
-      int cmPort, int httpPort, Node node, Resource capability,
-      String nodeManagerVersion, Resource physResource) {
+      int cmPort, int httpPort, Node node, Resource capability, String nodeManagerVersion, ValueRanges ports, Resource physResource) {
+
     this.nodeId = nodeId;
     this.context = context;
     this.hostName = hostName;
@@ -394,8 +402,9 @@ public class RMNodeImpl implements RMNode, EventHandler<RMNodeEvent> {
     this.stateMachine = stateMachineFactory.make(this);
 
     this.nodeUpdateQueue = new ConcurrentLinkedQueue<UpdatedContainerInfo>();
-
     this.containerAllocationExpirer = context.getContainerAllocationExpirer();
+
+    this.localUsedPortsSnapshot = ports;
   }
 
   @Override
@@ -947,7 +956,7 @@ public class RMNodeImpl implements RMNode, EventHandler<RMNodeEvent> {
 
         if (isCapabilityChanged
             && rmNode.getState().equals(NodeState.RUNNING)) {
-          // Update scheduler node's capacity for reconnect node.
+          // Update scheduler node's capacity for reconnect node.         
           rmNode.context
               .getDispatcher()
               .getEventHandler()
@@ -989,7 +998,7 @@ public class RMNodeImpl implements RMNode, EventHandler<RMNodeEvent> {
     @Override
     public void transition(RMNodeImpl rmNode, RMNodeEvent event) {
       RMNodeResourceUpdateEvent updateEvent = (RMNodeResourceUpdateEvent)event;
-      updateNodeResourceFromEvent(rmNode, updateEvent);
+      updateNodeResourceFromEvent(rmNode, updateEvent);      
       // Notify new resourceOption to scheduler
       rmNode.context.getDispatcher().getEventHandler().handle(
           new NodeResourceUpdateSchedulerEvent(rmNode, updateEvent.getResourceOption()));
@@ -1547,4 +1556,34 @@ public class RMNodeImpl implements RMNode, EventHandler<RMNodeEvent> {
   public Integer getDecommissioningTimeout() {
     return decommissioningTimeout;
   }
-}
+
+  @Override
+  public ValueRanges getAvailablePorts() {
+    return availabelPorts;
+  }
+
+  @Override
+  public void setAvailablePorts(ValueRanges ports) {
+    this.availabelPorts = ports;
+  }
+
+  @Override
+  public ValueRanges getContainerAllocatedPorts() {
+    return containerAllocatedPorts;
+  }
+
+  @Override
+  public void setContainerAllocatedPorts(ValueRanges ports) {
+    this.containerAllocatedPorts = ports;
+  }
+
+  @Override
+  public ValueRanges getLocalUsedPortsSnapshot() {
+    return this.localUsedPortsSnapshot;
+  }
+
+  @Override
+  public void setLocalUsedPortsSnapshot(ValueRanges ports) {
+    this.localUsedPortsSnapshot = ports;
+  }
+ }

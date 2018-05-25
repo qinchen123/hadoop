@@ -55,6 +55,10 @@ public abstract class Resource implements Comparable<Resource> {
   private static class SimpleResource extends Resource {
     private long memory;
     private long vcores;
+    private int GPUs;
+    private long GPUAttribute;
+    ValueRanges ports;
+
     SimpleResource(long memory, long vcores) {
       this.memory = memory;
       this.vcores = vcores;
@@ -83,6 +87,30 @@ public abstract class Resource implements Comparable<Resource> {
     public void setVirtualCores(int vcores) {
       this.vcores = vcores;
     }
+    @Override
+    public int getGPUs() {
+      return GPUs;
+    }
+    @Override
+    public void setGPUs(int GPUs) {
+      this.GPUs = GPUs;
+    }
+    @Override
+    public long getGPUAttribute() {
+      return GPUAttribute;
+    }
+    @Override
+    public void setGPUAttribute(long GPUAttribute) {
+      this.GPUAttribute = GPUAttribute;
+    }
+    @Override
+    public ValueRanges getPorts() {
+      return ports;
+    }
+    @Override
+    public void setPorts(ValueRanges ports) {
+      this.ports = ports;
+    }
   }
 
   @Public
@@ -95,6 +123,30 @@ public abstract class Resource implements Comparable<Resource> {
   @Stable
   public static Resource newInstance(long memory, int vCores) {
     return new SimpleResource(memory, vCores);
+  }
+
+  @Public
+  @Stable
+  public static Resource newInstance(long memory, int vCores, int GPUs) {
+    return newInstance(memory, vCores, GPUs, 0, null);
+  }
+
+  @Public
+  @Stable
+  public static Resource newInstance(long memory, int vCores, int GPUs, long GPUAttribute) {
+    return newInstance(memory, vCores, GPUs, GPUAttribute, null);
+  }
+
+  @Public
+  @Stable
+  public static Resource newInstance(long memory, int vCores, int GPUs, long GPUAttribute, ValueRanges ports) {
+    SimpleResource resource = new SimpleResource(memory, vCores);
+    resource.setMemorySize(memory);
+    resource.setVirtualCores(vCores);
+    resource.setGPUs(GPUs);
+    resource.setGPUAttribute(GPUAttribute);
+    resource.setPorts(ports);
+    return resource;
   }
 
   /**
@@ -167,6 +219,83 @@ public abstract class Resource implements Comparable<Resource> {
   @Evolving
   public abstract void setVirtualCores(int vCores);
 
+  /**
+   * Get <em>number of GPUs</em> of the resource.
+   *
+   * GPUs are a unit for expressing GPU parallelism. A node's capacity
+   * should be configured with GPUs equal to its number of GPUs.
+   * A container should be requested with the number of GPUs it can saturate, i.e.
+   * the average number of GPU parallelism it expects to have runnable at a time.
+   *
+   * @return <em>number of GPUs</em> of the resource
+   */
+  @Public
+  @Evolving
+  public abstract int getGPUs();
+
+  /**
+   * Set <em>number of GPUs</em> of the resource.
+   *
+   * GPUs are a unit for expressing GPU parallelism. A node's capacity
+   * should be configured with GPUs equal to its number of GPUs.
+   * A container should be requested with the number of GPUs it can saturate, i.e.
+   * the average number of GPU parallelism it expects to have runnable at a time.
+   *
+   * @param GPUs <em>number of GPUs</em> of the resource
+   */
+  @Public
+  @Evolving
+  public abstract void setGPUs(int GPUs);
+
+  /**
+   * Get <em> GPU locality preference information </em>.
+   *
+   * This abstracts GPU locality preference. Now, we have two types supported.
+   * 0 means that GPUs can be placed anywhere in the machine, and
+   * 1 means that GPUs are preferred to be placed in the same socket of the machine.
+   *
+   * @return <em>GPU locality preference information</em>
+   */
+  @Public
+  @Evolving
+  public abstract long getGPUAttribute();
+
+  /**
+   * Set <em>GPU allocation information</em>.
+   *
+   * This represents where assigned GPUs are placed using bit vector. Each bit indicates GPU id.
+   * Bits set as 1 mean that corresponding GPUs are assigned, and
+   * Bits set as 0 mean that corresponding GPUs are not unassigned.
+   * The sum of 1s should equal to the number of GPUs.
+   *
+   * @param GPUAttribute <em>GPU locality preference information</em>
+   */
+  @Public
+  @Evolving
+  public abstract void setGPUAttribute(long GPUAttribute);
+
+
+  /**
+   * Get <em>ports</em> of the resource.
+   * @return <em>ports</em> of the resource
+   */
+  @Public
+  @Stable
+  public abstract ValueRanges getPorts();
+
+  /**
+   * Set <em>ports</em> of the resource.
+   * @param ports <em>ports</em> of the resource
+   */
+  @Public
+  @Stable
+  public abstract void setPorts(ValueRanges ports);
+
+  /**
+   * Get <em>portsCount</em> of the resource.
+   * @return <em>portsCount</em> of the resource
+   */
+
   @Override
   public int hashCode() {
     final int prime = 263167;
@@ -174,6 +303,7 @@ public abstract class Resource implements Comparable<Resource> {
     int result = (int) (939769357
         + getMemorySize()); // prime * result = 939769357 initially
     result = prime * result + getVirtualCores();
+    result = prime * result + getGPUs();
     return result;
   }
 
@@ -187,10 +317,35 @@ public abstract class Resource implements Comparable<Resource> {
       return false;
     Resource other = (Resource) obj;
     if (getMemorySize() != other.getMemorySize() ||
-        getVirtualCores() != other.getVirtualCores()) {
+        getVirtualCores() != other.getVirtualCores() ||
+        getGPUs() != other.getGPUs()) {
       return false;
     }
     return true;
+  }
+
+  public boolean equalsWithGPUAttribute(Object obj) {
+    if (!this.equals(obj)) {
+      return false;
+    } else {
+      Resource other = (Resource) obj;
+      return this.getGPUAttribute() == other.getGPUAttribute();
+    }
+  }
+
+  public boolean equalsWithPorts(Object obj) {
+    if (!this.equalsWithGPUAttribute(obj)) {
+      return false;
+    } else {
+      Resource other = (Resource) obj;
+      ValueRanges lPorts = this.getPorts();
+      ValueRanges rPorts = other.getPorts();
+      if (lPorts == null) {
+        return rPorts == null;
+      } else {
+        return lPorts.equals(rPorts);
+      }
+    }
   }
 
   @Override
@@ -204,7 +359,7 @@ public abstract class Resource implements Comparable<Resource> {
 
   @Override
   public String toString() {
-    return "<memory:" + getMemorySize() + ", vCores:" + getVirtualCores() + ">";
+      return "<memory:" + getMemory() + ", vCores:" + getVirtualCores() + ", GPUs:" + getGPUs() + ", GPUAttribute:" + getGPUAttribute() + ", ports: " + getPorts() + ">";
   }
 
   /**

@@ -32,6 +32,7 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.NodeHeartbeatResponse;
 import org.apache.hadoop.yarn.server.api.records.OpportunisticContainersStatus;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
+import org.apache.hadoop.yarn.api.records.ValueRanges;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode
         .UpdatedContainerInfo;
 
@@ -211,5 +212,34 @@ public class RMNodeWrapper implements RMNode {
   @Override
   public Resource getPhysicalResource() {
     return null;
+  }
+
+  @Override
+  public ValueRanges getAvailablePorts() {
+    return node.getAvailablePorts();
+  }
+
+  @Override
+  public void setAvailablePorts(ValueRanges ports) {
+    node.setAvailablePorts(ports);
+  }
+
+  @Override
+  public ValueRanges getContainerAllocatedPorts() {
+    return node.getContainerAllocatedPorts();
+  }
+
+  @Override
+  public void setContainerAllocatedPorts(ValueRanges ports) {
+    node.setContainerAllocatedPorts(ports);
+  }
+
+  @Override
+  public ValueRanges getLocalUsedPortsSnapshot() {
+    return node.getLocalUsedPortsSnapshot();
+  }
+  @Override
+  public void setLocalUsedPortsSnapshot(ValueRanges ports) {
+    node.setLocalUsedPortsSnapshot(ports);
   }
 }

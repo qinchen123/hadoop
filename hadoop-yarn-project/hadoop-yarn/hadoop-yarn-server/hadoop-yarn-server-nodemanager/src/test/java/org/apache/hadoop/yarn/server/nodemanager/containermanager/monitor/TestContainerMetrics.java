@@ -102,9 +102,10 @@ public class TestContainerMetrics {
     int anyVcores = 10;
     long anyLaunchDuration = 20L;
     long anyLocalizationDuration = 1000L;
+    int anyGPUs = 2;
     String anyProcessId = "1234";
 
-    metrics.recordResourceLimit(anyVmemLimit, anyPmemLimit, anyVcores);
+    metrics.recordResourceLimit(anyVmemLimit, anyPmemLimit, anyVcores, anyGPUs);
     metrics.recordProcessId(anyProcessId);
     metrics.recordStateChangeDurations(anyLaunchDuration,
         anyLocalizationDuration);
@@ -121,6 +122,7 @@ public class TestContainerMetrics {
         .PMEM_LIMIT_METRIC_NAME, anyPmemLimit);
     MetricsRecords.assertMetric(record, ContainerMetrics.VMEM_LIMIT_METRIC_NAME, anyVmemLimit);
     MetricsRecords.assertMetric(record, ContainerMetrics.VCORE_LIMIT_METRIC_NAME, anyVcores);
+    MetricsRecords.assertMetric(record, ContainerMetrics.GPU_LIMIT_METRIC_NAME, anyGPUs);
 
     MetricsRecords.assertMetric(record,
         ContainerMetrics.LAUNCH_DURATION_METRIC_NAME, anyLaunchDuration);

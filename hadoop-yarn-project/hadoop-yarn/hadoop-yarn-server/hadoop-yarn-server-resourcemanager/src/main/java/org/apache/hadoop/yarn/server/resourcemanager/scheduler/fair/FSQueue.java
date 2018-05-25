@@ -225,18 +225,18 @@ public abstract class FSQueue implements Queue, Schedulable {
     QueueInfo queueInfo = recordFactory.newRecordInstance(QueueInfo.class);
     queueInfo.setQueueName(getQueueName());
 
-    if (scheduler.getClusterResource().getMemorySize() == 0) {
+    if (scheduler.getClusterResource().getGPUs() == 0) {
       queueInfo.setCapacity(0.0f);
     } else {
-      queueInfo.setCapacity((float) getFairShare().getMemorySize() /
-          scheduler.getClusterResource().getMemorySize());
+      queueInfo.setCapacity((float) getFairShare().getGPUs() /
+          scheduler.getClusterResource().getGPUs());
     }
 
-    if (getFairShare().getMemorySize() == 0) {
+    if (getFairShare().getGPUs() == 0) {
       queueInfo.setCurrentCapacity(0.0f);
     } else {
-      queueInfo.setCurrentCapacity((float) getResourceUsage().getMemorySize() /
-          getFairShare().getMemorySize());
+      queueInfo.setCurrentCapacity((float) getResourceUsage().getGPUs() /
+          getFairShare().getGPUs());
     }
 
     ArrayList<QueueInfo> childQueueInfos = new ArrayList<QueueInfo>();
@@ -270,6 +270,10 @@ public abstract class FSQueue implements Queue, Schedulable {
     stats.setAllocatedVCores(getMetrics().getAllocatedVirtualCores());
     stats.setPendingVCores(getMetrics().getPendingVirtualCores());
     stats.setReservedVCores(getMetrics().getReservedVirtualCores());
+    stats.setAvailableGPUs(getMetrics().getAvailableGPUs());
+    stats.setAllocatedGPUs(getMetrics().getAllocatedGPUs());
+    stats.setPendingGPUs(getMetrics().getPendingGPUs());
+    stats.setReservedGPUs(getMetrics().getReservedGPUs());
     stats.setAllocatedContainers(getMetrics().getAllocatedContainers());
     stats.setPendingContainers(getMetrics().getPendingContainers());
     stats.setReservedContainers(getMetrics().getReservedContainers());

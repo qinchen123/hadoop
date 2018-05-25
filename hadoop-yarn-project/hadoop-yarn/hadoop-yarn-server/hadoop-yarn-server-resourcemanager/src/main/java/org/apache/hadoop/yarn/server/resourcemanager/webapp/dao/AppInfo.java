@@ -94,21 +94,27 @@ public class AppInfo {
   private String amRPCAddress;
   private long allocatedMB;
   private long allocatedVCores;
+  private int allocatedGPUs;
   private long reservedMB;
   private long reservedVCores;
+  private long reservedGPUs;
   private int runningContainers;
   private long memorySeconds;
   private long vcoreSeconds;
+  private long gpuSeconds;
   protected float queueUsagePercentage;
   protected float clusterUsagePercentage;
 
   // preemption info fields
   private long preemptedResourceMB;
   private long preemptedResourceVCores;
+  private long preemptedResourceGPUs;
+
   private int numNonAMContainerPreempted;
   private int numAMContainerPreempted;
   private long preemptedMemorySeconds;
   private long preemptedVcoreSeconds;
+  private long preemptedGPUSeconds;
 
   // list of resource requests
   @XmlElement(name = "resourceRequests")
@@ -202,6 +208,8 @@ public class AppInfo {
             allocatedVCores = usedResources.getVirtualCores();
             reservedMB = reservedResources.getMemorySize();
             reservedVCores = reservedResources.getVirtualCores();
+            allocatedGPUs = usedResources.getGPUs();
+
             runningContainers = resourceReport.getNumUsedContainers();
             queueUsagePercentage = resourceReport.getQueueUsagePercentage();
             clusterUsagePercentage = resourceReport.getClusterUsagePercentage();
@@ -232,8 +240,12 @@ public class AppInfo {
       numNonAMContainerPreempted = appMetrics.getNumNonAMContainersPreempted();
       preemptedResourceVCores =
           appMetrics.getResourcePreempted().getVirtualCores();
+      preemptedResourceGPUs =
+          appMetrics.getResourcePreempted().getGPUs();
       memorySeconds = appMetrics.getMemorySeconds();
       vcoreSeconds = appMetrics.getVcoreSeconds();
+      gpuSeconds = appMetrics.getGPUSeconds();
+
       preemptedMemorySeconds = appMetrics.getPreemptedMemorySeconds();
       preemptedVcoreSeconds = appMetrics.getPreemptedVcoreSeconds();
       ApplicationSubmissionContext appSubmissionContext =
@@ -506,6 +518,10 @@ public class AppInfo {
     return preemptedResourceMB;
   }
 
+  public int getAllocatedGPUs() {
+    return this.allocatedGPUs;
+  }
+  
   public void setPreemptedResourceMB(long preemptedResourceMB) {
     this.preemptedResourceMB = preemptedResourceMB;
   }
@@ -518,7 +534,11 @@ public class AppInfo {
     this.preemptedResourceVCores = preemptedResourceVCores;
   }
 
-  public int getNumNonAMContainerPreempted() {
+  public int getPreemptedGPUs() {
+    return (int)preemptedResourceGPUs;
+  }
+
+  public int getNumNonAMContainersPreempted() {
     return numNonAMContainerPreempted;
   }
 
@@ -583,7 +603,11 @@ public class AppInfo {
     this.state = state;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setName(String name){
+      this.name = name;
+    }
+  public long getGPUSeconds() {
+    return gpuSeconds;
   }
+
 }

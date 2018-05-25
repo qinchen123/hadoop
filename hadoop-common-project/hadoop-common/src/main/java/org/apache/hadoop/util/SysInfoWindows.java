@@ -243,4 +243,20 @@ public class SysInfoWindows extends SysInfo {
     return storageBytesWritten;
   }
 
+  @Override
+  public int getNumGPUs(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold) {
+    return 0;
+  }
+
+
+  @Override
+  public long getGpuAttributeCapacity(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold) {
+    return 0L;
+  }
+
+  @Override
+  public String getPortsUsage() {
+    return null;
+  }
+
 }

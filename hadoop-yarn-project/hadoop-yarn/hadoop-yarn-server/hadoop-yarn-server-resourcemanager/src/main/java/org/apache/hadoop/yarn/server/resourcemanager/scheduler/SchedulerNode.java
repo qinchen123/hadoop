@@ -44,6 +44,8 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerStat
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 import org.apache.hadoop.yarn.server.scheduler.SchedulerRequestKey;
 import org.apache.hadoop.yarn.util.resource.Resources;
+import org.apache.hadoop.yarn.api.records.ValueRanges;
+import com.google.common.annotations.VisibleForTesting;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -59,6 +61,7 @@ public abstract class SchedulerNode {
 
   private Resource unallocatedResource = Resource.newInstance(0, 0);
   private Resource allocatedResource = Resource.newInstance(0, 0);
+  private Resource allocatedOpportunistic = Resources.clone(Resources.none());
   private Resource totalResource;
   private RMContainer reservedContainer;
   private volatile int numContainers;
@@ -196,6 +199,11 @@ public abstract class SchedulerNode {
     return this.allocatedResource;
   }
 
+  public synchronized ValueRanges getAvailablePorts() {
+    return this.rmNode.getAvailablePorts();
+  }
+
+
   /**
    * Get total resources on the node.
    * @return Total resources on the node.
@@ -265,6 +273,62 @@ public abstract class SchedulerNode {
     if (info != null) {
       info.launchedOnNode = true;
     }
+  }
+
+
+  /**
+   * Update allocation based stats.
+   * @param resource - Resource allocated/released
+   * @param increase - whether resources are allocated or released
+   */
+  private synchronized void updateResourceAllocation(
+      Resource resource, boolean increase, boolean opportunistic) {
+    if (resource == null) {
+      LOG.error("Invalid update on resource allocation "
+          + rmNode.getNodeAddress());
+      return;
+    }
+    if (increase) {
+      if (opportunistic) {
+        Resources.addTo(allocatedOpportunistic, resource);
+      } else {
+        Resources.addTo(allocatedResource, resource);
+        if (resource.getPorts() != null) {
+          updateAllocatedPorts();
+        }
+      }
+    } else {
+      if (opportunistic) {
+        Resources.subtractFrom(allocatedOpportunistic, resource);
+      } else {
+        Resources.subtractFrom(allocatedResource, resource);
+        if (resource.getPorts() != null) {
+          updateAllocatedPorts();
+        }
+      }
+    }
+  }
+
+  private void updateAllocatedPorts() {
+    rmNode.setContainerAllocatedPorts(allocatedResource.getPorts());
+
+    if (rmNode.getTotalCapability().getPorts() != null
+        && rmNode.getTotalCapability().getPorts().getBitSetStore() != null) {
+      ValueRanges containerAllocatedPorts =
+          ValueRanges.convertToBitSet(rmNode.getContainerAllocatedPorts());
+      rmNode.setContainerAllocatedPorts(containerAllocatedPorts);
+    }
+    rmNode.setAvailablePorts(calculateAvailablePorts());
+  }
+
+
+  private ValueRanges calculateAvailablePorts() {
+    if (rmNode.getTotalCapability().getPorts() == null) {
+      return null;
+    }
+    return rmNode.getTotalCapability().getPorts()
+        .minusSelf(rmNode.getContainerAllocatedPorts())
+        .minusSelf(rmNode.getLocalUsedPortsSnapshot());
   }
 
   /**
@@ -460,7 +524,6 @@ public abstract class SchedulerNode {
   public ResourceUtilization getNodeUtilization() {
     return this.nodeUtilization;
   }
-
 
   private static class ContainerInfo {
     private final RMContainer container;

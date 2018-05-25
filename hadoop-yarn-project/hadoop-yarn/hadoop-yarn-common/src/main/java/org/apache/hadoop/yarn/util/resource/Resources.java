@@ -21,6 +21,11 @@ package org.apache.hadoop.yarn.util.resource;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.yarn.api.records.*;
+import org.apache.hadoop.yarn.util.Records;
+import sun.awt.SunHints;
+
+import java.util.List;
+import java.util.ArrayList;
 
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 @Unstable
@@ -62,10 +67,42 @@ public class Resources {
     }
 
     @Override
+    public int getGPUs() {
+      return 0;
+    }
+
+    @Override
+    public void setGPUs(int GPUs) {
+      throw new RuntimeException("NONE cannot be modified!");
+    }
+
+    @Override
+    public long getGPUAttribute() {
+      return 0;
+    }
+
+    @Override
+    public void setGPUAttribute(long GPUAttribute) {
+      throw new RuntimeException("NONE cannot be modified!");
+    }
+
+    public ValueRanges getPorts() {
+      return null;
+    }
+
+    @Override
+    public void setPorts(ValueRanges port) {
+      throw new RuntimeException("NONE cannot be modified!");
+    }
+
+    @Override
     public int compareTo(Resource o) {
       long diff = 0 - o.getMemorySize();
       if (diff == 0) {
         diff = 0 - o.getVirtualCores();
+        if (diff == 0) {
+          diff = 0 - o.getGPUs();
+        }
       }
       return Long.signum(diff);
     }
@@ -107,18 +144,51 @@ public class Resources {
     }
 
     @Override
+    public int getGPUs() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public void setGPUs(int GPUs) {
+      throw new RuntimeException("NONE cannot be modified!");
+    }
+
+    @Override
+    public long getGPUAttribute() {
+      return Long.MAX_VALUE;
+    }
+
+    @Override
+    public void setGPUAttribute(long GPUAttribute) {
+      throw new RuntimeException("NONE cannot be modified!");
+    }
+
+    @Override
+    public ValueRanges getPorts() {
+      return null;
+    }
+
+    @Override
+    public void setPorts(ValueRanges port) {
+      throw new RuntimeException("NONE cannot be modified!");
+    }
+
+
+    @Override
     public int compareTo(Resource o) {
       long diff = Long.MAX_VALUE - o.getMemorySize();
       if (diff == 0) {
         diff = Integer.MAX_VALUE - o.getVirtualCores();
+        if (diff == 0) {
+          diff = 0 - o.getGPUs();
+        }
       }
       return Long.signum(diff);
     }
-    
   };
 
   public static Resource createResource(int memory) {
-    return createResource(memory, (memory > 0) ? 1 : 0);
+    return createResource(memory, (memory > 0) ? 1 : 0, (memory > 0) ? 1 : 0);
   }
 
   public static Resource createResource(int memory, int cores) {
@@ -132,6 +202,25 @@ public class Resources {
   public static Resource createResource(long memory, int cores) {
     return Resource.newInstance(memory, cores);
   }
+
+  public static Resource createResource(long memory, int cores, int GPUs) {
+    return createResource(memory, cores, GPUs, 0);
+  }
+
+  public static Resource createResource(long memory, int cores, int GPUs, long GPUAttribute) {
+    return createResource(memory, cores, GPUs, GPUAttribute, null);
+  }
+
+  public static Resource createResource(long memory, int cores, int GPUs, long GPUAttribute, ValueRanges ports) {
+    Resource resource = Records.newRecord(Resource.class);
+    resource.setMemorySize(memory);
+    resource.setVirtualCores(cores);
+    resource.setGPUs(GPUs);
+    resource.setGPUAttribute(GPUAttribute);
+    resource.setPorts(ports);
+    return resource;
+  }
+
 
   public static Resource none() {
     return NONE;
@@ -149,15 +238,27 @@ public class Resources {
   
   public static Resource unbounded() {
     return UNBOUNDED;
-  }
+  }  
 
   public static Resource clone(Resource res) {
-    return createResource(res.getMemorySize(), res.getVirtualCores());
+    return createResource(res.getMemorySize(), res.getVirtualCores(), res.getGPUs(), res.getGPUAttribute(), res.getPorts());
   }
 
   public static Resource addTo(Resource lhs, Resource rhs) {
     lhs.setMemorySize(lhs.getMemorySize() + rhs.getMemorySize());
     lhs.setVirtualCores(lhs.getVirtualCores() + rhs.getVirtualCores());
+    lhs.setGPUs(lhs.getGPUs() + rhs.getGPUs());
+    
+    assert (lhs.getGPUAttribute() & rhs.getGPUAttribute()) == 0 : "lhs GPU attribute is " +
+            lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute();
+
+    lhs.setGPUAttribute(lhs.getGPUAttribute() | rhs.getGPUAttribute());
+
+    if (lhs.getPorts() != null) {
+      lhs.setPorts(lhs.getPorts().addSelf(rhs.getPorts()));
+    } else {
+      lhs.setPorts(rhs.getPorts());
+    }
     return lhs;
   }
 
@@ -168,6 +269,17 @@ public class Resources {
   public static Resource subtractFrom(Resource lhs, Resource rhs) {
     lhs.setMemorySize(lhs.getMemorySize() - rhs.getMemorySize());
     lhs.setVirtualCores(lhs.getVirtualCores() - rhs.getVirtualCores());
+    lhs.setGPUs(lhs.getGPUs() - rhs.getGPUs());
+   
+    assert (lhs.getGPUAttribute() | rhs.getGPUAttribute()) == lhs.getGPUAttribute() : "lhs GPU attribute is " +
+            lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute();
+
+    lhs.setGPUAttribute(lhs.getGPUAttribute() & ~rhs.getGPUAttribute());
+
+    if (lhs.getPorts() != null) {
+      lhs.setPorts(lhs.getPorts().minusSelf(rhs.getPorts()));
+    }
+
     return lhs;
   }
 
@@ -200,6 +312,7 @@ public class Resources {
   public static Resource multiplyTo(Resource lhs, double by) {
     lhs.setMemorySize((long)(lhs.getMemorySize() * by));
     lhs.setVirtualCores((int)(lhs.getVirtualCores() * by));
+    lhs.setGPUs((int)(lhs.getGPUs() * by));
     return lhs;
   }
 
@@ -223,7 +336,7 @@ public class Resources {
       ResourceCalculator calculator,Resource lhs, double by, Resource factor) {
     return calculator.multiplyAndNormalizeUp(lhs, by, factor);
   }
-  
+
   public static Resource multiplyAndNormalizeDown(
       ResourceCalculator calculator,Resource lhs, double by, Resource factor) {
     return calculator.multiplyAndNormalizeDown(lhs, by, factor);
@@ -233,6 +346,7 @@ public class Resources {
     Resource out = clone(lhs);
     out.setMemorySize((long)(lhs.getMemorySize() * by));
     out.setVirtualCores((int)(lhs.getVirtualCores() * by));
+    out.setGPUs((int)(lhs.getGPUs() * by));
     return out;
   }
 
@@ -330,29 +444,93 @@ public class Resources {
       Resource lhs, Resource rhs) {
     return resourceCalculator.compare(clusterResource, lhs, rhs) >= 0 ? lhs : rhs;
   }
-  
-  public static boolean fitsIn(Resource smaller, Resource bigger) {
-    return smaller.getMemorySize() <= bigger.getMemorySize() &&
-        smaller.getVirtualCores() <= bigger.getVirtualCores();
-  }
 
   public static boolean fitsIn(ResourceCalculator rc, Resource cluster,
       Resource smaller, Resource bigger) {
     return rc.fitsIn(cluster, smaller, bigger);
   }
-  
+
+  public static boolean fitsIn(Resource smaller, Resource bigger) {
+      boolean fitsIn = smaller.getMemorySize() <= bigger.getMemorySize() &&
+                       smaller.getVirtualCores() <= bigger.getVirtualCores() &&
+                       smaller.getGPUs() <= bigger.getGPUs();
+      if (fitsIn) {
+          if((smaller.getGPUAttribute() & bigger.getGPUAttribute()) != smaller.getGPUAttribute()) {
+              fitsIn = false;
+          }
+          if (fitsIn) {
+            if (smaller.getPorts() != null && !(smaller.getPorts().isLessOrEqual(bigger.getPorts()))) {
+              fitsIn = false;
+            }
+          }
+      }
+      return fitsIn;
+  }
+
+
   public static Resource componentwiseMin(Resource lhs, Resource rhs) {
     return createResource(Math.min(lhs.getMemorySize(), rhs.getMemorySize()),
-        Math.min(lhs.getVirtualCores(), rhs.getVirtualCores()));
+                          Math.min(lhs.getVirtualCores(), rhs.getVirtualCores()),
+                          Math.min(lhs.getGPUs(), rhs.getGPUs()));
   }
   
   public static Resource componentwiseMax(Resource lhs, Resource rhs) {
     return createResource(Math.max(lhs.getMemorySize(), rhs.getMemorySize()),
-        Math.max(lhs.getVirtualCores(), rhs.getVirtualCores()));
+                          Math.max(lhs.getVirtualCores(), rhs.getVirtualCores()),
+                          Math.max(lhs.getGPUs(), rhs.getGPUs()));
   }
 
-  public static boolean isAnyMajorResourceZero(ResourceCalculator rc,
-      Resource resource) {
-    return rc.isAnyMajorResourceZero(resource);
+
+  // Calculate the candidate GPUs from bigger resource.
+  // If the request contains the GPU information, allocate according the request gpu attribute. 
+  // If the request does't contains the GPU information, sequencing allocate the free GPUs.
+   
+  public static long allocateGPUs(Resource smaller, Resource bigger) {
+    if (smaller.getGPUAttribute() > 0) {        
+         if((smaller.getGPUAttribute() & bigger.getGPUAttribute()) == smaller.getGPUAttribute()){
+             return smaller.getGPUAttribute();
+         }
+         else {
+             return 0;
+         }
+    }
+    else {
+        return allocateGPUsByCount(smaller.getGPUs(), bigger.getGPUAttribute());
+    }
+  }
+
+  //Sequencing allocate the free GPUs.
+  private static long allocateGPUsByCount(int requestCount, long available)
+  {
+    int availableCount = Long.bitCount(available);
+    if(availableCount >= requestCount) {
+      long result = available;
+      while (availableCount-- > requestCount) {
+        result &= (result - 1);
+      }
+      return result;
+    } else {
+      return 0;
+    }
+  }
+
+  //Sequencing allocate the free GPUs.
+  private static ValueRanges allocatePortsByCount(int requestCount, ValueRanges ports) {
+    List<ValueRange> rangeList = ports.getRangesList();
+    int needAllocateCount = requestCount;
+
+    for (ValueRange range : rangeList) {
+      if (range.getEnd() - range.getBegin() >= needAllocateCount - 1) {
+        ValueRange vr = ValueRange.newInstance(range.getBegin(), range.getBegin() + needAllocateCount - 1);
+        rangeList.add(vr);
+        break;
+      } else {
+        ValueRange vr = ValueRange.newInstance(range.getBegin(), range.getEnd());
+        rangeList.add(vr);
+        needAllocateCount -= (range.getEnd() - range.getBegin() + 1);
+      }
+    }
+    ValueRanges valueRanges = ValueRanges.newInstance(rangeList);
+    return valueRanges;
   }
 }

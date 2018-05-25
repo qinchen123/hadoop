@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.hadoop.yarn.api.records.ValueRanges;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.NodeLabel;
@@ -34,10 +35,12 @@ import org.apache.hadoop.yarn.api.records.impl.pb.NodeIdPBImpl;
 import org.apache.hadoop.yarn.api.records.impl.pb.NodeLabelPBImpl;
 import org.apache.hadoop.yarn.api.records.impl.pb.ProtoUtils;
 import org.apache.hadoop.yarn.api.records.impl.pb.ResourcePBImpl;
+import org.apache.hadoop.yarn.api.records.impl.pb.ValueRangesPBImpl;
 import org.apache.hadoop.yarn.proto.YarnProtos.ApplicationIdProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.NodeIdProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.NodeLabelProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ResourceProto;
+import org.apache.hadoop.yarn.proto.YarnProtos.ValueRangesProto;
 import org.apache.hadoop.yarn.proto.YarnServerCommonServiceProtos.NMContainerStatusProto;
 import org.apache.hadoop.yarn.proto.YarnServerCommonServiceProtos.NodeLabelsProto;
 import org.apache.hadoop.yarn.proto.YarnServerCommonServiceProtos.NodeLabelsProto.Builder;
@@ -59,6 +62,7 @@ public class RegisterNodeManagerRequestPBImpl extends RegisterNodeManagerRequest
 
   /** Physical resources in the node. */
   private Resource physicalResource = null;
+  private ValueRanges localUsedPortsSnapshot = null;
 
   public RegisterNodeManagerRequestPBImpl() {
     builder = RegisterNodeManagerRequestProto.newBuilder();
@@ -99,6 +103,10 @@ public class RegisterNodeManagerRequestPBImpl extends RegisterNodeManagerRequest
     }
     if (this.physicalResource != null) {
       builder.setPhysicalResource(convertToProtoFormat(this.physicalResource));
+    }
+    if (this.localUsedPortsSnapshot != null) {
+      builder
+          .setLocalUsedPortsSnapshot(convertToProtoFormat(this.localUsedPortsSnapshot));
     }
   }
 
@@ -375,6 +383,27 @@ public class RegisterNodeManagerRequestPBImpl extends RegisterNodeManagerRequest
     return ((ApplicationIdPBImpl)t).getProto();
   }
 
+  @Override
+  public synchronized ValueRanges getLocalUsedPortsSnapshot() {
+    RegisterNodeManagerRequestProtoOrBuilder p = viaProto ? proto : builder;
+    if (this.localUsedPortsSnapshot != null) {
+      return this.localUsedPortsSnapshot;
+    }
+    if (!p.hasLocalUsedPortsSnapshot()) {
+      return null;
+    }
+    this.localUsedPortsSnapshot =
+        convertFromProtoFormat(p.getLocalUsedPortsSnapshot());
+    return this.localUsedPortsSnapshot;
+  }
+
+  @Override
+  public synchronized void setLocalUsedPortsSnapshot(ValueRanges ports) {
+    maybeInitBuilder();
+    builder.clearLocalUsedPortsSnapshot();
+    localUsedPortsSnapshot = ports;
+  }
+
   private static NodeIdPBImpl convertFromProtoFormat(NodeIdProto p) {
     return new NodeIdPBImpl(p);
   }
@@ -399,5 +428,13 @@ public class RegisterNodeManagerRequestPBImpl extends RegisterNodeManagerRequest
   private static NMContainerStatusProto convertToProtoFormat(
       NMContainerStatus c) {
     return ((NMContainerStatusPBImpl)c).getProto();
+  }
+
+  private static ValueRanges convertFromProtoFormat(ValueRangesProto proto) {
+    return new ValueRangesPBImpl(proto);
+  }
+
+  private ValueRangesProto convertToProtoFormat(ValueRanges m) {
+    return ((ValueRangesPBImpl) m).getProto();
   }
 }

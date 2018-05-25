@@ -87,6 +87,7 @@ import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.Priority;
+import org.apache.hadoop.yarn.api.records.PreemptionMessage;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.api.records.URL;
@@ -234,6 +235,10 @@ public class ApplicationMaster {
   private long containerMemory = 10;
   // VirtualCores to request for the container on which the shell command will run
   private int containerVirtualCores = 1;
+  // GPUs to request for the container on which the shell command will run
+  private int containerGPUs = 0;
+  // GPU locality preference to request for the container on which the shell command will run
+  private int containerGPUAttribute = 0;
   // Priority of the request
   private int requestPriority;
 
@@ -407,6 +412,10 @@ public class ApplicationMaster {
         "Amount of memory in MB to be requested to run the shell command");
     opts.addOption("container_vcores", true,
         "Amount of virtual cores to be requested to run the shell command");
+    opts.addOption("container_GPUs", true,
+        "Amount of GPUs to be requested to run the shell command");
+    opts.addOption("container_GPUAttribute", true,
+        "GPU locality preference to be requested to run the shell command");
     opts.addOption("num_containers", true,
         "No. of containers on which the shell command needs to be executed");
     opts.addOption("priority", true, "Application Priority. Default 0");
@@ -551,6 +560,10 @@ public class ApplicationMaster {
         "container_memory", "10"));
     containerVirtualCores = Integer.parseInt(cliParser.getOptionValue(
         "container_vcores", "1"));
+    containerGPUs = Integer.parseInt(cliParser.getOptionValue(
+        "container_GPUs", "0"));
+    containerGPUAttribute = Integer.parseInt(cliParser.getOptionValue(
+        "container_GPUAttribute", "0"));
     numTotalContainers = Integer.parseInt(cliParser.getOptionValue(
         "num_containers", "1"));
     if (numTotalContainers == 0) {
@@ -677,6 +690,9 @@ public class ApplicationMaster {
     int maxVCores = response.getMaximumResourceCapability().getVirtualCores();
     LOG.info("Max vcores capability of resources in this cluster " + maxVCores);
 
+    int maxGPUs = response.getMaximumResourceCapability().getGPUs();
+    LOG.info("Max GPUs capability of resources in this cluster " + maxGPUs);
+
     // A resource ask cannot exceed the max.
     if (containerMemory > maxMem) {
       LOG.info("Container memory specified above max threshold of cluster."
@@ -690,6 +706,14 @@ public class ApplicationMaster {
           + " Using max value." + ", specified=" + containerVirtualCores + ", max="
           + maxVCores);
       containerVirtualCores = maxVCores;
+    }
+
+    if (containerGPUs > maxGPUs) {
+      LOG.info("Container GPUs specified above max threshold of cluster."
+          + " Using max value." + ", specified=" + containerGPUs + ", max="
+          + maxGPUs);
+      containerGPUs = maxGPUs;
+      containerGPUAttribute = 0;
     }
 
     List<Container> previousAMRunningContainers =
@@ -927,7 +951,11 @@ public class ApplicationMaster {
             + ", containerResourceMemory"
             + allocatedContainer.getResource().getMemorySize()
             + ", containerResourceVirtualCores"
-            + allocatedContainer.getResource().getVirtualCores());
+            + allocatedContainer.getResource().getVirtualCores()
+            + ", containerResourceGPUs"
+            + allocatedContainer.getResource().getGPUs()
+            + ", containerResourceGPUAttribute"
+            + allocatedContainer.getResource().getGPUAttribute());
         // + ", containerToken"
         // +allocatedContainer.getContainerToken().getIdentifier().toString());
 
@@ -951,6 +979,9 @@ public class ApplicationMaster {
     public void onShutdownRequest() {
       done = true;
     }
+
+    @Override
+    public void onPreemptionMessage(PreemptionMessage message) {}
 
     @Override
     public void onNodesUpdated(List<NodeReport> updatedNodes) {}
@@ -1229,7 +1260,7 @@ public class ApplicationMaster {
     // Set up resource type requirements
     // For now, memory and CPU are supported so we set memory and cpu requirements
     Resource capability = Resource.newInstance(containerMemory,
-      containerVirtualCores);
+      containerVirtualCores, containerGPUs, containerGPUAttribute);
 
     ContainerRequest request = new ContainerRequest(capability, null, null,
         pri);

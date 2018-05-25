@@ -75,9 +75,9 @@ public class TestInMemoryPlan {
   @Before
   public void setUp() throws PlanningException {
     resCalc = new DefaultResourceCalculator();
-    minAlloc = Resource.newInstance(1024, 1);
-    maxAlloc = Resource.newInstance(64 * 1024, 20);
-    totalCapacity = Resource.newInstance(100 * 1024, 100);
+    minAlloc = Resource.newInstance(1024, 1, 1);
+    maxAlloc = Resource.newInstance(64 * 1024, 20, 20);
+    totalCapacity = Resource.newInstance(100 * 1024, 100, 100);
 
     clock = mock(Clock.class);
     queueMetrics = mock(QueueMetrics.class);
