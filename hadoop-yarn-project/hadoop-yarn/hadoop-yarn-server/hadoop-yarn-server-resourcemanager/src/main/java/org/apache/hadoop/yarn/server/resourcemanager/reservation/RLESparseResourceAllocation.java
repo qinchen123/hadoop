@@ -38,6 +38,7 @@ import org.apache.hadoop.yarn.util.resource.Resources;
 public class RLESparseResourceAllocation {
 
   private static final int THRESHOLD = 100;
+
   private static final Resource ZERO_RESOURCE = Resources.none();
 
   @SuppressWarnings("checkstyle:visibilitymodifier")
@@ -109,7 +110,6 @@ public class RLESparseResourceAllocation {
     }
     writeLock.lock();
     try {
-
       NavigableMap<Long, Resource> removeInt = new TreeMap<Long, Resource>();
       removeInt.put(reservationInterval.getStartTime(), totCap);
       removeInt.put(reservationInterval.getEndTime(), ZERO_RESOURCE);

@@ -233,6 +233,9 @@ public class TestSystemMetricsPublisher {
             Long.parseLong(entity.getOtherInfo()
                 .get(ApplicationMetricsConstants.APP_CPU_PREEMPT_METRICS)
                 .toString()));
+            app.getRMAppMetrics().getGPUSeconds(),
+            Long.parseLong(entity.getOtherInfo()
+                .get(ApplicationMetricsConstants.APP_GPU_METRICS).toString()));
       }
       Assert.assertEquals("context", entity.getOtherInfo()
           .get(ApplicationMetricsConstants.YARN_APP_CALLER_CONTEXT));
@@ -458,6 +461,10 @@ public class TestSystemMetricsPublisher {
         entity.getOtherInfo().get(
             ContainerMetricsConstants.ALLOCATED_VCORE_INFO));
     Assert.assertEquals(
+        container.getAllocatedResource().getGPUs(),
+        entity.getOtherInfo().get(
+            ContainerMetricsConstants.ALLOCATED_GPU_ENTITY_INFO));
+    Assert.assertEquals(
         container.getAllocatedPriority().getPriority(),
         entity.getOtherInfo().get(
             ContainerMetricsConstants.ALLOCATED_PRIORITY_INFO));
@@ -506,6 +513,7 @@ public class TestSystemMetricsPublisher {
     when(app.getFinalApplicationStatus()).thenReturn(
         FinalApplicationStatus.UNDEFINED);
     when(app.getRMAppMetrics()).thenReturn(
+<<<<<<< HEAD
         new RMAppMetrics(null, 0, 0, Integer.MAX_VALUE, Long.MAX_VALUE,
             Integer.MAX_VALUE, Long.MAX_VALUE));
     Set<String> appTags = new HashSet<String>();
@@ -531,6 +539,9 @@ public class TestSystemMetricsPublisher {
     when(app.getApplicationPriority()).thenReturn(Priority.newInstance(10));
     when(app.getCallerContext())
         .thenReturn(new CallerContext.Builder("context").build());
+=======
+        new RMAppMetrics(null, 0, 0, Integer.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE));
+>>>>>>> d043e33dfd7... check-in gpu port
     return app;
   }
 
@@ -559,7 +570,7 @@ public class TestSystemMetricsPublisher {
     when(container.getAllocatedNode()).thenReturn(
         NodeId.newInstance("test host", -100));
     when(container.getAllocatedResource()).thenReturn(
-        Resource.newInstance(-1, -1));
+        Resource.newInstance(-1, -1, -1));
     when(container.getAllocatedPriority()).thenReturn(Priority.UNDEFINED);
     when(container.getCreationTime()).thenReturn(Integer.MAX_VALUE + 1L);
     when(container.getFinishTime()).thenReturn(Integer.MAX_VALUE + 2L);

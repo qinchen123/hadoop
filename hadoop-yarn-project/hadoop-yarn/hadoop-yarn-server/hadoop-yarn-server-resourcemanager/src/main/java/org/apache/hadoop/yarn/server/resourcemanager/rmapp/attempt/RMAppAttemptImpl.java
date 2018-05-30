@@ -941,10 +941,14 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
           this.attemptMetrics.getAggregateAppResourceUsage();
       report.setMemorySeconds(resUsage.getMemorySeconds());
       report.setVcoreSeconds(resUsage.getVcoreSeconds());
+<<<<<<< HEAD
       report.setPreemptedMemorySeconds(
           this.attemptMetrics.getPreemptedMemory());
       report.setPreemptedVcoreSeconds(
           this.attemptMetrics.getPreemptedVcore());
+=======
+      report.setGPUSeconds(resUsage.getGPUSeconds());
+>>>>>>> d043e33dfd7... check-in gpu port
       return report;
     } finally {
       this.readLock.unlock();
@@ -982,10 +986,14 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
     this.startTime = attemptState.getStartTime();
     this.finishTime = attemptState.getFinishTime();
     this.attemptMetrics.updateAggregateAppResourceUsage(
+<<<<<<< HEAD
         attemptState.getMemorySeconds(), attemptState.getVcoreSeconds());
     this.attemptMetrics.updateAggregatePreemptedAppResourceUsage(
         attemptState.getPreemptedMemorySeconds(),
         attemptState.getPreemptedVcoreSeconds());
+=======
+        attemptState.getMemorySeconds(),attemptState.getVcoreSeconds(),attemptState.getGPUSeconds());
+>>>>>>> d043e33dfd7... check-in gpu port
   }
 
   public void transferStateFromAttempt(RMAppAttempt attempt) {
@@ -1369,8 +1377,12 @@ public class RMAppAttemptImpl implements RMAppAttempt, Recoverable {
             finalStatus, exitStatus,
           getFinishTime(), resUsage.getMemorySeconds(),
           resUsage.getVcoreSeconds(),
+<<<<<<< HEAD
           this.attemptMetrics.getPreemptedMemory(),
           this.attemptMetrics.getPreemptedVcore());
+=======
+          resUsage.getGPUSeconds());
+>>>>>>> d043e33dfd7... check-in gpu port
     LOG.info("Updating application attempt " + applicationAttemptId
         + " with final state: " + targetedFinalState + ", and exit status: "
         + exitStatus);

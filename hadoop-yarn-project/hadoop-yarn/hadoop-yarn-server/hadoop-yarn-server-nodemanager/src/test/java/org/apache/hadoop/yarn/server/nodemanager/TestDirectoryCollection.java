@@ -211,7 +211,6 @@ public class TestDirectoryCollection {
     Assert.assertEquals(0, dc.getDiskUtilizationSpaceCutoff());
   }
 
-  @Test
   public void testFailedDisksBecomingGoodAgain() throws Exception {
 
     String dirA = new File(testDir, "dirA").getPath();

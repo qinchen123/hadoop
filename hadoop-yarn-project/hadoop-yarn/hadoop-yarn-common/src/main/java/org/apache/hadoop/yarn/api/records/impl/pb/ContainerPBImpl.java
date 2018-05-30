@@ -204,7 +204,7 @@ public class ContainerPBImpl extends Container {
       builder.clearResource();
     this.resource = resource;
   }
-  
+
   @Override
   public Priority getPriority() {
     ContainerProtoOrBuilder p = viaProto ? proto : builder;

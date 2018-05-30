@@ -109,6 +109,7 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
   protected long lastMemoryAggregateAllocationUpdateTime = 0;
   private long lastMemorySeconds = 0;
   private long lastVcoreSeconds = 0;
+  private long lastGPUSeconds = 0;
 
   protected final AppSchedulingInfo appSchedulingInfo;
   protected ApplicationAttemptId attemptId;
@@ -532,7 +533,8 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
           + " reserved container " + rmContainer + " on node " + node
           + ". This attempt currently has " + reservedContainers.size()
           + " reserved containers at priority " + schedulerKey.getPriority()
-          + "; currentReservation " + reservedResource);
+          + "; currentReservation " + currentReservation);
+
     }
     
     return true;
@@ -1013,20 +1015,24 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
         > MEM_AGGREGATE_ALLOCATION_CACHE_MSECS) {
       long memorySeconds = 0;
       long vcoreSeconds = 0;
+      long gpuSeconds = 0;
       for (RMContainer rmContainer : this.liveContainers.values()) {
         long usedMillis = currentTimeMillis - rmContainer.getCreationTime();
         Resource resource = rmContainer.getContainer().getResource();
         memorySeconds += resource.getMemorySize() * usedMillis /
             DateUtils.MILLIS_PER_SECOND;
-        vcoreSeconds += resource.getVirtualCores() * usedMillis  
-            / DateUtils.MILLIS_PER_SECOND;
+        vcoreSeconds += resource.getVirtualCores() * usedMillis /
+            DateUtils.MILLIS_PER_SECOND;
+        gpuSeconds += resource.getGPUs() * usedMillis /
+            DateUtils.MILLIS_PER_SECOND;
       }
 
       lastMemoryAggregateAllocationUpdateTime = currentTimeMillis;
       lastMemorySeconds = memorySeconds;
       lastVcoreSeconds = vcoreSeconds;
+      lastGPUSeconds = gpuSeconds;
     }
-    return new AggregateAppResourceUsage(lastMemorySeconds, lastVcoreSeconds);
+    return new AggregateAppResourceUsage(lastMemorySeconds, lastVcoreSeconds, lastGPUSeconds);
   }
 
   public ApplicationResourceUsageReport getResourceUsageReport() {

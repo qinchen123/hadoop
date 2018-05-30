@@ -724,6 +724,8 @@ public class ApplicationCLI extends YarnCLI {
             " MB-seconds, ");
         appReportStr.println(usageReport.getPreemptedVcoreSeconds() +
             " vcore-seconds");
+        appReportStr.print(usageReport.getVcoreSeconds() + " vcore-seconds, ");
+        appReportStr.println(usageReport.getGPUSeconds() + " GPU-seconds");
       } else {
         appReportStr.println("N/A");
         appReportStr.print("\tAggregate Resource Preempted : ");

@@ -128,9 +128,9 @@ public class TestReservations {
     when(csContext.getConfiguration()).thenReturn(csConf);
     when(csContext.getConf()).thenReturn(conf);
     when(csContext.getMinimumResourceCapability()).thenReturn(
-        Resources.createResource(GB, 1));
+        Resources.createResource(GB, 1, 1));
     when(csContext.getMaximumResourceCapability()).thenReturn(
-        Resources.createResource(16 * GB, 12));
+        Resources.createResource(16 * GB, 12, 12));
     when(csContext.getClusterResource()).thenReturn(
         Resources.createResource(100 * 16 * GB, 100 * 12));
     when(csContext.getResourceCalculator()).thenReturn(resourceCalculator);
@@ -1156,6 +1156,7 @@ public class TestReservations {
     // 16GB total, 13GB consumed (8 allocated, 5 reserved). asking for 5GB so we would have to
     // unreserve 2GB to get the total 5GB needed.
     // also note vcore checks not enabled
+
     assertEquals(0, limits.getHeadroom().getMemorySize());
 
     refreshQueuesTurnOffReservationsContLook(a, csConf);
@@ -1336,7 +1337,7 @@ public class TestReservations {
     assertEquals(3 * GB, node_1.getAllocatedResource().getMemorySize());
 
     // not over the limit
-    Resource limit = Resources.createResource(14 * GB, 0);
+    Resource limit = Resources.createResource(14 * GB, 0, 0);
     ResourceLimits userResourceLimits = new ResourceLimits(clusterResource);
     boolean res = a.canAssignToUser(clusterResource, user_0, limit, app_0, "", userResourceLimits);
     assertTrue(res);
@@ -1344,7 +1345,7 @@ public class TestReservations {
 
 
     // set limit so it subtracts reservations and it can continue
-    limit = Resources.createResource(12 * GB, 0);
+    limit = Resources.createResource(12 * GB, 0, 0);
     userResourceLimits = new ResourceLimits(clusterResource);
     res = a.canAssignToUser(clusterResource, user_0, limit, app_0,
              "", userResourceLimits);
@@ -1352,7 +1353,7 @@ public class TestReservations {
     // limit set to 12GB, we are using 13GB (8 allocated,  5 reserved), to get under limit
     // we need to unreserve 1GB
     // also note vcore checks not enabled
-    assertEquals(Resources.createResource(1 * GB, 4),
+    assertEquals(Resources.createResource(1 * GB, 4, 4),
         userResourceLimits.getAmountNeededUnreserve());
 
     refreshQueuesTurnOffReservationsContLook(a, csConf);

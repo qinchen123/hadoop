@@ -338,7 +338,11 @@ public abstract class MockAsm extends MockApps {
           String clientUserName, boolean allowAccess) {
         ApplicationResourceUsageReport usageReport =
             ApplicationResourceUsageReport.newInstance(0, 0, null, null, null, 
+<<<<<<< HEAD
             0, 0, 0, 0, 0, 0);
+=======
+            0, 0, 0);
+>>>>>>> d043e33dfd7... check-in gpu port
         ApplicationReport report = ApplicationReport.newInstance(
             getApplicationId(), appAttemptId, getUser(), getQueue(), 
             getName(), null, 0, null, null, getDiagnostics().toString(), 

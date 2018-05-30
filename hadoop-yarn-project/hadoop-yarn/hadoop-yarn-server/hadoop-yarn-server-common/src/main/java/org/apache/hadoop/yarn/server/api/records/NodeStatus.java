@@ -19,6 +19,7 @@ package org.apache.hadoop.yarn.server.api.records;
 
 import java.util.List;
 
+
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
@@ -29,6 +30,10 @@ import org.apache.hadoop.yarn.api.records.ContainerStatus;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.ResourceUtilization;
 import org.apache.hadoop.yarn.util.Records;
+import org.apache.hadoop.yarn.api.records.*;
+import org.apache.hadoop.yarn.util.Records;
+
+
 
 /**
  * {@code NodeStatus} is a summary of the status of the node.
@@ -39,6 +44,8 @@ import org.apache.hadoop.yarn.util.Records;
  *   <li>Container status.</li>
  * </ul>
  */
+
+
 public abstract class NodeStatus {
 
   /**
@@ -132,4 +139,12 @@ public abstract class NodeStatus {
   @Unstable
   public abstract void setOpportunisticContainersStatus(
       OpportunisticContainersStatus opportunisticContainersStatus);
+
+  public abstract ValueRanges getLocalUsedPortsSnapshot();
+
+  public abstract void setLocalUsedPortsSnapshot(ValueRanges ports);
+
+  public abstract Resource getResource();
+
+  public abstract void setResource(Resource resource);
 }

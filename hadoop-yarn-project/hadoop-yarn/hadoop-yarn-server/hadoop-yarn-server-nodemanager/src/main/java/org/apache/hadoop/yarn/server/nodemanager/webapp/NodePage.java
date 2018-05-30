@@ -73,8 +73,15 @@ public class NodePage extends NMView {
               StringUtils.byteDesc(info.getTotalPmemAllocated() * BYTES_IN_MB))
           ._("Pmem enforcement enabled",
               info.isPmemCheckEnabled())
+<<<<<<< HEAD
           ._("Total VCores allocated for Containers",
               String.valueOf(info.getTotalVCoresAllocated()))
+=======
+           ._("Total VCores allocated for Containers",
+              String.valueOf(info.getTotalVCoresAllocated()))
+          ._("Total GPUs allocated for Containers",
+              String.valueOf(info.getTotalGPUsAllocated()))
+>>>>>>> d043e33dfd7... check-in gpu port
           ._("NodeHealthyStatus",
               info.getHealthStatus())
           ._("LastNodeHealthTime", new Date(

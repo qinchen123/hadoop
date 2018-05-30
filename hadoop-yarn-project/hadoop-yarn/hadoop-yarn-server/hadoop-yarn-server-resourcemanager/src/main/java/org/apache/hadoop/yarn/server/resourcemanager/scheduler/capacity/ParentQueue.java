@@ -703,6 +703,7 @@ public class ParentQueue extends AbstractCSQueue {
 
     return new ResourceLimits(childLimit);
   }
+<<<<<<< HEAD
 
   private Iterator<CSQueue> sortAndGetChildrenAllocationIterator(
       String partition) {
@@ -715,6 +716,14 @@ public class ParentQueue extends AbstractCSQueue {
     CSAssignment assignment = CSAssignment.NULL_ASSIGNMENT;
 
     Resource parentLimits = limits.getLimit();
+=======
+  
+  private synchronized CSAssignment assignContainersToChildQueues(
+      Resource cluster, FiCaSchedulerNode node, ResourceLimits limits) {
+    CSAssignment assignment = 
+        new CSAssignment(Resources.createResource(0, 0, 0), NodeType.NODE_LOCAL);
+    
+>>>>>>> d043e33dfd7... check-in gpu port
     printChildQueues();
 
     // Try to assign to most 'under-served' sub-queue

@@ -373,11 +373,27 @@
 
   <property>
     <description>
-    Used by node labels.  If set to true, the port should be included in the
-    node name.  Only usable if your scheduler supports node labels.
+      Used by node labels.  If set to true, the port should be included in the
+      node name.  Only usable if your scheduler supports node labels.
     </description>
     <name>yarn.scheduler.include-port-in-node-name</name>
     <value>false</value>
+  </property>
+
+  <property>
+    <description>The minimum allocation for every container request at the RM,
+    in terms of GPUs. Requests lower than this will throw a
+    InvalidResourceRequestException.</description>
+    <name>yarn.scheduler.minimum-allocation-gpus</name>
+    <value>0</value>
+  </property>
+
+  <property>
+    <description>The maximum allocation for every container request at the RM,
+    in terms of GPUs. Requests higher than this will throw a
+    InvalidResourceRequestException.</description>
+    <name>yarn.scheduler.maximum-allocation-gpus</name>
+    <value>8</value>
   </property>
 
   <property>
@@ -1324,10 +1340,26 @@
   </property>
 
   <property>
+<<<<<<< HEAD
     <description>Flag to determine if logical processors(such as
     hyperthreads) should be counted as cores. Only applicable on Linux
     when yarn.nodemanager.resource.cpu-vcores is set to -1 and
     yarn.nodemanager.resource.detect-hardware-capabilities is true.
+=======
+    <description>Number of GPUs that can be allocated
+    for containers. This is used by the RM scheduler when allocating
+    resources for containers. This is not used to limit the number of
+    physical GPUs used by YARN containers.</description>
+    <name>yarn.nodemanager.resource.gpus</name>
+    <value>8</value>
+  </property>
+
+  <property>
+    <description>Percentage of CPU that can be allocated
+    for containers. This setting allows users to limit the amount of
+    CPU that YARN containers use. Currently functional only
+    on Linux using cgroups. The default is to use 100% of CPU.
+>>>>>>> d043e33dfd7... check-in gpu port
     </description>
     <name>yarn.nodemanager.resource.count-logical-processors-as-cores</name>
     <value>false</value>
@@ -1369,6 +1401,40 @@
     </description>
     <name>yarn.nodemanager.resource.detect-hardware-capabilities</name>
     <value>false</value>
+  </property>
+
+  <property>
+    <description>Percentage of GPU that can be allocated
+    for containers. This setting allows users to limit the amount of
+    GPU that YARN containers use. Currently functional only
+    on Linux using cgroups. The default is to use 100% of GPU.
+    </description>
+    <name>yarn.nodemanager.resource.percentage-physical-gpu-limit</name>
+    <value>100</value>
+  </property>
+
+  <property>
+    <description>enable port as resource</description>
+    <name>yarn.ports_as_resource.enable</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <description>enable bitset store</description>
+    <name>yarn.ports_bitset_store.enable</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <description>exclude the gpus which is used by unknown process</description>
+    <name>yarn.gpu_exclude_ownerless_gpu.enable</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <description>the gpu memory threshold to indicate a gpu is used by unknown process</description>
+    <name>yarn.gpu_not_ready_memory_threshold-mb</name>
+    <value>20</value>
   </property>
 
   <property>
@@ -1690,6 +1756,7 @@
   </property>
 
   <property>
+<<<<<<< HEAD
     <description>
     Interval of time the linux container executor should try cleaning up
     cgroups entry when cleaning up a container.
@@ -1704,6 +1771,12 @@
     </description>
     <name>yarn.nodemanager.linux-container-executor.group</name>
     <value></value>
+=======
+    <description>This flag determines whether GPU limit will be set for the Windows Job
+    Object of the containers launched by the default container executor.</description>
+    <name>yarn.nodemanager.windows-container.gpu-limit.enabled</name>
+    <value>false</value>
+>>>>>>> d043e33dfd7... check-in gpu port
   </property>
 
   <property>

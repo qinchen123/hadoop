@@ -91,16 +91,26 @@ public class AppInfo {
   protected long elapsedTime;
   protected String amContainerLogs;
   protected String amHostHttpAddress;
+
   private String amRPCAddress;
   private long allocatedMB;
   private long allocatedVCores;
   private long reservedMB;
   private long reservedVCores;
+  protected int allocatedGPUs;
   private int runningContainers;
   private long memorySeconds;
   private long vcoreSeconds;
+  protected long GPUSeconds;
   protected float queueUsagePercentage;
   protected float clusterUsagePercentage;
+
+  // preemption info fields
+  protected int preemptedResourceMB;
+  protected int preemptedResourceVCores;
+  protected int preemptedResourceGPUs;
+  protected int numNonAMContainerPreempted;
+  protected int numAMContainerPreempted;
 
   // preemption info fields
   private long preemptedResourceMB;
@@ -202,6 +212,8 @@ public class AppInfo {
             allocatedVCores = usedResources.getVirtualCores();
             reservedMB = reservedResources.getMemorySize();
             reservedVCores = reservedResources.getVirtualCores();
+            allocatedGPUs = usedResources.getGPUs();
+
             runningContainers = resourceReport.getNumUsedContainers();
             queueUsagePercentage = resourceReport.getQueueUsagePercentage();
             clusterUsagePercentage = resourceReport.getClusterUsagePercentage();
@@ -232,8 +244,11 @@ public class AppInfo {
       numNonAMContainerPreempted = appMetrics.getNumNonAMContainersPreempted();
       preemptedResourceVCores =
           appMetrics.getResourcePreempted().getVirtualCores();
+      preemptedResourceGPUs =
+          appMetrics.getResourcePreempted().getGPUs();
       memorySeconds = appMetrics.getMemorySeconds();
       vcoreSeconds = appMetrics.getVcoreSeconds();
+
       preemptedMemorySeconds = appMetrics.getPreemptedMemorySeconds();
       preemptedVcoreSeconds = appMetrics.getPreemptedVcoreSeconds();
       ApplicationSubmissionContext appSubmissionContext =
@@ -322,7 +337,7 @@ public class AppInfo {
           }
         }
       }
-
+      GPUSeconds = appMetrics.getGPUSeconds();
     }
   }
 
@@ -506,6 +521,10 @@ public class AppInfo {
     return preemptedResourceMB;
   }
 
+  public int getAllocatedGPUs() {
+    return this.allocatedGPUs;
+  }
+
   public void setPreemptedResourceMB(long preemptedResourceMB) {
     this.preemptedResourceMB = preemptedResourceMB;
   }
@@ -519,7 +538,11 @@ public class AppInfo {
   }
 
   public int getNumNonAMContainerPreempted() {
-    return numNonAMContainerPreempted;
+      return numNonAMContainerPreempted;
+    }
+
+  public int getPreemptedGPUs() {
+    return preemptedResourceGPUs;
   }
 
   public void setNumNonAMContainerPreempted(int numNonAMContainerPreempted) {
@@ -583,7 +606,15 @@ public class AppInfo {
     this.state = state;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setName(String name){
+      this.name = name;
+  }
+
+  public long getGPUSeconds() {
+    return GPUSeconds;
+  }
+
+  public List<ResourceRequest> getResourceRequests() {
+    return this.resourceRequests;
   }
 }

@@ -52,6 +52,7 @@ public class ClusterMetricsInfo {
 
   private long totalMB;
   private long totalVirtualCores;
+  protected long totalGPUs;
   private int totalNodes;
   private int lostNodes;
   private int unhealthyNodes;
@@ -60,6 +61,10 @@ public class ClusterMetricsInfo {
   private int rebootedNodes;
   private int activeNodes;
   private int shutdownNodes;
+
+  protected long reservedGPUs;
+  protected long availableGPUs;
+  protected long allocatedGPUs;
 
   public ClusterMetricsInfo() {
   } // JAXB needs this
@@ -87,6 +92,10 @@ public class ClusterMetricsInfo {
     this.availableVirtualCores = metrics.getAvailableVirtualCores();
     this.allocatedVirtualCores = metrics.getAllocatedVirtualCores();
 
+    this.reservedGPUs = metrics.getReservedGPUs();
+    this.availableGPUs = metrics.getAvailableGPUs();
+    this.allocatedGPUs = metrics.getAllocatedGPUs();
+
     this.containersAllocated = metrics.getAllocatedContainers();
     this.containersPending = metrics.getPendingContainers();
     this.containersReserved = metrics.getReservedContainers();
@@ -99,6 +108,8 @@ public class ClusterMetricsInfo {
       this.totalMB = availableMB + allocatedMB;
       this.totalVirtualCores = availableVirtualCores + allocatedVirtualCores;
     }
+    this.totalGPUs = availableGPUs + allocatedGPUs;
+
     this.activeNodes = clusterMetrics.getNumActiveNMs();
     this.lostNodes = clusterMetrics.getNumLostNMs();
     this.unhealthyNodes = clusterMetrics.getUnhealthyNMs();
@@ -158,6 +169,18 @@ public class ClusterMetricsInfo {
     return this.allocatedVirtualCores;
   }
 
+  public long getReservedGPUs() {
+    return this.reservedGPUs;
+  }
+
+  public long getAvailableGPUs() {
+    return this.availableGPUs;
+  }
+
+  public long getAllocatedGPUs() {
+    return this.allocatedGPUs;
+  }
+
   public int getContainersAllocated() {
     return this.containersAllocated;
   }
@@ -176,6 +199,10 @@ public class ClusterMetricsInfo {
 
   public long getTotalVirtualCores() {
     return this.totalVirtualCores;
+  }
+
+  public long getTotalGPUs() {
+    return this.totalGPUs;
   }
 
   public int getTotalNodes() {
@@ -309,5 +336,4 @@ public class ClusterMetricsInfo {
   public void setShutdownNodes(int shutdownNodes) {
     this.shutdownNodes = shutdownNodes;
   }
-
 }

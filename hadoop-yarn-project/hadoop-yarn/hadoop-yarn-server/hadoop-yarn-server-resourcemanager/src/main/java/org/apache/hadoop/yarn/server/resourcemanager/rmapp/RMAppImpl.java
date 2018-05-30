@@ -752,6 +752,7 @@ public class RMAppImpl implements RMApp, Recoverable {
         appUsageReport.
             setPreemptedVcoreSeconds(rmAppMetrics.
                 getPreemptedVcoreSeconds());
+        appUsageReport.setGPUSeconds(rmAppMetrics.getGPUSeconds());
       }
 
       if (currentApplicationAttemptId == null) {
@@ -1609,11 +1610,12 @@ public class RMAppImpl implements RMApp, Recoverable {
   
   @Override
   public RMAppMetrics getRMAppMetrics() {
-    Resource resourcePreempted = Resource.newInstance(0, 0);
+    Resource resourcePreempted = Resource.newInstance(0, 0, 0);
     int numAMContainerPreempted = 0;
     int numNonAMContainerPreempted = 0;
     long memorySeconds = 0;
     long vcoreSeconds = 0;
+    long gpuSeconds = 0;
     long preemptedMemorySeconds = 0;
     long preemptedVcoreSeconds = 0;
     this.readLock.lock();
@@ -1633,6 +1635,7 @@ public class RMAppImpl implements RMApp, Recoverable {
               attempt.getRMAppAttemptMetrics().getAggregateAppResourceUsage();
           memorySeconds += resUsage.getMemorySeconds();
           vcoreSeconds += resUsage.getVcoreSeconds();
+          gpuSeconds += resUsage.getGPUSeconds();
           preemptedMemorySeconds += attemptMetrics.getPreemptedMemory();
           preemptedVcoreSeconds += attemptMetrics.getPreemptedVcore();
         }
@@ -1643,7 +1646,7 @@ public class RMAppImpl implements RMApp, Recoverable {
 
     return new RMAppMetrics(resourcePreempted,
         numNonAMContainerPreempted, numAMContainerPreempted,
-        memorySeconds, vcoreSeconds,
+        memorySeconds, vcoreSeconds, gpuSeconds,
         preemptedMemorySeconds, preemptedVcoreSeconds);
   }
 

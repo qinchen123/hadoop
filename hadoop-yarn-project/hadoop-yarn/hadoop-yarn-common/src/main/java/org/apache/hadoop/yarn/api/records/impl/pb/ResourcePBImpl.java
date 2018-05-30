@@ -24,6 +24,7 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.proto.YarnProtos.ResourceProto;
 import org.apache.hadoop.yarn.proto.YarnProtos.ResourceProtoOrBuilder;
+import org.apache.hadoop.yarn.proto.YarnProtos.ValueRangesProto;
 
 @Private
 @Unstable
@@ -44,6 +45,7 @@ public class ResourcePBImpl extends Resource {
     }
     return pb.getProto();
   }
+  ValueRanges ports = null;
 
   public ResourcePBImpl() {
     builder = ResourceProto.newBuilder();
@@ -55,10 +57,27 @@ public class ResourcePBImpl extends Resource {
   }
   
   public ResourceProto getProto() {
+    mergeLocalToProto();
     proto = viaProto ? proto : builder.build();
     viaProto = true;
     return proto;
   }
+
+  private synchronized void mergeLocalToBuilder() {
+    if (this.ports != null) {
+      builder.setPorts(convertToProtoFormat(this.ports));
+    }
+  }
+
+  private synchronized void mergeLocalToProto() {
+    if (viaProto){
+      maybeInitBuilder();
+    }
+    mergeLocalToBuilder();
+    proto = builder.build();
+    viaProto = true;
+  }
+
 
   private void maybeInitBuilder() {
     if (viaProto || builder == null) {
@@ -101,5 +120,71 @@ public class ResourcePBImpl extends Resource {
   public void setVirtualCores(int vCores) {
     maybeInitBuilder();
     builder.setVirtualCores(vCores);
+  }
+
+  @Override
+  public int getGPUs() {
+    ResourceProtoOrBuilder p = viaProto ? proto : builder;
+    return (p.getGPUs());
+  }
+
+  @Override
+  public void setGPUs(int GPUs) {
+    maybeInitBuilder();
+    builder.setGPUs((GPUs));
+  }
+
+  @Override
+  public long getGPUAttribute() {
+    ResourceProtoOrBuilder p = viaProto ? proto : builder;
+    return (p.getGPUAttribute());
+  }
+
+  @Override
+  public void setGPUAttribute(long GPUAttribute) {
+    maybeInitBuilder();
+    builder.setGPUAttribute((GPUAttribute));
+  }
+
+  @Override
+  public void setPorts(ValueRanges ports) {
+    maybeInitBuilder();
+    if (ports == null) {
+      builder.clearPorts();
+    }
+    this.ports = ports;
+  }
+
+  @Override
+  public ValueRanges getPorts() {
+    ResourceProtoOrBuilder p = viaProto ? proto : builder;
+    if (this.ports != null) {
+      return this.ports;
+    }
+    if (!p.hasPorts()) {
+      return null;
+    }
+    this.ports = convertFromProtoFormat(p.getPorts());
+    return this.ports;
+  }
+
+  @Override
+  public int compareTo(Resource other) {
+    int diff = this.getMemory() - other.getMemory();
+    if (diff == 0) {
+      diff = this.getVirtualCores() - other.getVirtualCores();
+      if (diff == 0) {
+        diff = this.getGPUs() - other.getGPUs();
+      }
+    }
+    return diff;
+  }
+
+  private static ValueRanges convertFromProtoFormat( ValueRangesProto proto) {
+    return new ValueRangesPBImpl(proto);
+  }
+
+  private ValueRangesProto convertToProtoFormat(ValueRanges m) {
+    return ((ValueRangesPBImpl)m).getProto();
   }
 }  

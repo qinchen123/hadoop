@@ -87,6 +87,14 @@ public class CSAssignment {
     this.type = type;
     this.excessReservation = excessReservation;
     this.application = application;
+    this.skipped = false;
+  }
+  
+  public CSAssignment(boolean skipped) {
+    this.resource = Resources.createResource(0, 0, 0);
+    this.type = NodeType.NODE_LOCAL;
+    this.application = null;
+    this.excessReservation = null;
     this.skipped = skipped;
     this.fulfilledReservation = fulfilledReservation;
     this.assignmentInformation = new AssignmentInformation();

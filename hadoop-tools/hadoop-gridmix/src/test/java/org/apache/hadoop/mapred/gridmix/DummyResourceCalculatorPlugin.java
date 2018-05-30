@@ -64,6 +64,10 @@ public class DummyResourceCalculatorPlugin extends ResourceCalculatorPlugin {
   /** cumulative number of bytes written to disks */
   public static final String STORAGE_BYTES_WRITTEN =
       "mapred.tasktracker.storagewritten.testing";
+  /** number of GPUs for testing */
+  public static final String NUM_GPUS =
+      "mapred.tasktracker.numgpus.testing";
+
   /** process cumulative CPU usage time for testing */
   public static final String PROC_CUMULATIVE_CPU_TIME =
       "mapred.tasktracker.proccumulativecputime.testing";
@@ -130,6 +134,7 @@ public class DummyResourceCalculatorPlugin extends ResourceCalculatorPlugin {
 
   /** {@inheritDoc} */
   @Override
+
   public long getNetworkBytesRead() {
     return getConf().getLong(NETWORK_BYTES_READ, -1);
   }
@@ -138,6 +143,17 @@ public class DummyResourceCalculatorPlugin extends ResourceCalculatorPlugin {
   @Override
   public long getNetworkBytesWritten() {
     return getConf().getLong(NETWORK_BYTES_WRITTEN, -1);
+
+  public int getNumGPUs(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold) {
+    return getConf().getInt(NUM_GPUS, -1);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public long getGpuAttributeCapacity(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold) {
+    // not support;
+    return 0;
+
   }
 
   /** {@inheritDoc} */
@@ -150,5 +166,9 @@ public class DummyResourceCalculatorPlugin extends ResourceCalculatorPlugin {
   @Override
   public long getStorageBytesWritten() {
     return getConf().getLong(STORAGE_BYTES_WRITTEN, -1);
+
+  public String getPortsUsage() {
+    // not support;
+    return null;
   }
 }

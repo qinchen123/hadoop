@@ -1111,6 +1111,7 @@ public class TestClientRMService {
                         report.getApplicationResourceUsageReport();
                     usageReport.setMemorySeconds(memorySeconds);
                     usageReport.setVcoreSeconds(vcoreSeconds);
+                    usageReport.setGPUSeconds(gpuSeconds);
                     report.setApplicationResourceUsageReport(usageReport);
                     return report;
                   }

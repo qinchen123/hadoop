@@ -130,7 +130,7 @@ public class TestNMReconnect extends ParameterizedSchedulerTestBase {
   @Test
   public void testReconnect() throws Exception {
     String hostname1 = "localhost1";
-    Resource capability = BuilderUtils.newResource(1024, 1);
+    Resource capability = BuilderUtils.newResource(1024, 1, 1);
 
     RegisterNodeManagerRequest request1 = recordFactory
         .newRecordInstance(RegisterNodeManagerRequest.class);
@@ -149,7 +149,7 @@ public class TestNMReconnect extends ParameterizedSchedulerTestBase {
 
     rmNodeEvents.clear();
     resourceTrackerService.registerNodeManager(request1);
-    capability = BuilderUtils.newResource(1024, 2);
+    capability = BuilderUtils.newResource(1024, 2, 2);
     request1.setResource(capability);
     Assert.assertEquals(RMNodeEventType.RECONNECTED,
         rmNodeEvents.get(0).getType());
@@ -173,7 +173,7 @@ public class TestNMReconnect extends ParameterizedSchedulerTestBase {
     dispatcher.register(SchedulerEventType.class, scheduler);
 
     String hostname1 = "localhost1";
-    Resource capability = BuilderUtils.newResource(4096, 4);
+    Resource capability = BuilderUtils.newResource(4096, 4, 4, 15);
 
     RegisterNodeManagerRequest request1 = recordFactory
         .newRecordInstance(RegisterNodeManagerRequest.class);
@@ -188,7 +188,7 @@ public class TestNMReconnect extends ParameterizedSchedulerTestBase {
         context.getRMNodes().get(nodeId1));
     Assert.assertEquals(context.getRMNodes().get(nodeId1).
         getTotalCapability(), capability);
-    Resource capability1 = BuilderUtils.newResource(2048, 2);
+    Resource capability1 = BuilderUtils.newResource(2048, 2, 2, 3);
     request1.setResource(capability1);
     resourceTrackerService.registerNodeManager(request1);
     Assert.assertNotNull(context.getRMNodes().get(nodeId1));

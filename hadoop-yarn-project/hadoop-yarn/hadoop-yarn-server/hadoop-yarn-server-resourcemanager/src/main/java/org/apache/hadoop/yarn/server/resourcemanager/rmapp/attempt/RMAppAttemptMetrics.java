@@ -41,9 +41,9 @@ public class RMAppAttemptMetrics {
 
   private ApplicationAttemptId attemptId = null;
   // preemption info
-  private Resource resourcePreempted = Resource.newInstance(0, 0);
+  private Resource resourcePreempted = Resource.newInstance(0, 0, 0);
   // application headroom
-  private volatile Resource applicationHeadroom = Resource.newInstance(0, 0);
+  private volatile Resource applicationHeadroom = Resource.newInstance(0, 0, 0);
   private AtomicInteger numNonAMContainersPreempted = new AtomicInteger(0);
   private AtomicBoolean isPreempted = new AtomicBoolean(false);
   
@@ -51,8 +51,12 @@ public class RMAppAttemptMetrics {
   private WriteLock writeLock;
   private AtomicLong finishedMemorySeconds = new AtomicLong(0);
   private AtomicLong finishedVcoreSeconds = new AtomicLong(0);
+<<<<<<< HEAD
   private AtomicLong preemptedMemorySeconds = new AtomicLong(0);
   private AtomicLong preemptedVcoreSeconds = new AtomicLong(0);
+=======
+  private AtomicLong finishedGPUSeconds = new AtomicLong(0);
+>>>>>>> d043e33dfd7... check-in gpu port
   private RMContext rmContext;
 
   private int[][] localityStatistics =
@@ -124,8 +128,10 @@ public class RMAppAttemptMetrics {
   public AggregateAppResourceUsage getAggregateAppResourceUsage() {
     long memorySeconds = finishedMemorySeconds.get();
     long vcoreSeconds = finishedVcoreSeconds.get();
+    long gpuSeconds = finishedGPUSeconds.get();
 
     // Only add in the running containers if this is the active attempt.
+<<<<<<< HEAD
     RMApp rmApp = rmContext.getRMApps().get(attemptId.getApplicationId());
     if (null != rmApp) {
       RMAppAttempt currentAttempt = rmApp.getCurrentAppAttempt();
@@ -136,15 +142,28 @@ public class RMAppAttemptMetrics {
           memorySeconds += appResUsageReport.getMemorySeconds();
           vcoreSeconds += appResUsageReport.getVcoreSeconds();
         }
+=======
+    RMAppAttempt currentAttempt = rmContext.getRMApps()
+                   .get(attemptId.getApplicationId()).getCurrentAppAttempt();
+    if (currentAttempt.getAppAttemptId().equals(attemptId)) {
+      ApplicationResourceUsageReport appResUsageReport = rmContext
+            .getScheduler().getAppResourceUsageReport(attemptId);
+      if (appResUsageReport != null) {
+        memorySeconds += appResUsageReport.getMemorySeconds();
+        vcoreSeconds += appResUsageReport.getVcoreSeconds();
+        gpuSeconds += appResUsageReport.getGPUSeconds();
+>>>>>>> d043e33dfd7... check-in gpu port
       }
     }
-    return new AggregateAppResourceUsage(memorySeconds, vcoreSeconds);
+    return new AggregateAppResourceUsage(memorySeconds, vcoreSeconds, gpuSeconds);
   }
 
   public void updateAggregateAppResourceUsage(long finishedMemorySeconds,
-                                        long finishedVcoreSeconds) {
+                                              long finishedVcoreSeconds,
+                                              long finishedGPUSeconds) {
     this.finishedMemorySeconds.addAndGet(finishedMemorySeconds);
     this.finishedVcoreSeconds.addAndGet(finishedVcoreSeconds);
+    this.finishedGPUSeconds.addAndGet(finishedGPUSeconds);
   }
 
   public void updateAggregatePreemptedAppResourceUsage(

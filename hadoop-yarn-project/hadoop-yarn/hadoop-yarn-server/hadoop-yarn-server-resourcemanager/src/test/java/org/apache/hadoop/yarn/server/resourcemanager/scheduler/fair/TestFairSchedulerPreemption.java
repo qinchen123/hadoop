@@ -335,7 +335,32 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
     assertEquals(8, greedyApp.getLiveContainers().size());
   }
 
+  private void registerNodeAndSubmitApp(
+          int memory, int vcores, int gpus, int GPLocation, int appContainers, int appMemory) {
+    RMNode node1 = MockNodes.newNodeInfo(
+            1, Resources.createResource(memory, vcores, gpus, GPLocation), 1, "node1");
+    NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
+    scheduler.handle(nodeEvent1);
+
+    assertEquals("Incorrect amount of resources in the cluster",
+            memory, scheduler.rootMetrics.getAvailableMB());
+    assertEquals("Incorrect amount of resources in the cluster",
+            vcores, scheduler.rootMetrics.getAvailableVirtualCores());
+
+    createSchedulingRequest(appMemory, "queueA", "user1", appContainers);
+    scheduler.update();
+    // Sufficient node check-ins to fully schedule containers
+    for (int i = 0; i < 3; i++) {
+      NodeUpdateSchedulerEvent nodeUpdate1 = new NodeUpdateSchedulerEvent(node1);
+      scheduler.handle(nodeUpdate1);
+    }
+    assertEquals("app1's request is not met",
+            memory - appContainers * appMemory,
+            scheduler.rootMetrics.getAvailableMB());
+  }
+
   @Test
+
   public void testPreemptionWithinSameLeafQueue() throws Exception {
     String queue = "root.preemptable.child-1";
     submitApps(queue, queue);
@@ -411,7 +436,6 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
 
     // Let one of the child queues take over the entire cluster
     takeAllResources("root.preemptable.child-1");
-
     // Submit a job so half the resources go to parent's sibling
     preemptHalfResources("root.preemptable-sibling");
     verifyPreemption(2);
