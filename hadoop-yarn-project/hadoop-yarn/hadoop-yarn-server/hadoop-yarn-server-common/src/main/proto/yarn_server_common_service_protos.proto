@@ -66,6 +66,7 @@ message RegisterNodeManagerRequestProto {
   repeated ApplicationIdProto runningApplications = 7;
   optional NodeLabelsProto nodeLabels = 8;
   optional ResourceProto physicalResource = 9;
+  optional ValueRangesProto local_used_ports_snapshot = 10;
 }
 
 message RegisterNodeManagerResponseProto {
@@ -77,6 +78,7 @@ message RegisterNodeManagerResponseProto {
   optional string rm_version = 6;
   optional bool areNodeLabelsAcceptedByRM = 7 [default = false];
   optional ResourceProto resource = 8;
+  optional ValueRangesProto local_used_ports_snapshot = 240;
 }
 
 message UnRegisterNodeManagerRequestProto {

@@ -315,10 +315,16 @@ public class TestAuxServices {
     ApplicationAttemptId attemptId = ApplicationAttemptId.newInstance(appId1, 1);
     ContainerTokenIdentifier cti = new ContainerTokenIdentifier(
         ContainerId.newContainerId(attemptId, 1), "", "",
+<<<<<<< HEAD
         Resource.newInstance(1, 1), 0,0,0, Priority.newInstance(0), 0);
     Context context = mock(Context.class);
     Container container = new ContainerImpl(new YarnConfiguration(), null, null, null,
         null, cti, context);
+=======
+        Resource.newInstance(1, 1, 1), 0,0,0, Priority.newInstance(0), 0);
+    Container container = new ContainerImpl(null, null, null, null, null,
+        null, cti);
+>>>>>>> d043e33dfd7... check-in gpu port
     ContainerId containerId = container.getContainerId();
     Resource resource = container.getResource();
     event = new AuxServicesEvent(AuxServicesEventType.CONTAINER_INIT,container);

@@ -103,6 +103,10 @@ public class TestNMWebServer {
         return 0;
       }
       @Override
+      public long getGPUsAllocatedForContainers() {
+        return 0;
+      }
+      @Override
       public boolean isVmemCheckEnabled() {
         return true;
       }
@@ -166,6 +170,10 @@ public class TestNMWebServer {
         return 0;
       }
       @Override
+      public long getGPUsAllocatedForContainers() {
+        return 0;
+      }
+      @Override
       public boolean isVmemCheckEnabled() {
         return true;
       }
@@ -213,7 +221,7 @@ public class TestNMWebServer {
       long currentTime = System.currentTimeMillis();
       Token containerToken =
           BuilderUtils.newContainerToken(containerId, 0, "127.0.0.1", 1234,
-              user, BuilderUtils.newResource(1024, 1), currentTime + 10000L,
+              user, BuilderUtils.newResource(1024, 1, 1), currentTime + 10000L,
               123, "password".getBytes(), currentTime);
       Context context = mock(Context.class);
       Container container =

@@ -44,6 +44,8 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainerStat
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 import org.apache.hadoop.yarn.server.scheduler.SchedulerRequestKey;
 import org.apache.hadoop.yarn.util.resource.Resources;
+import org.apache.hadoop.yarn.api.records.ValueRanges;
+import com.google.common.annotations.VisibleForTesting;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -196,6 +198,11 @@ public abstract class SchedulerNode {
     return this.allocatedResource;
   }
 
+  public synchronized ValueRanges getAvailablePorts() {
+    return this.rmNode.getAvailablePorts();
+  }
+
+
   /**
    * Get total resources on the node.
    * @return Total resources on the node.
@@ -265,6 +272,28 @@ public abstract class SchedulerNode {
     if (info != null) {
       info.launchedOnNode = true;
     }
+  }
+
+  private void updateAllocatedPorts() {
+    rmNode.setContainerAllocatedPorts(usedResource.getPorts());
+
+    if (rmNode.getTotalCapability().getPorts() != null
+        && rmNode.getTotalCapability().getPorts().getBitSetStore() != null) {
+      ValueRanges containerAllocatedPorts =
+          ValueRanges.convertToBitSet(rmNode.getContainerAllocatedPorts());
+      rmNode.setContainerAllocatedPorts(containerAllocatedPorts);
+    }
+    rmNode.setAvailablePorts(calculateAvailablePorts());
+  }
+
+
+  private ValueRanges calculateAvailablePorts() {
+    if (rmNode.getTotalCapability().getPorts() == null) {
+      return null;
+    }
+    return rmNode.getTotalCapability().getPorts()
+        .minusSelf(rmNode.getContainerAllocatedPorts())
+        .minusSelf(rmNode.getLocalUsedPortsSnapshot());
   }
 
   /**

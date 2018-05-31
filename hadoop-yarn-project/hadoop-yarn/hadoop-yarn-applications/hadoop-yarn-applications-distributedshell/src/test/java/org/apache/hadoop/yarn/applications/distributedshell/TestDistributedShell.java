@@ -326,10 +326,16 @@ public class TestDistributedShell {
         "512",
         "--master_vcores",
         "2",
+        "--master_GPUs",
+        "0",
         "--container_memory",
         "128",
         "--container_vcores",
-        "1"
+        "1",
+        "--container_GPUs",
+        "0",
+        "--container_GPUAttribute",
+        "0"
     };
     if (haveDomain) {
       String[] domainArgs = {
@@ -885,10 +891,16 @@ public class TestDistributedShell {
         "512",
         "--master_vcores",
         "2",
+        "--master_GPUs",
+        "0",
         "--container_memory",
         "128",
         "--container_vcores",
-        "1"
+        "1",
+        "--container_GPUs",
+        "0",
+        "--container_GPUAttribute",
+        "0"
     };
 
     //Before run the DS, the default the log level is INFO
@@ -929,10 +941,16 @@ public class TestDistributedShell {
         "512",
         "--master_vcores",
         "2",
+        "--master_GPUs",
+        "0",
         "--container_memory",
         "128",
         "--container_vcores",
-        "1"
+        "1",
+        "--container_GPUs",
+        "0",
+        "--container_GPUAttribute",
+        "0"
     };
 
     LOG.info("Initializing DS Client");
@@ -963,10 +981,16 @@ public class TestDistributedShell {
         "512",
         "--master_vcores",
         "2",
+        "--master_GPUs",
+        "0",
         "--container_memory",
         "128",
         "--container_vcores",
-        "1"
+        "1",
+        "--container_GPUs",
+        "0",
+        "--container_GPUAttribute",
+        "0"
     };
 
     LOG.info("Initializing DS Client");
@@ -1011,10 +1035,16 @@ public class TestDistributedShell {
         "512",
         "--master_vcores",
         "2",
+        "--master_GPUs",
+        "0",
         "--container_memory",
         "128",
         "--container_vcores",
-        "1"
+        "1",
+        "--container_GPUs",
+        "0",
+        "--container_GPUAttribute",
+        "0"
     };
 
     LOG.info("Initializing DS Client");
@@ -1115,10 +1145,16 @@ public class TestDistributedShell {
           "512",
           "--master_vcores",
           "-2",
+          "--master_GPUs",
+          "0",
           "--container_memory",
           "128",
           "--container_vcores",
-          "1"
+          "1",
+          "--container_GPUs",
+          "0",
+          "--container_GPUAttribute",
+          "0"
       };
       client.init(args);
       Assert.fail("Exception is expected");
@@ -1140,10 +1176,16 @@ public class TestDistributedShell {
           "512",
           "--master_vcores",
           "2",
+          "--master_GPUs",
+          "0",
           "--container_memory",
           "128",
           "--container_vcores",
           "1",
+          "--container_GPUs",
+          "0",
+          "--container_GPUAttribute",
+          "0",
           "--shell_script",
           "test.sh"
       };
@@ -1166,10 +1208,16 @@ public class TestDistributedShell {
           "512",
           "--master_vcores",
           "2",
+          "--master_GPUs",
+          "0",
           "--container_memory",
           "128",
           "--container_vcores",
-          "1"
+          "1",
+          "--container_GPUs",
+          "0",
+          "--container_GPUAttribute",
+          "0"
       };
       client.init(args);
       Assert.fail("Exception is expected");
@@ -1264,10 +1312,16 @@ public class TestDistributedShell {
         "512",
         "--master_vcores",
         "2",
+        "--master_GPUs",
+        "0",
         "--container_memory",
         "128",
         "--container_vcores",
         "1",
+        "--container_GPUs",
+        "0",
+        "--container_GPUAttribute",
+        "0",
         "--debug"
     };
 

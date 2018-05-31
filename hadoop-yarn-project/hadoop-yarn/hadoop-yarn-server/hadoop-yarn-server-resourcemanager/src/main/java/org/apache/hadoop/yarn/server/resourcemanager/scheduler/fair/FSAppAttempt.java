@@ -32,14 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
-import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.Container;
-import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.api.records.ContainerStatus;
-import org.apache.hadoop.yarn.api.records.NodeId;
-import org.apache.hadoop.yarn.api.records.Priority;
-import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.api.records.ResourceRequest;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.server.resourcemanager.RMAuditLogger;
 import org.apache.hadoop.yarn.server.resourcemanager.RMAuditLogger.AuditConstants;
 import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
@@ -59,7 +52,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerUtils;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.PendingAsk;
 import org.apache.hadoop.yarn.server.scheduler.SchedulerRequestKey;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
-import org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator;
+import org.apache.hadoop.yarn.util.resource.GPUResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
 /**
@@ -71,8 +64,8 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     implements Schedulable {
 
   private static final Log LOG = LogFactory.getLog(FSAppAttempt.class);
-  private static final DefaultResourceCalculator RESOURCE_CALCULATOR
-      = new DefaultResourceCalculator();
+  private static final GPUResourceCalculator RESOURCE_CALCULATOR
+      = new GPUResourceCalculator();
 
   private final long startTime;
   private final Priority appPriority;
@@ -852,6 +845,19 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     // Can we allocate a container on this node?
     if (Resources.fitsIn(capability, available)) {
       // Inform the application of the new container for this request
+
+      if(capability.getGPUs() > 0) {
+        LOG.info("GPU/Ports allocation request: " + capability.toString() + " from availability: " + available.toString());
+        long allocated = Resources.allocateGPUs(capability, available);
+        capability.setGPUAttribute(allocated);
+      }
+
+      if (reserved) {
+        container = node.getReservedContainer().getContainer();
+      } else {
+        container = createContainer(node, capability, request.getPriority());
+      }
+
       RMContainer allocatedContainer =
           allocate(type, node, schedulerKey, pendingAsk,
               reservedContainer);
@@ -868,8 +874,10 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
         unreserve(schedulerKey, node);
       }
 
+
       // Inform the node
       node.allocateContainer(allocatedContainer);
+      LOG.info("Node information after allocating GPUs: " + node.toString());
 
       // If not running unmanaged, the first container we allocate is always
       // the AM. Set the amResource for this app and update the leaf queue's AM
@@ -936,6 +944,18 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
   }
 
   private Resource assignContainer(FSSchedulerNode node, boolean reserved) {
+    // MJTHIS: this function is specific to app attempt, and selects a request to schedule for the node.
+    // As this function is called for all runnableApps in all leaf queues, it's okay to fall in scheduling
+    // the request.
+    //
+    // This function is called by several places. attemptScheduling() in FairScheduler.jave
+    // seems a main entry point.
+
+    // MJTHIS: However, we have to consider what if for all requests (or one starving) 'capability' may fit in
+    // 'available', but GPU locality can not be satisfied. Do we have to worry about potential high scheduling
+    // delay or starvation by this? Now, everything is without history; scheduling is work-conserving, so 'node'
+    // is just one that issues the heartbeat message.
+
     if (LOG.isDebugEnabled()) {
       LOG.debug("Node offered to app: " + getName() + " reserved: " + reserved);
     }

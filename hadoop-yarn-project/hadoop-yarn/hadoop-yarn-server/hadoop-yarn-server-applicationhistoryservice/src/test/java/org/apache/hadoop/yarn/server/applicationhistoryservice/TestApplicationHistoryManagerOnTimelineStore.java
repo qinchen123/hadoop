@@ -264,6 +264,8 @@ public class TestApplicationHistoryManagerOnTimelineStore {
       Assert
           .assertEquals(expectedPreemptVcoreSecs, applicationResourceUsageReport
               .getPreemptedVcoreSeconds());
+      Assert
+          .assertEquals(567, applicationResourceUsageReport.getGPUSeconds());
       Assert.assertEquals(FinalApplicationStatus.UNDEFINED,
           app.getFinalApplicationStatus());
       Assert.assertEquals(YarnApplicationState.FINISHED,
@@ -366,7 +368,7 @@ public class TestApplicationHistoryManagerOnTimelineStore {
     Assert.assertNotNull(container);
     Assert.assertEquals(Integer.MAX_VALUE + 1L, container.getCreationTime());
     Assert.assertEquals(Integer.MAX_VALUE + 2L, container.getFinishTime());
-    Assert.assertEquals(Resource.newInstance(-1, -1),
+    Assert.assertEquals(Resource.newInstance(-1, -1, -1),
         container.getAllocatedResource());
     Assert.assertEquals(NodeId.newInstance("test host", 100),
         container.getAssignedNode());
@@ -534,12 +536,15 @@ public class TestApplicationHistoryManagerOnTimelineStore {
         Priority.newInstance(0));
     entityInfo.put(ApplicationMetricsConstants.SUBMITTED_TIME_ENTITY_INFO,
         Integer.MAX_VALUE + 1L);
+
     entityInfo.put(ApplicationMetricsConstants.APP_MEM_METRICS, 123);
     entityInfo.put(ApplicationMetricsConstants.APP_CPU_METRICS, 345);
     if (!missingPreemptMetrics) {
       entityInfo.put(ApplicationMetricsConstants.APP_MEM_PREEMPT_METRICS, 456);
       entityInfo.put(ApplicationMetricsConstants.APP_CPU_PREEMPT_METRICS, 789);
     }
+    entityInfo.put(ApplicationMetricsConstants.APP_GPU_METRICS,567);
+
     if (emptyACLs) {
       entityInfo.put(ApplicationMetricsConstants.APP_VIEW_ACLS_ENTITY_INFO, "");
     } else {
@@ -667,8 +672,10 @@ public class TestApplicationHistoryManagerOnTimelineStore {
     entity.addPrimaryFilter(
         TimelineStore.SystemFilter.ENTITY_OWNER.toString(), "yarn");
     Map<String, Object> entityInfo = new HashMap<String, Object>();
+
     entityInfo.put(ContainerMetricsConstants.ALLOCATED_MEMORY_INFO, -1);
     entityInfo.put(ContainerMetricsConstants.ALLOCATED_VCORE_INFO, -1);
+    entityInfo.put(ContainerMetricsConstants.ALLOCATED_GPU_ENTITY_INFO, -1);
     entityInfo.put(ContainerMetricsConstants.ALLOCATED_HOST_INFO,
         "test host");
     entityInfo.put(ContainerMetricsConstants.ALLOCATED_PORT_INFO, 100);

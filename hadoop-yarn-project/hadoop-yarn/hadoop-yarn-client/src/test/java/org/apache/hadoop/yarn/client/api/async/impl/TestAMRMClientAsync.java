@@ -50,6 +50,7 @@ import org.apache.hadoop.yarn.api.records.NMToken;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.UpdatedContainer;
+import org.apache.hadoop.yarn.api.records.PreemptionMessage;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.client.api.AMRMClient.ContainerRequest;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
@@ -533,6 +534,9 @@ public class TestAMRMClientAsync {
     }
 
     @Override
+    public void onPreemptionMessage(PreemptionMessage message) {}
+
+    @Override
     public void onShutdownRequest() {
       reboot = true;
       synchronized (notifier) {
@@ -580,6 +584,10 @@ public class TestAMRMClientAsync {
     @Override
     public void onContainersUpdated(
         List<UpdatedContainer> containers) {}
+
+    @Override
+    public void onPreemptionMessage(PreemptionMessage message) {}
+
 
     @Override
     public void onShutdownRequest() {}

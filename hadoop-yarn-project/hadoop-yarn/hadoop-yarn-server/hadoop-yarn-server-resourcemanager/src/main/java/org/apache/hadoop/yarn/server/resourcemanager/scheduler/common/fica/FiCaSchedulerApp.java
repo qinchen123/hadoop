@@ -654,7 +654,7 @@ public class FiCaSchedulerApp extends SchedulerApplicationAttempt {
           Resources.addTo(res, Resources
               .multiply(ask.getPerAllocationResource(),
                   ask.getCount()));
-        }
+         }
       }
 
       return ret;

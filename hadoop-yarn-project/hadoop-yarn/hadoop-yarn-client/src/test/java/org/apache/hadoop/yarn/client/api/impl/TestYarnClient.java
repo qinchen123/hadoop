@@ -386,7 +386,7 @@ public class TestYarnClient {
       ContainerLaunchContext amContainer
         = Records.newRecord(ContainerLaunchContext.class);
       appContext.setAMContainerSpec(amContainer);
-      appContext.setResource(Resource.newInstance(1024, 1));
+      appContext.setResource(Resource.newInstance(1024, 1, 1));
       // appContext.setUnmanagedAM(unmanaged);
 
       // Submit the application to the applications manager
@@ -1114,7 +1114,7 @@ public class TestYarnClient {
     ContainerLaunchContext amContainer
       = Records.newRecord(ContainerLaunchContext.class);
     appContext.setAMContainerSpec(amContainer);
-    appContext.setResource(Resource.newInstance(1024, 1));
+    appContext.setResource(Resource.newInstance(1024, 1, 1));
     appContext.setUnmanagedAM(unmanaged);
 
     // Submit the application to the applications manager

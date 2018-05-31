@@ -121,21 +121,21 @@ public class TestFSLeafQueue extends FairSchedulerTestBase {
 
     // Add one big node (only care about aggregate capacity)
     RMNode node1 =
-        MockNodes.newNodeInfo(1, Resources.createResource(4 * 1024, 4), 1,
+        MockNodes.newNodeInfo(1, Resources.createResource(4 * 1024, 4, 4, 15), 1,
             "127.0.0.1");
     NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
     scheduler.handle(nodeEvent1);
 
     scheduler.update();
 
-    // Queue A wants 3 * 1024. Node update gives this all to A
-    createSchedulingRequest(3 * 1024, "queueA", "user1");
+    // Queue A wants 3 * 1 GPU. Node update gives this all to A
+    createSchedulingRequest(3 * 1024, 3, 3, "queueA", "user1");
     scheduler.update();
     NodeUpdateSchedulerEvent nodeEvent2 = new NodeUpdateSchedulerEvent(node1);
     scheduler.handle(nodeEvent2);
 
-    // Queue B arrives and wants 1 * 1024
-    createSchedulingRequest(1 * 1024, "queueB", "user1");
+    // Queue B arrives and wants 1 * 1 GPU
+    createSchedulingRequest(1 * 1024, 1, 1, "queueB", "user1");
     scheduler.update();
     Collection<FSLeafQueue> queues = scheduler.getQueueManager().getLeafQueues();
     assertEquals(3, queues.size());

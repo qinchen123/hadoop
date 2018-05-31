@@ -100,6 +100,16 @@ class NodesPage extends RmView {
       TBODY<TABLE<Hamlet>> tbody =
           trbody.th(".nodeManagerVersion", "Version")._()._().tbody();
 
+              .th(".healthReport", "Health-report")
+              .th(".containers", "Containers")
+              .th(".mem", "Mem Used")
+              .th(".mem", "Mem Avail")
+              .th(".vcores", "VCores Used")
+              .th(".vcores", "VCores Avail")
+              .th(".GPUs", "GPUs Used")
+              .th(".GPUs", "GPUs Avail")
+              .th(".GPUs", "GPUs Avail attribute")
+              .th(".nodeManagerVersion", "Version")._()._().tbody();
       NodeState stateFilter = null;
       if (type != null && !type.isEmpty()) {
         stateFilter = NodeState.valueOf(StringUtils.toUpperCase(type));
@@ -162,6 +172,7 @@ class NodesPage extends RmView {
           nodeTableData.append("\",\"<a ").append("href='" + "//" + httpAddress)
               .append("'>").append(httpAddress).append("</a>\",").append("\"");
         }
+
         nodeTableData.append("<br title='")
             .append(String.valueOf(info.getLastHealthUpdate())).append("'>")
             .append(Times.format(info.getLastHealthUpdate())).append("\",\"")
@@ -198,6 +209,34 @@ class NodesPage extends RmView {
       if (nodeTableData.charAt(nodeTableData.length() - 2) == ',') {
         nodeTableData.delete(nodeTableData.length() - 2,
             nodeTableData.length() - 1);
+        int totalGPU = info.getUsedGPUs() + info.getAvailableGPUs();
+        String gpuAttribute = "";
+        //Append '0' before the gpu attribute to match GPU capacity.
+        if(totalGPU > 0){
+            gpuAttribute = Long.toBinaryString(info.getAvailableGPUAttribute());
+            StringBuffer sb = new StringBuffer();
+            int needZero = totalGPU - gpuAttribute.length();          
+            while(needZero-- > 0){
+                sb.append("0");
+            }
+            sb.append(gpuAttribute);
+            gpuAttribute = sb.toString();
+        }
+        
+        row.td().br().$title(String.valueOf(info.getLastHealthUpdate()))._()
+            ._(Times.format(info.getLastHealthUpdate()))._()
+            .td(info.getHealthReport())
+            .td(String.valueOf(info.getNumContainers())).td().br()
+            .$title(String.valueOf(usedMemory))._()
+            ._(StringUtils.byteDesc(usedMemory * BYTES_IN_MB))._().td().br()
+            .$title(String.valueOf(availableMemory))._()
+            ._(StringUtils.byteDesc(availableMemory * BYTES_IN_MB))._()
+            .td(String.valueOf(info.getUsedVirtualCores()))
+            .td(String.valueOf(info.getAvailableVirtualCores()))
+            .td(String.valueOf(info.getUsedGPUs()))
+            .td(String.valueOf(info.getAvailableGPUs()))
+            .td(gpuAttribute)
+            .td(ni.getNodeManagerVersion())._();
       }
       nodeTableData.append("]");
       html.script().$type("text/javascript")
@@ -208,7 +247,7 @@ class NodesPage extends RmView {
 
   @Override
   protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
+    commonPreHead(html);  
     String type = $(NODE_STATE);
     String title = "Nodes of the cluster";
     if (type != null && !type.isEmpty()) {

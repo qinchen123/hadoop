@@ -38,6 +38,7 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.NodeHeartbeatResponse;
 import org.apache.hadoop.yarn.server.api.records.OpportunisticContainersStatus;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.UpdatedContainerInfo;
+import org.apache.hadoop.yarn.api.records.ValueRanges;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -283,8 +284,35 @@ public class MockNodes {
     }
 
     @Override
+    public ValueRanges getAvailablePorts() {
+      return null;
+    }
+
+    @Override
+    public void setAvailablePorts(ValueRanges ports) {
+    }
+
+    @Override
+    public ValueRanges getContainerAllocatedPorts() {
+      return null;
+    }
+
+    @Override
+    public void setContainerAllocatedPorts(ValueRanges ports) {
+    }
+
+    @Override
+    public ValueRanges getLocalUsedPortsSnapshot() {
+      return null;
+    }
+
+    @Override
     public Resource getPhysicalResource() {
       return this.physicalResource;
+    }
+
+    @Override
+    public void setLocalUsedPortsSnapshot(ValueRanges port) {
     }
   };
 

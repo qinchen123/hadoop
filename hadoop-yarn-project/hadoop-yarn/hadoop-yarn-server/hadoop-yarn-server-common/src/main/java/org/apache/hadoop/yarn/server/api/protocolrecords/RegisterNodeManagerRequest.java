@@ -26,30 +26,39 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.NodeLabel;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.util.Records;
+import org.apache.hadoop.yarn.api.records.ValueRanges;
 
 public abstract class RegisterNodeManagerRequest {
 
   public static RegisterNodeManagerRequest newInstance(NodeId nodeId,
+                                                       int httpPort, Resource resource, String nodeManagerVersionId,
+                                                       List<NMContainerStatus> containerStatuses,
+                                                       List<ApplicationId> runningApplications) {
+    return newInstance(nodeId, httpPort, resource, nodeManagerVersionId,
+        containerStatuses, runningApplications,null);
+  }
+  public static RegisterNodeManagerRequest newInstance(NodeId nodeId,
       int httpPort, Resource resource, String nodeManagerVersionId,
       List<NMContainerStatus> containerStatuses,
-      List<ApplicationId> runningApplications) {
+      List<ApplicationId> runningApplications, ValueRanges ports) {
     return newInstance(nodeId, httpPort, resource, nodeManagerVersionId,
-        containerStatuses, runningApplications, null);
+        containerStatuses, runningApplications, ports,  null);
   }
 
   public static RegisterNodeManagerRequest newInstance(NodeId nodeId,
       int httpPort, Resource resource, String nodeManagerVersionId,
       List<NMContainerStatus> containerStatuses,
-      List<ApplicationId> runningApplications, Set<NodeLabel> nodeLabels) {
+      List<ApplicationId> runningApplications, ValueRanges ports, Set<NodeLabel> nodeLabels) {
     return newInstance(nodeId, httpPort, resource, nodeManagerVersionId,
-        containerStatuses, runningApplications, nodeLabels, null);
+        containerStatuses, runningApplications, ports, nodeLabels, null);
   }
 
   public static RegisterNodeManagerRequest newInstance(NodeId nodeId,
       int httpPort, Resource resource, String nodeManagerVersionId,
       List<NMContainerStatus> containerStatuses,
-      List<ApplicationId> runningApplications, Set<NodeLabel> nodeLabels,
+      List<ApplicationId> runningApplications, ValueRanges ports, Set<NodeLabel> nodeLabels,
       Resource physicalResource) {
+
     RegisterNodeManagerRequest request =
         Records.newRecord(RegisterNodeManagerRequest.class);
     request.setHttpPort(httpPort);
@@ -60,6 +69,7 @@ public abstract class RegisterNodeManagerRequest {
     request.setRunningApplications(runningApplications);
     request.setNodeLabels(nodeLabels);
     request.setPhysicalResource(physicalResource);
+    request.setLocalUsedPortsSnapshot(ports);
     return request;
   }
   
@@ -112,4 +122,8 @@ public abstract class RegisterNodeManagerRequest {
    * @param physicalResource Physical resources in the node.
    */
   public abstract void setPhysicalResource(Resource physicalResource);
+
+  public abstract void setLocalUsedPortsSnapshot(ValueRanges ports);
+
+  public abstract ValueRanges getLocalUsedPortsSnapshot();
 }

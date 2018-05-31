@@ -1611,6 +1611,157 @@ public class RMWebServices extends WebServices implements RMWebServiceProtocol {
     return appId;
   }
 
+  /**
+   * Create the actual ApplicationSubmissionContext to be submitted to the RM
+   * from the information provided by the user.
+   * 
+   * @param newApp
+   *          the information provided by the user
+   * @return returns the constructed ApplicationSubmissionContext
+   * @throws IOException
+   */
+  protected ApplicationSubmissionContext createAppSubmissionContext(
+      ApplicationSubmissionContextInfo newApp) throws IOException {
+
+    // create local resources and app submission context
+
+    ApplicationId appid;
+    String error =
+        "Could not parse application id " + newApp.getApplicationId();
+    try {
+      appid =
+          ConverterUtils.toApplicationId(recordFactory,
+            newApp.getApplicationId());
+    } catch (Exception e) {
+      throw new BadRequestException(error);
+    }
+    ApplicationSubmissionContext appContext =
+        ApplicationSubmissionContext.newInstance(appid,
+          newApp.getApplicationName(), newApp.getQueue(),
+          Priority.newInstance(newApp.getPriority()),
+          createContainerLaunchContext(newApp), newApp.getUnmanagedAM(),
+          newApp.getCancelTokensWhenComplete(), newApp.getMaxAppAttempts(),
+          createAppSubmissionContextResource(newApp),
+          newApp.getApplicationType(),
+          newApp.getKeepContainersAcrossApplicationAttempts(),
+          newApp.getAppNodeLabelExpression(),
+          newApp.getAMContainerNodeLabelExpression());
+    appContext.setApplicationTags(newApp.getApplicationTags());
+
+    return appContext;
+  }
+
+  protected Resource createAppSubmissionContextResource(
+      ApplicationSubmissionContextInfo newApp) throws BadRequestException {
+    if (newApp.getResource().getvCores() > rm.getConfig().getInt(
+      YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES,
+      YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES)) {
+      String msg = "Requested more cores than configured max";
+      throw new BadRequestException(msg);
+    }
+    if (newApp.getResource().getMemory() > rm.getConfig().getInt(
+      YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_MB,
+      YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB)) {
+      String msg = "Requested more memory than configured max";
+      throw new BadRequestException(msg);
+    }
+    if (newApp.getResource().getGPUs() > rm.getConfig().getInt(
+      YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS,
+      YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS)) {
+      String msg = "Requested more GPUs than configured max";
+      throw new BadRequestException(msg);
+    }
+    Resource r =
+        Resource.newInstance(newApp.getResource().getMemory(), newApp
+          .getResource().getvCores(), newApp.getResource().getGPUs());
+    return r;
+  }
+
+  /**
+   * Create the ContainerLaunchContext required for the
+   * ApplicationSubmissionContext. This function takes the user information and
+   * generates the ByteBuffer structures required by the ContainerLaunchContext
+   * 
+   * @param newApp
+   *          the information provided by the user
+   * @return created context
+   * @throws BadRequestException
+   * @throws IOException
+   */
+  protected ContainerLaunchContext createContainerLaunchContext(
+      ApplicationSubmissionContextInfo newApp) throws BadRequestException,
+      IOException {
+
+    // create container launch context
+
+    HashMap<String, ByteBuffer> hmap = new HashMap<String, ByteBuffer>();
+    for (Map.Entry<String, String> entry : newApp
+      .getContainerLaunchContextInfo().getAuxillaryServiceData().entrySet()) {
+      if (entry.getValue().isEmpty() == false) {
+        Base64 decoder = new Base64(0, null, true);
+        byte[] data = decoder.decode(entry.getValue());
+        hmap.put(entry.getKey(), ByteBuffer.wrap(data));
+      }
+    }
+
+    HashMap<String, LocalResource> hlr = new HashMap<String, LocalResource>();
+    for (Map.Entry<String, LocalResourceInfo> entry : newApp
+      .getContainerLaunchContextInfo().getResources().entrySet()) {
+      LocalResourceInfo l = entry.getValue();
+      LocalResource lr =
+          LocalResource.newInstance(
+            ConverterUtils.getYarnUrlFromURI(l.getUrl()), l.getType(),
+            l.getVisibility(), l.getSize(), l.getTimestamp());
+      hlr.put(entry.getKey(), lr);
+    }
+
+    DataOutputBuffer out = new DataOutputBuffer();
+    Credentials cs =
+        createCredentials(newApp.getContainerLaunchContextInfo()
+          .getCredentials());
+    cs.writeTokenStorageToStream(out);
+    ByteBuffer tokens = ByteBuffer.wrap(out.getData());
+
+    ContainerLaunchContext ctx =
+        ContainerLaunchContext.newInstance(hlr, newApp
+          .getContainerLaunchContextInfo().getEnvironment(), newApp
+          .getContainerLaunchContextInfo().getCommands(), hmap, tokens, newApp
+          .getContainerLaunchContextInfo().getAcls());
+
+    return ctx;
+  }
+
+  /**
+   * Generate a Credentials object from the information in the CredentialsInfo
+   * object.
+   * 
+   * @param credentials
+   *          the CredentialsInfo provided by the user.
+   * @return
+   */
+  private Credentials createCredentials(CredentialsInfo credentials) {
+    Credentials ret = new Credentials();
+    try {
+      for (Map.Entry<String, String> entry : credentials.getTokens().entrySet()) {
+        Text alias = new Text(entry.getKey());
+        Token<TokenIdentifier> token = new Token<TokenIdentifier>();
+        token.decodeFromUrlString(entry.getValue());
+        ret.addToken(alias, token);
+      }
+      for (Map.Entry<String, String> entry : credentials.getSecrets().entrySet()) {
+        Text alias = new Text(entry.getKey());
+        Base64 decoder = new Base64(0, null, true);
+        byte[] secret = decoder.decode(entry.getValue());
+        ret.addSecretKey(alias, secret);
+      }
+    } catch (IOException ie) {
+      throw new BadRequestException(
+        "Could not parse credentials data; exception message = "
+            + ie.getMessage());
+    }
+    return ret;
+  }
+
   private UserGroupInformation createKerberosUserGroupInformation(
       HttpServletRequest hsr) throws AuthorizationException, YarnException {
 

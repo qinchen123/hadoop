@@ -251,7 +251,10 @@ public class FifoScheduler extends
             YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB),
           conf.getInt(
             YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES,
-            YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES)));
+            YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES),
+          conf.getInt(
+            YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS,
+            YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS)));
     this.usePortForNodeName = conf.getBoolean(
         YarnConfiguration.RM_SCHEDULER_INCLUDE_PORT_IN_NODE_NAME,
         YarnConfiguration.DEFAULT_RM_SCHEDULER_USE_PORT_FOR_NODE_NAME);
@@ -691,13 +694,25 @@ public class FifoScheduler extends
                 capability.getMemorySize());
     int assignedContainers =
       Math.min(assignableContainers, availableContainers);
-
+    
+    if(capability.getGPUs() > 0) {
+        assignedContainers = Math.min(assignedContainers, available.getGPUs()/capability.getGPUs());
+    }
+    
     if (assignedContainers > 0) {
       for (int i=0; i < assignedContainers; ++i) {
 
         NodeId nodeId = node.getRMNode().getNodeID();
         ContainerId containerId = BuilderUtils.newContainerId(application
             .getApplicationAttemptId(), application.getNewContainerId());
+
+        if(capability.getGPUs() > 0) {
+          // Allocate!
+          LOG.info("GPU allocation request: " + capability.toString() + " from availability: " + available.toString());
+          long allocatedGPU = Resources.allocateGPUs(capability, available);
+          capability.setGPUAttribute(allocatedGPU);
+          available.setGPUAttribute(available.getGPUAttribute() | allocatedGPU);
+        }
 
         // Create the container
         Container container = BuilderUtils.newContainer(containerId, nodeId,
@@ -717,9 +732,7 @@ public class FifoScheduler extends
         // Update usage for this container
         increaseUsedResources(rmContainer);
       }
-
-    }
-    
+    }    
     return assignedContainers;
   }
 

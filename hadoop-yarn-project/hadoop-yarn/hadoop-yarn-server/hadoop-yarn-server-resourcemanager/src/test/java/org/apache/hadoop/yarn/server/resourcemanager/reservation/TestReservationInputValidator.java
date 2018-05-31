@@ -77,7 +77,7 @@ public class TestReservationInputValidator {
     rrValidator = new ReservationInputValidator(clock);
     when(clock.getTime()).thenReturn(1L);
     ResourceCalculator rCalc = new DefaultResourceCalculator();
-    Resource resource = Resource.newInstance(10240, 10);
+    Resource resource = Resource.newInstance(10240, 10, 10);
     when(plan.getResourceCalculator()).thenReturn(rCalc);
     when(plan.getTotalCapacity()).thenReturn(resource);
     when(plan.getMaximumPeriodicity()).thenReturn(
@@ -251,7 +251,7 @@ public class TestReservationInputValidator {
   public void testSubmitReservationExceedsGangSize() {
     ReservationSubmissionRequest request =
         createSimpleReservationSubmissionRequest(1, 1, 1, 5, 4);
-    Resource resource = Resource.newInstance(512, 1);
+    Resource resource = Resource.newInstance(512, 1, 1);
     when(plan.getTotalCapacity()).thenReturn(resource);
     Plan plan = null;
     try {
@@ -523,7 +523,7 @@ public class TestReservationInputValidator {
   public void testUpdateReservationExceedsGangSize() {
     ReservationUpdateRequest request =
         createSimpleReservationUpdateRequest(1, 1, 1, 5, 4);
-    Resource resource = Resource.newInstance(512, 1);
+    Resource resource = Resource.newInstance(512, 1, 1);
     when(plan.getTotalCapacity()).thenReturn(resource);
     Plan plan = null;
     try {
@@ -803,7 +803,7 @@ public class TestReservationInputValidator {
       rDef.setReservationRequests(reqs);
       if (numContainers > 0) {
         ReservationRequest r =
-            ReservationRequest.newInstance(Resource.newInstance(1024, 1),
+            ReservationRequest.newInstance(Resource.newInstance(1024, 1, 1),
                 numContainers, 1, duration);
 
         reqs.setReservationResources(Collections.singletonList(r));
@@ -836,7 +836,7 @@ public class TestReservationInputValidator {
       rDef.setReservationRequests(reqs);
       if (numContainers > 0) {
         ReservationRequest r =
-            ReservationRequest.newInstance(Resource.newInstance(1024, 1),
+            ReservationRequest.newInstance(Resource.newInstance(1024, 1, 1),
                 numContainers, 1, duration);
 
         reqs.setReservationResources(Collections.singletonList(r));

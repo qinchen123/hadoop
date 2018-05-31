@@ -123,6 +123,7 @@ public class RMAppAttemptBlock extends AppAttemptBlock{
     div._();
   }
 
+
   private Resource getTotalResource(List<ResourceRequestInfo> requests) {
     Resource totalResource = Resource.newInstance(0, 0);
     if (requests == null) {

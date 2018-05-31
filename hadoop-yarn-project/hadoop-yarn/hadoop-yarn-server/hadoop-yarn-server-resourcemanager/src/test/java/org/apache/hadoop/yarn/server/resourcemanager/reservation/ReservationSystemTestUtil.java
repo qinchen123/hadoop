@@ -437,7 +437,6 @@ public class ReservationSystemTestUtil {
             continue;
           }
         }
-
         req.put(new ReservationInterval(rStart, rEnd),
             ReservationSystemUtil.toResource(ReservationRequest
                 .newInstance(Resource.newInstance(1024, 1), alloc[i])));

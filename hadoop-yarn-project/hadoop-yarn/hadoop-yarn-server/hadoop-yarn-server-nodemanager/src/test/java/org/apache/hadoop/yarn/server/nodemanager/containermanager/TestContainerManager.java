@@ -2145,6 +2145,7 @@ public class TestContainerManager extends BaseContainerManagerTest {
         .contains("Null resource type for local resource"));
   }
 
+<<<<<<< HEAD
   @Test
   public void testStartContainerFailureWithNullVisibilityLocalResource()
       throws Exception {
@@ -2168,6 +2169,18 @@ public class TestContainerManager extends BaseContainerManagerTest {
 
     ContainerId cId = createContainerId(0);
     String user = "start_container_fail";
+=======
+  public static Token createContainerToken(ContainerId cId, long rmIdentifier,
+      NodeId nodeId, String user,
+      NMContainerTokenSecretManager containerTokenSecretManager,
+      LogAggregationContext logAggregationContext)
+      throws IOException {
+    Resource r = BuilderUtils.newResource(1024, 1, 1);
+    ContainerTokenIdentifier containerTokenIdentifier =
+        new ContainerTokenIdentifier(cId, nodeId.toString(), user, r,
+          System.currentTimeMillis() + 100000L, 123, rmIdentifier,
+          Priority.newInstance(0), 0, logAggregationContext);
+>>>>>>> d043e33dfd7... check-in gpu port
     Token containerToken =
         createContainerToken(cId, DUMMY_RM_IDENTIFIER, context.getNodeId(),
             user, context.getContainerTokenSecretManager());

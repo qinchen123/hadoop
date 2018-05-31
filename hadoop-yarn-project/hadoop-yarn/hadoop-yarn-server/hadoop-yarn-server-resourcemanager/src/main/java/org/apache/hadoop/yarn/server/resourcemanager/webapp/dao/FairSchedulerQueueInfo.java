@@ -42,14 +42,18 @@ public class FairSchedulerQueueInfo {
   private int maxApps;
   
   @XmlTransient
-  private float fractionMemUsed;
+  private float fractionGPUUsed;
   @XmlTransient
-  private float fractionMemSteadyFairShare;
+  private float fractionGPUSteadyFairShare;
   @XmlTransient
-  private float fractionMemFairShare;
+  private float fractionGPUFairShare;
   @XmlTransient
+
   private float fractionMemMaxShare;
-  
+  private float fractionGPUMinShare;
+  @XmlTransient
+  private float fractionGPUMaxShare;
+
   private ResourceInfo minResources;
   private ResourceInfo maxResources;
   private ResourceInfo usedResources;
@@ -83,6 +87,7 @@ public class FairSchedulerQueueInfo {
     clusterResources = new ResourceInfo(scheduler.getClusterResource());
     
     usedResources = new ResourceInfo(queue.getResourceUsage());
+
     amUsedResources = new ResourceInfo(Resource.newInstance(
         queue.getMetrics().getAMResourceUsageMB(),
         queue.getMetrics().getAMResourceUsageVCores()));
@@ -93,6 +98,9 @@ public class FairSchedulerQueueInfo {
     demandResources = new ResourceInfo(queue.getDemand());
     fractionMemUsed = (float)usedResources.getMemorySize() /
         clusterResources.getMemorySize();
+
+    fractionGPUUsed = (float)usedResources.getGPUs() /
+        clusterResources.getGPUs();
 
     steadyFairResources = new ResourceInfo(queue.getSteadyFairShare());
     fairResources = new ResourceInfo(queue.getFairShare());
@@ -107,7 +115,14 @@ public class FairSchedulerQueueInfo {
     fractionMemFairShare = (float) fairResources.getMemorySize()
         / clusterResources.getMemorySize();
     fractionMemMaxShare = (float)maxResources.getMemorySize() / clusterResources.getMemorySize();
-    
+
+    fractionGPUSteadyFairShare =
+        (float)steadyFairResources.getGPUs() / clusterResources.getGPUs();
+    fractionGPUFairShare = (float) fairResources.getGPUs()
+        / clusterResources.getGPUs();
+    fractionGPUMinShare = (float)minResources.getGPUs() / clusterResources.getGPUs();
+    fractionGPUMaxShare = (float)maxResources.getGPUs() / clusterResources.getGPUs();
+
     maxApps = queue.getMaxRunningApps();
 
     allocatedContainers = queue.getMetrics().getAllocatedContainers();
@@ -155,15 +170,15 @@ public class FairSchedulerQueueInfo {
   /**
    * Returns the steady fair share as a fraction of the entire cluster capacity.
    */
-  public float getSteadyFairShareMemoryFraction() {
-    return fractionMemSteadyFairShare;
+  public float getSteadyFairShareGPUFraction() {
+    return fractionGPUSteadyFairShare;
   }
 
   /**
    * Returns the fair share as a fraction of the entire cluster capacity.
    */
-  public float getFairShareMemoryFraction() {
-    return fractionMemFairShare;
+  public float getFairShareGPUFraction() {
+    return fractionGPUFairShare;
   }
 
   /**
@@ -211,6 +226,10 @@ public class FairSchedulerQueueInfo {
     return amUsedResources;
   }
 
+  public float getMinShareGPUFraction() {
+    return fractionGPUMinShare;
+  }
+
   /**
    * @return the am max resource of this queue.
    */
@@ -226,11 +245,11 @@ public class FairSchedulerQueueInfo {
   }
 
   /**
-   * Returns the memory used by this queue as a fraction of the entire 
+   * Returns the GPU used by this queue as a fraction of the entire
    * cluster capacity.
    */
-  public float getUsedMemoryFraction() {
-    return fractionMemUsed;
+  public float getUsedGPUFraction() {
+    return fractionGPUUsed;
   }
   
   /**
@@ -238,7 +257,7 @@ public class FairSchedulerQueueInfo {
    * capacity.
    */
   public float getMaxResourcesFraction() {
-    return fractionMemMaxShare;
+    return fractionGPUMaxShare;
   }
   
   /**

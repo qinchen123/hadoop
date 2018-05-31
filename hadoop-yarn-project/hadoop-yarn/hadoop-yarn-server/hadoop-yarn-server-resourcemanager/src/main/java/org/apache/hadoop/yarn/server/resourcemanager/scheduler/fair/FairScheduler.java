@@ -103,6 +103,9 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.event.ReleaseCont
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.event.SchedulerEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.security.RMContainerTokenSecretManager;
 import org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator;
+import org.apache.hadoop.yarn.util.Clock;
+import org.apache.hadoop.yarn.util.SystemClock;
+import org.apache.hadoop.yarn.util.resource.GPUResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.DominantResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
@@ -144,7 +147,7 @@ public class FairScheduler extends
       LogFactory.getLog(FairScheduler.class.getName() + ".statedump");
 
   private static final ResourceCalculator RESOURCE_CALCULATOR =
-      new DefaultResourceCalculator();
+      new GPUResourceCalculator();
   private static final ResourceCalculator DOMINANT_RESOURCE_CALCULATOR =
       new DominantResourceCalculator();
   
@@ -268,6 +271,24 @@ public class FairScheduler extends
           + " allocation configuration: "
           + FairSchedulerConfiguration.RM_SCHEDULER_INCREMENT_ALLOCATION_VCORES
           + "=" + incrementVcore + ". Values must be greater than 0.");
+    }
+
+    // validate scheduler GPUs allocation setting
+    int minGPUs = conf.getInt(
+            YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_GPUS,
+            YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_GPUS);
+    int maxGPUs = conf.getInt(
+            YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS,
+            YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS);
+
+    if (minGPUs < 0 || minGPUs > maxGPUs) {
+      throw new YarnRuntimeException("Invalid resource scheduler GPUs"
+              + " allocation configuration"
+              + ", " + YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_GPUS
+              + "=" + minGPUs
+              + ", " + YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS
+              + "=" + maxGPUs + ", min should equal greater than 0"
+              + ", max should be no smaller than min.");
     }
   }
 
@@ -1740,7 +1761,7 @@ public class FairScheduler extends
   @Override
   public EnumSet<SchedulerResourceTypes> getSchedulingResourceTypes() {
     return EnumSet
-      .of(SchedulerResourceTypes.MEMORY, SchedulerResourceTypes.CPU);
+      .of(SchedulerResourceTypes.MEMORY, SchedulerResourceTypes.CPU, SchedulerResourceTypes.GPU);
   }
 
   @Override

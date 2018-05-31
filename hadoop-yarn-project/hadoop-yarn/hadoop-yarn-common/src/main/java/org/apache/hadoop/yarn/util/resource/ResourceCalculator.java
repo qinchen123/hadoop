@@ -72,7 +72,7 @@ public abstract class ResourceCalculator {
     }
     return (int) Math.ceil(a / b);
   }
-  
+
   public static long divideAndCeil(long a, long b) {
     if (b == 0) {
       return 0;
@@ -88,6 +88,9 @@ public abstract class ResourceCalculator {
   }
 
   public static int roundUp(int a, int b) {
+   if(b == 0){
+      return a;
+   }
     return divideAndCeil(a, b) * b;
   }
 
@@ -100,6 +103,9 @@ public abstract class ResourceCalculator {
   }
 
   public static int roundDown(int a, int b) {
+   if (b == 0) {
+        return a;
+    }
     return (a / b) * b;
   }
 
@@ -213,15 +219,8 @@ public abstract class ResourceCalculator {
    */
   public abstract Resource divideAndCeil(Resource numerator, int denominator);
 
-  /**
-   * Divide-and-ceil <code>numerator</code> by <code>denominator</code>.
-   *
-   * @param numerator numerator resource
-   * @param denominator denominator
-   * @return resultant resource
-   */
-  public abstract Resource divideAndCeil(Resource numerator, float denominator);
-  
+
+
   /**
    * Check if a smaller resource can be contained by bigger resource.
    */

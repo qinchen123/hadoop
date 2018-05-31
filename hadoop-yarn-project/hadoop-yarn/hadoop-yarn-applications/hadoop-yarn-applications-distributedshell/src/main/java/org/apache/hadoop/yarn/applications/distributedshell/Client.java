@@ -133,6 +133,8 @@ public class Client {
   private long amMemory = 100;
   // Amt. of virtual core resource to request for to run the App Master
   private int amVCores = 1;
+  // Amt. of GPU resource to request for to run the App Master
+  private int amGPUs = 0;
 
   // Application master jar file
   private String appMasterJar = ""; 
@@ -154,6 +156,10 @@ public class Client {
   private int containerMemory = 10; 
   // Amt. of virtual cores to request for container in which shell script will be executed
   private int containerVirtualCores = 1;
+  // Amt. of GPUs to request for container in which shell script will be executed
+  private int containerGPUs = 1;
+  // GPU locality preference to request for the container on which the shell command will run
+  private int containerGPUAttribute = 0;
   // No. of containers in which the shell script needs to be executed
   private int numContainers = 1;
   private String nodeLabelExpression = null;
@@ -255,6 +261,7 @@ public class Client {
     opts.addOption("timeout", true, "Application timeout in milliseconds");
     opts.addOption("master_memory", true, "Amount of memory in MB to be requested to run the application master");
     opts.addOption("master_vcores", true, "Amount of virtual cores to be requested to run the application master");
+    opts.addOption("master_GPUs", true, "Amount of GPUs to be requested to run the application master");
     opts.addOption("jar", true, "Jar file containing the application master");
     opts.addOption("shell_command", true, "Shell command to be executed by " +
         "the Application Master. Can only specify either --shell_command " +
@@ -269,6 +276,8 @@ public class Client {
     opts.addOption("shell_cmd_priority", true, "Priority for the shell command containers");
     opts.addOption("container_memory", true, "Amount of memory in MB to be requested to run the shell command");
     opts.addOption("container_vcores", true, "Amount of virtual cores to be requested to run the shell command");
+    opts.addOption("container_GPUs", true, "Amount of GPUs to be requested to run the shell command");
+    opts.addOption("container_GPUAttribute", true, "GPU locality preference to be requested to run the shell command");
     opts.addOption("num_containers", true, "No. of containers on which the shell command needs to be executed");
     opts.addOption("log_properties", true, "log4j.properties file");
     opts.addOption("keep_containers_across_application_attempts", false,
@@ -374,6 +383,7 @@ public class Client {
     amQueue = cliParser.getOptionValue("queue", "default");
     amMemory = Integer.parseInt(cliParser.getOptionValue("master_memory", "100"));
     amVCores = Integer.parseInt(cliParser.getOptionValue("master_vcores", "1"));
+    amGPUs = Integer.parseInt(cliParser.getOptionValue("master_GPUs", "0"));
 
     if (amMemory < 0) {
       throw new IllegalArgumentException("Invalid memory specified for application master, exiting."
@@ -382,6 +392,10 @@ public class Client {
     if (amVCores < 0) {
       throw new IllegalArgumentException("Invalid virtual cores specified for application master, exiting."
           + " Specified virtual cores=" + amVCores);
+    }
+    if (amGPUs < 0) {
+      throw new IllegalArgumentException("Invalid GPUs specified for application master, exiting."
+          + " Specified GPUs=" + amGPUs);
     }
 
     if (!cliParser.hasOption("jar")) {
@@ -425,14 +439,18 @@ public class Client {
 
     containerMemory = Integer.parseInt(cliParser.getOptionValue("container_memory", "10"));
     containerVirtualCores = Integer.parseInt(cliParser.getOptionValue("container_vcores", "1"));
+    containerGPUs = Integer.parseInt(cliParser.getOptionValue("container_GPUs", "1"));
+    containerGPUAttribute = Integer.parseInt(cliParser.getOptionValue("container_GPUAttribute", "0"));
     numContainers = Integer.parseInt(cliParser.getOptionValue("num_containers", "1"));
     
 
-    if (containerMemory < 0 || containerVirtualCores < 0 || numContainers < 1) {
-      throw new IllegalArgumentException("Invalid no. of containers or container memory/vcores specified,"
+    if (containerMemory < 0 || containerVirtualCores < 0 || containerGPUs < 0 || numContainers < 1) {
+      throw new IllegalArgumentException("Invalid no. of containers or container memory/vcores/GPUs specified,"
           + " exiting."
           + " Specified containerMemory=" + containerMemory
           + ", containerVirtualCores=" + containerVirtualCores
+          + ", containerGPUs=" + containerGPUs
+          + ", containerGPUAttribute=" + containerGPUAttribute
           + ", numContainer=" + numContainers);
     }
     
@@ -548,6 +566,7 @@ public class Client {
     // the required resources from the RM for the app master
     // Memory ask has to be a multiple of min and less than max. 
     // Dump out information about cluster capability as seen by the resource manager
+
     long maxMem = appResponse.getMaximumResourceCapability().getMemorySize();
     LOG.info("Max mem capability of resources in this cluster " + maxMem);
 
@@ -567,6 +586,16 @@ public class Client {
           + "Using max value." + ", specified=" + amVCores 
           + ", max=" + maxVCores);
       amVCores = maxVCores;
+    }
+
+    int maxGPUs = appResponse.getMaximumResourceCapability().getGPUs();
+    LOG.info("Max GPUs capability of resources in this cluster " + maxGPUs);
+
+    if (amGPUs > maxGPUs) {
+      LOG.info("AM GPUs specified above max threshold of cluster. "
+          + "Using max value." + ", specified=" + amGPUs
+          + ", max=" + maxGPUs);
+      amGPUs = maxGPUs;
     }
     
     // set the application name
@@ -698,6 +727,8 @@ public class Client {
     // Set params for Application Master
     vargs.add("--container_memory " + String.valueOf(containerMemory));
     vargs.add("--container_vcores " + String.valueOf(containerVirtualCores));
+    vargs.add("--container_GPUs " + String.valueOf(containerGPUs));
+    vargs.add("--container_GPUAttribute " + String.valueOf(containerGPUAttribute));
     vargs.add("--num_containers " + String.valueOf(numContainers));
     if (null != nodeLabelExpression) {
       appContext.setNodeLabelExpression(nodeLabelExpression);
@@ -731,9 +762,9 @@ public class Client {
       localResources, env, commands, null, null, null);
 
     // Set up resource type requirements
-    // For now, both memory and vcores are supported, so we set memory and 
-    // vcores requirements
-    Resource capability = Resource.newInstance(amMemory, amVCores);
+    // For now, memory, vcores, and GPUs are supported, so we set memory,
+    // vcores, and GPUs requirements
+    Resource capability = Resource.newInstance(amMemory, amVCores, amGPUs);
     appContext.setResource(capability);
 
     // Service data is a binary blob that can be passed to the application

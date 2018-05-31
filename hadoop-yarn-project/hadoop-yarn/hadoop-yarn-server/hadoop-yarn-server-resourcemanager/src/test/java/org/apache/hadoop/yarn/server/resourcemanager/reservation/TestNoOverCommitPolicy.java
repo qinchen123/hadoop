@@ -67,7 +67,6 @@ public class TestNoOverCommitPolicy extends BaseSharingPolicyTest {
 
     });
   }
-
   @Override
   public SharingPolicy getInitializedPolicy() {
     String reservationQ =
@@ -82,5 +81,4 @@ public class TestNoOverCommitPolicy extends BaseSharingPolicyTest {
   public void testAllocation() throws IOException, PlanningException {
     runTest();
   }
-
 }

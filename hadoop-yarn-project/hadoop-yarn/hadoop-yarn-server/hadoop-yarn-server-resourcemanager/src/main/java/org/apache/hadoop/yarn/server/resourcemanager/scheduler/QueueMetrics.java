@@ -76,6 +76,7 @@ public class QueueMetrics implements MetricsSource {
   //Metrics updated only for "default" partition
   @Metric("Allocated memory in MB") MutableGaugeLong allocatedMB;
   @Metric("Allocated CPU in virtual cores") MutableGaugeInt allocatedVCores;
+  @Metric("Allocated GPU in number of GPUs") MutableGaugeInt allocatedGPUs;
   @Metric("# of allocated containers") MutableGaugeInt allocatedContainers;
   @Metric("Aggregate # of allocated containers")
     MutableCounterLong aggregateContainersAllocated;
@@ -86,9 +87,13 @@ public class QueueMetrics implements MetricsSource {
   @Metric("Pending memory allocation in MB") MutableGaugeLong pendingMB;
   @Metric("Pending CPU allocation in virtual cores")
     MutableGaugeInt pendingVCores;
+
+  @Metric("Available GPU in number of GPUs") MutableGaugeInt availableGPUs;
+  @Metric("Pending GPU allocation in number of GPUs") MutableGaugeInt pendingGPUs;
   @Metric("# of pending containers") MutableGaugeInt pendingContainers;
   @Metric("# of reserved memory in MB") MutableGaugeLong reservedMB;
   @Metric("Reserved CPU in virtual cores") MutableGaugeInt reservedVCores;
+  @Metric("Reserved GPU in number of GPUs") MutableGaugeInt reservedGPUs;
   @Metric("# of reserved containers") MutableGaugeInt reservedContainers;
 
   private final MutableGaugeInt[] runningTime;
@@ -404,6 +409,7 @@ public class QueueMetrics implements MetricsSource {
     pendingContainers.incr(containers);
     pendingMB.incr(res.getMemorySize() * containers);
     pendingVCores.incr(res.getVirtualCores() * containers);
+    pendingGPUs.incr(res.getGPUs() * containers);
   }
 
 
@@ -425,6 +431,7 @@ public class QueueMetrics implements MetricsSource {
     pendingContainers.decr(containers);
     pendingMB.decr(res.getMemorySize() * containers);
     pendingVCores.decr(res.getVirtualCores() * containers);
+    pendingGPUs.decr(res.getGPUs() * containers);
   }
 
   public void incrNodeTypeAggregations(String user, NodeType type) {
@@ -544,6 +551,7 @@ public class QueueMetrics implements MetricsSource {
     reservedContainers.incr();
     reservedMB.incr(res.getMemorySize());
     reservedVCores.incr(res.getVirtualCores());
+    reservedGPUs.incr(res.getGPUs());
     QueueMetrics userMetrics = getUserMetrics(user);
     if (userMetrics != null) {
       userMetrics.reserveResource(user, res);
@@ -557,6 +565,7 @@ public class QueueMetrics implements MetricsSource {
     reservedContainers.decr();
     reservedMB.decr(res.getMemorySize());
     reservedVCores.decr(res.getVirtualCores());
+    reservedGPUs.decr(res.getGPUs());
     QueueMetrics userMetrics = getUserMetrics(user);
     if (userMetrics != null) {
       userMetrics.unreserveResource(user, res);
@@ -632,7 +641,7 @@ public class QueueMetrics implements MetricsSource {
   
   public Resource getAllocatedResources() {
     return BuilderUtils.newResource(allocatedMB.value(),
-        (int) allocatedVCores.value());
+        (int) allocatedVCores.value(), allocatedGPUs.value());
   }
 
   public long getAllocatedMB() {
@@ -641,6 +650,10 @@ public class QueueMetrics implements MetricsSource {
   
   public int getAllocatedVirtualCores() {
     return allocatedVCores.value();
+  }
+
+  public int getAllocatedGPUs() {
+    return allocatedGPUs.value();
   }
 
   public int getAllocatedContainers() {
@@ -655,12 +668,20 @@ public class QueueMetrics implements MetricsSource {
     return availableVCores.value();
   }
 
-  public long getPendingMB() {
+  public int getAvailableGPUs() {
+    return availableGPUs.value();
+  }
+
+  public int getPendingMB() {
     return pendingMB.value();
   }
   
   public int getPendingVirtualCores() {
     return pendingVCores.value();
+  }
+
+  public int getPendingGPUs() {
+    return pendingGPUs.value();
   }
 
   public int getPendingContainers() {
@@ -673,6 +694,10 @@ public class QueueMetrics implements MetricsSource {
   
   public int getReservedVirtualCores() {
     return reservedVCores.value();
+  }
+
+  public int getReservedGPUs() {
+    return reservedGPUs.value();
   }
 
   public int getReservedContainers() {

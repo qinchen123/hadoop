@@ -77,7 +77,7 @@ public class TestQueueMetrics {
         user, 5, Resources.createResource(3*GB, 3));
     // Available resources is set externally, as it depends on dynamic
     // configurable cluster/queue resources
-    checkResources(queueSource, 0, 0, 0, 0, 0, 100*GB, 100, 15*GB, 15, 5, 0, 0, 0);
+    checkResources(queueSource, 0, 0, 0, 0, 0, 0, 100*GB, 100, 100, 15*GB, 15, 15, 5, 0, 0, 0, 0);
 
     metrics.runAppAttempt(app.getApplicationId(), user);
     checkApps(queueSource, 1, 0, 1, 0, 0, 0, true);
@@ -190,8 +190,8 @@ public class TestQueueMetrics {
         user, 5, Resources.createResource(3*GB, 3));
     // Available resources is set externally, as it depends on dynamic
     // configurable cluster/queue resources
-    checkResources(queueSource, 0, 0, 0, 0, 0,  100*GB, 100, 15*GB, 15, 5, 0, 0, 0);
-    checkResources(userSource, 0, 0, 0, 0, 0, 10*GB, 10, 15*GB, 15, 5, 0, 0, 0);
+    checkResources(queueSource, 0, 0, 0, 0, 0, 0, 100*GB, 100, 100, 15*GB, 15, 15, 5, 0, 0, 0, 0);
+    checkResources(userSource, 0, 0, 0, 0, 0, 0, 10*GB, 10, 10, 15*GB, 15, 15, 5, 0, 0, 0, 0);
 
     metrics.runAppAttempt(app.getApplicationId(), user);
     checkApps(queueSource, 1, 0, 1, 0, 0, 0, true);
@@ -428,16 +428,20 @@ public class TestQueueMetrics {
     MetricsRecordBuilder rb = getMetrics(source);
     assertGauge("AllocatedMB", allocatedMB, rb);
     assertGauge("AllocatedVCores", allocatedCores, rb);
+    assertGauge("AllocatedGPUs", allocatedGPUs, rb);
     assertGauge("AllocatedContainers", allocCtnrs, rb);
     assertCounter("AggregateContainersAllocated", aggreAllocCtnrs, rb);
     assertCounter("AggregateContainersReleased", aggreReleasedCtnrs, rb);
     assertGauge("AvailableMB", availableMB, rb);
     assertGauge("AvailableVCores", availableCores, rb);
+    assertGauge("AvailableGPUs", availableGPUs, rb);
     assertGauge("PendingMB", pendingMB, rb);
     assertGauge("PendingVCores", pendingCores, rb);
+    assertGauge("PendingGPUs", pendingGPUs, rb);
     assertGauge("PendingContainers", pendingCtnrs, rb);
     assertGauge("ReservedMB", reservedMB, rb);
     assertGauge("ReservedVCores", reservedCores, rb);
+    assertGauge("ReservedGPUs", reservedGPUs, rb);
     assertGauge("ReservedContainers", reservedCtnrs, rb);
   }
 
