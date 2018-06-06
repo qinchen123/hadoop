@@ -133,7 +133,7 @@ public class DominantResourceCalculator extends ResourceCalculator {
   }
 
   @Override
-  public int computeAvailableContainers(Resource available, Resource required) {
+  public long computeAvailableContainers(Resource available, Resource required) {
 
     int num = Integer.MAX_VALUE;
     if (required.getPorts() != null && required.getPorts().getRangesCount() > 0) {
@@ -310,6 +310,6 @@ public class DominantResourceCalculator extends ResourceCalculator {
 
   @Override
   public boolean isAnyMajorResourceZero(Resource resource) {
-    return resource.getMemorySize() == 0f || resource.getVirtualCores() == 0;
+    return resource.getMemorySize() == 0f || resource.getVirtualCores() == 0 || resource.getGPUs() == 0;
   }
 }

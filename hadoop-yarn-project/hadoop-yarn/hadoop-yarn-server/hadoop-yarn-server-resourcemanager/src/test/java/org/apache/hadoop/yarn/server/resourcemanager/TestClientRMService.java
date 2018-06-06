@@ -1063,11 +1063,11 @@ public class TestClientRMService {
     ApplicationId applicationId3 = getApplicationId(3);
     YarnConfiguration config = new YarnConfiguration();
     apps.put(applicationId1, getRMApp(rmContext, yarnScheduler, applicationId1,
-        config, "testqueue", 10, 3,null,null));
+        config, "testqueue", 10, 3, 3, null,null));
     apps.put(applicationId2, getRMApp(rmContext, yarnScheduler, applicationId2,
-        config, "a", 20, 2,null,""));
+        config, "a", 20, 2, 2,null,""));
     apps.put(applicationId3, getRMApp(rmContext, yarnScheduler, applicationId3,
-        config, "testqueue", 40, 5,"high-mem","high-mem"));
+        config, "testqueue", 40, 5, 5,"high-mem","high-mem"));
     return apps;
   }
   
@@ -1090,7 +1090,7 @@ public class TestClientRMService {
 
   private RMAppImpl getRMApp(RMContext rmContext, YarnScheduler yarnScheduler,
       ApplicationId applicationId3, YarnConfiguration config, String queueName,
-      final long memorySeconds, final long vcoreSeconds, final long gpuSeconds
+      final long memorySeconds, final long vcoreSeconds, final long gpuSeconds,
       String appNodeLabelExpression, String amNodeLabelExpression) {
 
     ApplicationSubmissionContext asContext = mock(ApplicationSubmissionContext.class);

@@ -533,4 +533,9 @@ public class Resources {
     ValueRanges valueRanges = ValueRanges.newInstance(rangeList);
     return valueRanges;
   }
+
+  public static boolean isAnyMajorResourceZero(ResourceCalculator rc,
+      Resource resource) {
+    return rc.isAnyMajorResourceZero(resource);
+  }
 }

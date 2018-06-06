@@ -1275,12 +1275,7 @@ public class TestResourceTrackerService extends NodeLabelTestBase {
     // reconnect of node with changed capability and running applications
     List<ApplicationId> runningApps = new ArrayList<ApplicationId>();
     runningApps.add(ApplicationId.newInstance(1, 0));
-<<<<<<< HEAD
-    nm1 = rm.registerNode("host2:5678", 15360, 2, runningApps);
-=======
-    nm1 = rm.registerNode("host2:5678", 15360, 2, 2, runningApps);
-    dispatcher.await();
->>>>>>> d043e33dfd7... check-in gpu port
+    nm1 = rm.registerNode("host2:5678", 15360, 2, 1, runningApps);
     response = nm1.nodeHeartbeat(true);
     rm.drainEvents();
     Assert.assertTrue(NodeAction.NORMAL.equals(response.getNodeAction()));

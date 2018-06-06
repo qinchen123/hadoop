@@ -64,7 +64,7 @@ public class TestAppPage {
     when(app.createApplicationState()).thenReturn(YarnApplicationState.FAILED);
     
     RMAppMetrics appMetrics = new RMAppMetrics(
-        Resource.newInstance(0, 0), 0, 0, 0, 0, 0, 0);
+        Resource.newInstance(0, 0), 0, 0, 0, 0, 0, 0, 0);
 
     when(app.getRMAppMetrics()).thenReturn(appMetrics);
     

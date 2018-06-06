@@ -1574,16 +1574,19 @@ public class TestRMWebServicesApps extends JerseyTestBase {
         info.length());
     verifyAppInfoGeneric(app, info.getString("id"), info.getString("user"),
         info.getString("name"), info.getString("applicationType"),
-        info.getString("queue"), info.getString("state"),
-        info.getString("finalStatus"), (float) info.getDouble("progress"),
-        info.getString("trackingUI"), info.getString("diagnostics"),
-        info.getLong("clusterId"), info.getLong("startedTime"),
-        info.getLong("finishedTime"), info.getLong("elapsedTime"),
-        info.getString("amHostHttpAddress"), info.getString("amContainerLogs"),
-        info.getInt("allocatedMB"), info.getInt("allocatedVCores"), info.getInt("allocatedGPUs"),
-        info.getInt("runningContainers"), 
+        info.getString("queue"), info.getInt("priority"),
+        info.getString("state"), info.getString("finalStatus"),
+        (float) info.getDouble("progress"), info.getString("trackingUI"),
+        info.getString("diagnostics"), info.getLong("clusterId"),
+        info.getLong("startedTime"), info.getLong("finishedTime"),
+        info.getLong("elapsedTime"), info.getString("amHostHttpAddress"),
+        info.getString("amContainerLogs"), info.getInt("allocatedMB"),
+        info.getInt("allocatedVCores"), info.getInt("allocatedGPUs"), info.getInt("runningContainers"),
+        (float) info.getDouble("queueUsagePercentage"),
+        (float) info.getDouble("clusterUsagePercentage"),
         info.getInt("preemptedResourceMB"),
-        info.getInt("preemptedResourceVCores"), info.getInt("preemptedResourceGPUs"),
+        info.getInt("preemptedResourceVCores"),
+        info.getInt("preemptedResourceGPUs"),
         info.getInt("numNonAMContainerPreempted"),
         info.getInt("numAMContainerPreempted"),
         info.getString("logAggregationStatus"),
@@ -1609,7 +1612,6 @@ public class TestRMWebServicesApps extends JerseyTestBase {
       String logAggregationStatus, boolean unmanagedApplication,
       String appNodeLabelExpression, String amNodeLabelExpression,
       String amRPCAddress) throws JSONException, Exception {
-
 
     WebServicesTestUtils.checkStringMatch("id", app.getApplicationId()
         .toString(), id);

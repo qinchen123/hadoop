@@ -250,7 +250,7 @@ public class TestFSAppStarvation extends FairSchedulerTestBase {
 
     // Create an app that takes up all the resources on the cluster
     ApplicationAttemptId app
-        = createSchedulingRequest(1024, 1, "root.default", "default", 8);
+        = createSchedulingRequest(1024, 1, 1, "root.default", "default", 8);
 
     scheduler.update();
     sendEnoughNodeUpdatesToAssignFully();
@@ -271,7 +271,7 @@ public class TestFSAppStarvation extends FairSchedulerTestBase {
 
   private void submitAppsToEachLeafQueue() {
     for (String queue : QUEUES) {
-      createSchedulingRequest(1024, 1, "root." + queue, "user", 1);
+      createSchedulingRequest(1024, 1, 1,  "root." + queue, "user", 1);
     }
     scheduler.update();
   }

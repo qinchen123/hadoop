@@ -1944,7 +1944,7 @@ public class YarnConfiguration extends Configuration {
 
   /** Range of ports which can be allocated for containers. */
   public static final String NM_PORTS = NM_PREFIX + "resource.ports";
-  public static final String DEFAULT_NM_PORTS = "[1-19999]";
+  public static final String DEFAULT_NM_PORTS = "[1-65535]";
 
   /**
    * Rounds of updating ports. This parameter is circle controller for updating

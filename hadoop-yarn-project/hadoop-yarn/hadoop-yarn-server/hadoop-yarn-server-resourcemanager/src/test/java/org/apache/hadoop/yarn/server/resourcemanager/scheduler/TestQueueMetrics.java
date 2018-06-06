@@ -421,6 +421,16 @@ public class TestQueueMetrics {
   }
 
   public static void checkResources(MetricsSource source, long allocatedMB,
+      int allocatedCores, int allocCtnrs, long aggreAllocCtnrs,
+      long aggreReleasedCtnrs, long availableMB, int availableCores, long pendingMB,
+      int pendingCores, int pendingCtnrs, long reservedMB, int reservedCores,
+      int reservedCtnrs) {
+    checkResources(source, allocatedMB, allocatedCores, 0, allocCtnrs, aggreAllocCtnrs, aggreReleasedCtnrs,
+        availableMB, availableCores, 0, pendingMB, pendingCores, 0, pendingCtnrs, reservedMB, reservedCores,
+        0, reservedCtnrs);
+  }
+
+  public static void checkResources(MetricsSource source, long allocatedMB,
       int allocatedCores, int allocatedGPUs,  int allocCtnrs, long aggreAllocCtnrs,
       long aggreReleasedCtnrs, long availableMB, int availableCores, int availableGPUs, long pendingMB,
       int pendingCores, int pendingGPUs, int pendingCtnrs, long reservedMB, int reservedCores,

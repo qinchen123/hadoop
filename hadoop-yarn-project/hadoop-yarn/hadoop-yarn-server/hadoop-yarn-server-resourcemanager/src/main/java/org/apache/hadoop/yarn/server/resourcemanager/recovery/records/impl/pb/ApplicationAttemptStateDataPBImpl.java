@@ -283,7 +283,7 @@ public class ApplicationAttemptStateDataPBImpl extends
   @Override
   public long getPreemptedGPUSeconds() {
     ApplicationAttemptStateDataProtoOrBuilder p = viaProto ? proto : builder;
-    return p.getPreemptedGPUSeconds();
+    return p.getPreemptedGpuSeconds();
   }
 
   @Override
@@ -307,7 +307,7 @@ public class ApplicationAttemptStateDataPBImpl extends
   @Override
   public void setPreemptedGPUSeconds(long gpuSeconds) {
     maybeInitBuilder();
-    builder.setPreemptedVcoreSeconds(gpuSeconds);
+    builder.setPreemptedGpuSeconds(gpuSeconds);
   }
 
   @Override

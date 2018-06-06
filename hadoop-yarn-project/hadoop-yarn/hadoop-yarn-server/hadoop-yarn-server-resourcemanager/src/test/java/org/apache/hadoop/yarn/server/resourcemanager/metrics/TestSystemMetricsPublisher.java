@@ -464,7 +464,7 @@ public class TestSystemMetricsPublisher {
     Assert.assertEquals(
         container.getAllocatedResource().getGPUs(),
         entity.getOtherInfo().get(
-            ContainerMetricsConstants.ALLOCATED_GPU_ENTITY_INFO));
+            ContainerMetricsConstants.ALLOCATED_GPU_INFO));
     Assert.assertEquals(
         container.getAllocatedPriority().getPriority(),
         entity.getOtherInfo().get(
@@ -515,7 +515,7 @@ public class TestSystemMetricsPublisher {
         FinalApplicationStatus.UNDEFINED);
     when(app.getRMAppMetrics()).thenReturn(
         new RMAppMetrics(null, 0, 0, Integer.MAX_VALUE, Long.MAX_VALUE,
-            Integer.MAX_VALUE, Long.MAX_VALUE));
+            Integer.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE));
     Set<String> appTags = new HashSet<String>();
     appTags.add("test");
     appTags.add("tags");

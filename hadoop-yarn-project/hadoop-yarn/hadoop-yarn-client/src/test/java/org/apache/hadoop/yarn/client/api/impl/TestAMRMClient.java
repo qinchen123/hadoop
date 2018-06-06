@@ -927,30 +927,18 @@ public class TestAMRMClient {
 
     // add exp=x to ANY
     client.addContainerRequest(new ContainerRequest(Resource.newInstance(1024,
-<<<<<<< HEAD
         1), null, null, Priority.UNDEFINED, true, "x"));
     assertEquals(1, client.ask.size());
     assertEquals("x", client.ask.iterator().next()
-=======
-        1, 1), null, null, Priority.UNDEFINED, true, "x"));
-    Assert.assertEquals(1, client.ask.size());
-    Assert.assertEquals("x", client.ask.iterator().next()
->>>>>>> d043e33dfd7... check-in gpu port
         .getNodeLabelExpression());
 
     // add exp=x then add exp=a to ANY in same priority, only exp=a should kept
     client.addContainerRequest(new ContainerRequest(Resource.newInstance(1024,
         1, 1), null, null, Priority.UNDEFINED, true, "x"));
     client.addContainerRequest(new ContainerRequest(Resource.newInstance(1024,
-<<<<<<< HEAD
         1), null, null, Priority.UNDEFINED, true, "a"));
     assertEquals(1, client.ask.size());
     assertEquals("a", client.ask.iterator().next()
-=======
-        1, 1), null, null, Priority.UNDEFINED, true, "a"));
-    Assert.assertEquals(1, client.ask.size());
-    Assert.assertEquals("a", client.ask.iterator().next()
->>>>>>> d043e33dfd7... check-in gpu port
         .getNodeLabelExpression());
     
     // add exp=x to ANY, rack and node, only resource request has ANY resource

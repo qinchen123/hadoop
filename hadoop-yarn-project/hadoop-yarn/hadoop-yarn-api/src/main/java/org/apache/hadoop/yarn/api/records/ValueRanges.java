@@ -72,7 +72,6 @@ public abstract class ValueRanges implements Comparable<ValueRanges> {
         start = bitSetStore.nextSetBit(end + 1);
       }
     }
-
     return String.join(",", list);
   }
 

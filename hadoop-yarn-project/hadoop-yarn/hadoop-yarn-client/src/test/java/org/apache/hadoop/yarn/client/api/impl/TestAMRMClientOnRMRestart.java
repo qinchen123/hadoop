@@ -396,13 +396,8 @@ public class TestAMRMClientOnRMRestart {
 
     ContainerId containerId = ContainerId.newContainerId(appAttemptId, 1);
     NMContainerStatus containerReport =
-<<<<<<< HEAD
         NMContainerStatus.newInstance(containerId, 0, ContainerState.RUNNING,
             Resource.newInstance(1024, 1), "recover container", 0,
-=======
-        NMContainerStatus.newInstance(containerId, ContainerState.RUNNING,
-            Resource.newInstance(1024, 1, 1), "recover container", 0,
->>>>>>> d043e33dfd7... check-in gpu port
             Priority.newInstance(0), 0);
     nm1.registerNode(Arrays.asList(containerReport), null);
     nm1.nodeHeartbeat(true);

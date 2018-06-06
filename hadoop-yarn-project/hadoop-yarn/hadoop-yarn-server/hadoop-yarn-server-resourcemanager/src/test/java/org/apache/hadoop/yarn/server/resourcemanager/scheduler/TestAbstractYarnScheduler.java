@@ -266,7 +266,7 @@ public class TestAbstractYarnScheduler extends ParameterizedSchedulerTestBase {
     final int node2MaxGPUs = 5;
     final int node3MaxGPUs = 6;
     final int configuredMaxGPUs = 10;
-    configureScheduler();
+
     YarnConfiguration conf = getConf();
     conf.setInt(YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS,
             configuredMaxGPUs);

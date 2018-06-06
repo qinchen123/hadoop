@@ -538,7 +538,7 @@ public class AppInfo {
     return (int)preemptedResourceGPUs;
   }
 
-  public int getNumNonAMContainersPreempted() {
+  public int getNumNonAMContainerPreempted() {
     return numNonAMContainerPreempted;
   }
 

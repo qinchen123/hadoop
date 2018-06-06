@@ -365,7 +365,7 @@ public class TestSystemMetricsPublisherForV2 {
         FinalApplicationStatus.UNDEFINED);
     when(app.getRMAppMetrics()).thenReturn(
         new RMAppMetrics(Resource.newInstance(0, 0), 0, 0, Integer.MAX_VALUE,
-            Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE));
+            Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE));
     when(app.getApplicationTags()).thenReturn(Collections.<String> emptySet());
     ApplicationSubmissionContext appSubmissionContext =
         mock(ApplicationSubmissionContext.class);

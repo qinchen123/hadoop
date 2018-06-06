@@ -1419,6 +1419,20 @@
   </property>
 
   <property>
+    <description>Nodemanager port value ranges for serving</description>
+    <name>yarn.nodemanager.resource.ports</name>
+    <value>[100-65535]</value>
+  </property>
+  <property>
+    <description>Rounds of updating ports. This parameter is circle controller for updating
+      local allocated ports info, since the ports info is big. We can control the
+      update frequency to have balance with cluster scale and ports info's
+      accuracy</description>
+    <name>yarn.nodemanager.resource.ports-update-rounds</name>
+    <value>10</value>
+  </property>
+
+  <property>
     <description>exclude the gpus which is used by unknown process</description>
     <name>yarn.gpu_exclude_ownerless_gpu.enable</name>
     <value>false</value>
@@ -1764,7 +1778,6 @@
     <name>yarn.nodemanager.linux-container-executor.group</name>
     <value></value>
   </property>
-
   <property>
     <description>This flag determines whether GPU limit will be set for the Windows Job
     Object of the containers launched by the default container executor.</description>

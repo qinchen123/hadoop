@@ -166,8 +166,11 @@ public class AMRMClientImpl<T extends ContainerRequest> extends AMRMClient<T> {
     int gpu1 = arg1.getGPUs();
 
     if(mem0 <= mem1 && cpu0 <= cpu1 && gpu0 <= gpu1) {
-      return true;
+      if( (arg0.getGPUAttribute() & arg1.getGPUAttribute()) == arg0.getGPUAttribute()) {
+        return true;
+      }
     }
+    return false;
   }
 
   private final Map<Long, RemoteRequestsTable<T>> remoteRequests =

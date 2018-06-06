@@ -114,7 +114,7 @@ public class TestResourceUsage {
     // Add 1,1 should returns 1,1
     try {
       inc(usage, suffix, Resource.newInstance(1, 1), label);
-      check(1, 1, get(usage, suffix, label));
+      check(1, 1, 1, get(usage, suffix, label));
     } catch (NoSuchMethodException e) {
       // Few operations need not have to be verified as some resources doesn't
       // inc/dec apis exposed (For Eg: CachedUsed and CachedPending).
@@ -127,14 +127,14 @@ public class TestResourceUsage {
     // dec 2,2
     try {
       dec(usage, suffix, Resource.newInstance(2, 2), label);
-      check(0, 0, get(usage, suffix, label));
+      check(0, 0, 0, get(usage, suffix, label));
     } catch (NoSuchMethodException e) {
       // Few operations need not have to be verified, as some resources doesn't
       // inc/dec apis exposed (For Eg: CachedUsed and CachedPending).
     }
   }
 
-  void check(int mem, int cpu, Resource res) {
+  void check(int mem, int cpu, int gpu, Resource res) {
     Assert.assertEquals(mem, res.getMemorySize());
     Assert.assertEquals(cpu, res.getVirtualCores());
     Assert.assertEquals(gpu, res.getGPUs());

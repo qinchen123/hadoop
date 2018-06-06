@@ -242,13 +242,13 @@ public class TestFSAppAttempt extends FairSchedulerTestBase {
     Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
         .getInstance(DominantResourceFairnessPolicy.class));
     verifyHeadroom(schedulerApp,
-        min(queueStarvation.getMemorySize(),
+        (int)min(queueStarvation.getMemorySize(),
             clusterAvailable.getMemorySize(),
             queueMaxResourcesAvailable.getMemorySize()),
-        min(queueStarvation.getVirtualCores(),
+        (int) min(queueStarvation.getVirtualCores(),
             clusterAvailable.getVirtualCores(),
             queueMaxResourcesAvailable.getVirtualCores()),
-        min(queueStarvation.getGPUs(),
+        (int)min(queueStarvation.getGPUs(),
             clusterAvailable.getGPUs(),
             queueMaxResourcesAvailable.getGPUs())
     );
@@ -257,13 +257,13 @@ public class TestFSAppAttempt extends FairSchedulerTestBase {
     Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
         .getInstance(FairSharePolicy.class));
     verifyHeadroom(schedulerApp,
-        min(queueStarvation.getMemorySize(),
+        (int)min(queueStarvation.getMemorySize(),
             clusterAvailable.getMemorySize(),
             queueMaxResourcesAvailable.getMemorySize()),
         Math.min(
             clusterAvailable.getVirtualCores(),
             queueMaxResourcesAvailable.getVirtualCores()),
-        min(queueStarvation.getGPUs(),
+        (int)min(queueStarvation.getGPUs(),
             clusterAvailable.getGPUs(),
             queueMaxResourcesAvailable.getGPUs())
     );
@@ -271,13 +271,13 @@ public class TestFSAppAttempt extends FairSchedulerTestBase {
     Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
         .getInstance(FifoPolicy.class));
     verifyHeadroom(schedulerApp,
-        min(queueStarvation.getMemorySize(),
+        (int)min(queueStarvation.getMemorySize(),
             clusterAvailable.getMemorySize(),
             queueMaxResourcesAvailable.getMemorySize()),
         Math.min(
             clusterAvailable.getVirtualCores(),
             queueMaxResourcesAvailable.getVirtualCores()),
-        min(queueStarvation.getGPUs(),
+        (int)min(queueStarvation.getGPUs(),
             clusterAvailable.getGPUs(),
             queueMaxResourcesAvailable.getGPUs())
     );

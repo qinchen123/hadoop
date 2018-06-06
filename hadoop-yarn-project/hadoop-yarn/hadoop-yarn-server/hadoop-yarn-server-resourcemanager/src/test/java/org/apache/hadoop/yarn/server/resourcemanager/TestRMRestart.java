@@ -2111,10 +2111,17 @@ public class TestRMRestart extends ParameterizedSchedulerTestBase {
   public static NMContainerStatus createNMContainerStatus(
       ApplicationAttemptId appAttemptId, int id, ContainerState containerState,
       String nodeLabelExpression) {
+    return createNMContainerStatus(appAttemptId, id, containerState,
+        nodeLabelExpression, 0L);
+  }
+
+  public static NMContainerStatus createNMContainerStatus(
+      ApplicationAttemptId appAttemptId, int id, ContainerState containerState,
+      String nodeLabelExpression, long gpuLocation) {
     ContainerId containerId = ContainerId.newContainerId(appAttemptId, id);
     NMContainerStatus containerReport =
         NMContainerStatus.newInstance(containerId, 0, containerState,
-            Resource.newInstance(1024, 1, 1), "recover container", 0,
+            Resource.newInstance(1024, 1, 1, gpuLocation), "recover container", 0,
             Priority.newInstance(0), 0, nodeLabelExpression,
             ExecutionType.GUARANTEED);
     return containerReport;

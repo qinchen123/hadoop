@@ -203,6 +203,7 @@ public class NodeInfo {
 
     @Override
     public ResourceUtilization getNodeUtilization() {
+      return null;
     }
 
     @Override

@@ -207,33 +207,6 @@ public class FairSchedulerTestBase {
     scheduler.update();
     return id;
   }
-
-  protected ApplicationAttemptId createSchedulingRequest(
-          int memory, int vcores, int gpus, int GPUAttribute, String queueId, String userId, int numContainers,
-          int priority) {
-    ApplicationAttemptId id = createAppAttemptId(this.APP_ID++, this.ATTEMPT_ID++);
-    scheduler.addApplication(id.getApplicationId(), queueId, userId, false);
-    // This conditional is for testAclSubmitApplication where app is rejected
-    // and no app is added.
-    if (scheduler.getSchedulerApplications().containsKey(id.getApplicationId())) {
-      scheduler.addApplicationAttempt(id, false, false);
-    }
-    List<ResourceRequest> ask = new ArrayList<ResourceRequest>();
-    ResourceRequest request = createResourceRequest(memory, vcores, gpus, GPUAttribute, ResourceRequest.ANY,
-            priority, numContainers, true);
-    ask.add(request);
-
-    RMApp rmApp = mock(RMApp.class);
-    RMAppAttempt rmAppAttempt = mock(RMAppAttempt.class);
-    when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
-    when(rmAppAttempt.getRMAppAttemptMetrics()).thenReturn(
-            new RMAppAttemptMetrics(id, resourceManager.getRMContext()));
-    resourceManager.getRMContext().getRMApps()
-            .put(id.getApplicationId(), rmApp);
-
-    scheduler.allocate(id, ask, new ArrayList<ContainerId>(), null, null);
-    return id;
-  }
   
   protected ApplicationAttemptId createSchedulingRequest(String queueId,
       String userId, List<ResourceRequest> ask) {
@@ -273,13 +246,6 @@ public class FairSchedulerTestBase {
       int memory, int vcores, int gpus, int priority, ApplicationAttemptId attId) {
     ResourceRequest request = createResourceRequest(memory, vcores, gpus, ResourceRequest.ANY,
         priority, 1, true);
-    createSchedulingRequestExistingApplication(request, attId);
-  }
-
-  protected void createSchedulingRequestExistingApplication(
-          int memory, int vcores, int gpus, int GPUAttribute, int priority, ApplicationAttemptId attId) {
-    ResourceRequest request = createResourceRequest(memory, vcores, gpus, GPUAttribute, ResourceRequest.ANY,
-            priority, 1, true);
     createSchedulingRequestExistingApplication(request, attId);
   }
 

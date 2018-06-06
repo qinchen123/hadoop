@@ -133,10 +133,6 @@ public class TestReservations {
         Resources.createResource(16 * GB, 12, 12));
     when(csContext.getClusterResource()).thenReturn(
         Resources.createResource(100 * 16 * GB, 100 * 12, 100 * 12));
-    when(csContext.getApplicationComparator()).thenReturn(
-        CapacityScheduler.applicationComparator);
-    when(csContext.getQueueComparator()).thenReturn(
-        CapacityScheduler.queueComparator);
 
     when(csContext.getResourceCalculator()).thenReturn(resourceCalculator);
     when(csContext.getPreemptionManager()).thenReturn(new PreemptionManager());
@@ -1133,15 +1129,6 @@ public class TestReservations {
     assertEquals(null, node_0.getReservedContainer());
     assertEquals(5 * GB, node_0.getAllocatedResource().getMemorySize());
     assertEquals(3 * GB, node_1.getAllocatedResource().getMemorySize());
-    // allocate to queue so that the potential new capacity is greater then
-    // absoluteMaxCapacity
-    Resource capability = Resources.createResource(32 * GB, 0, 0);
-    ResourceLimits limits = new ResourceLimits(clusterResource);
-    boolean res =
-        a.canAssignToThisQueue(clusterResource,
-            CommonNodeLabelsManager.EMPTY_STRING_SET, limits, capability, Resources.none());
-    assertFalse(res);
-    assertEquals(limits.getAmountNeededUnreserve(), Resources.none());
 
     // now add in reservations and make sure it continues if config set
     // allocate to queue so that the potential new capacity is greater then

@@ -166,7 +166,7 @@ public class TestContainersMonitorResourceChange {
     containersMonitor.start();
     // create container 1
     containersMonitor.handle(new ContainerStartMonitoringEvent(
-        getContainerId(1), 2100L, 1000L, 1, 0, 0));
+        getContainerId(1), 2100L, 1000L, 1, 0, 0L, 0L));
     // verify that this container is properly tracked
     assertNotNull(getProcessTreeInfo(getContainerId(1)));
     assertEquals(1000L, getProcessTreeInfo(getContainerId(1))
@@ -187,7 +187,7 @@ public class TestContainersMonitorResourceChange {
         .isContainerKilled(getContainerId(1)));
     // create container 2
     containersMonitor.handle(new ContainerStartMonitoringEvent(getContainerId(
-        2), 2202009L, 1048576L, 1, 0, 0));
+        2), 2202009L, 1048576L, 1, 0, 0L, 0L));
     // verify that this container is properly tracked
     assertNotNull(getProcessTreeInfo(getContainerId(2)));
     assertEquals(1048576L, getProcessTreeInfo(getContainerId(2))
@@ -229,7 +229,7 @@ public class TestContainersMonitorResourceChange {
     Thread.sleep(1000);
     // create a container with id 3
     containersMonitor.handle(new ContainerStartMonitoringEvent(getContainerId(
-        3), 2202009L, 1048576L, 1, 0, 0));
+        3), 2202009L, 1048576L, 1, 0, 0L, 0L));
     // Verify that this container has been tracked
     assertNotNull(getProcessTreeInfo(getContainerId(3)));
     // trigger a change resource event, check limit after change
@@ -258,7 +258,7 @@ public class TestContainersMonitorResourceChange {
 
     // create container 1
     containersMonitor.handle(new ContainerStartMonitoringEvent(
-        getContainerId(1), 2100L, 1000L, 1, 0, 0));
+        getContainerId(1), 2100L, 1000L, 1, 0, 0L, 0L));
 
     // Verify the container utilization value.
     // Since MockCPUResourceCalculatorProcessTree will return a -1 as CPU

@@ -501,6 +501,10 @@ message QueueStatisticsProto {
   optional int64 allocatedContainers = 16;
   optional int64 pendingContainers = 17;
   optional int64 reservedContainers = 18;
+  optional int64 availableGPUs = 19;
+  optional int64 allocatedGPUs = 20;
+  optional int64 pendingGPUs = 21;
+  optional int64 reservedGPUs = 22;
 }
 
 message QueueInfoProto {

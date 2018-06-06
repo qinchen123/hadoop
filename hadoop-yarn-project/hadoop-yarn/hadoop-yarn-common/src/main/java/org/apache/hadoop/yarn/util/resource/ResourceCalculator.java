@@ -117,7 +117,7 @@ public abstract class ResourceCalculator {
    * @param required required resources
    * @return number of containers which can be allocated
    */
-  public abstract int computeAvailableContainers(
+  public abstract long computeAvailableContainers(
       Resource available, Resource required);
 
   /**

@@ -262,7 +262,6 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
         (double) scheduler.getQueueManager()
             .getLeafQueue("root.parentA.childA2", false).getFairShare()
             .getMemorySize()
-            .getGPUs()
             / nodeCapacity * 100, 0.1);
 
     verifySteadyFairShareGPUs(scheduler.getQueueManager().getLeafQueues(),

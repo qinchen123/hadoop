@@ -583,9 +583,9 @@ public class ApplicationHistoryManagerOnTimelineStore extends AbstractService
                 .toString();
       }
       if (entityInfo
-          .containsKey(ContainerMetricsConstants.ALLOCATED_GPU_ENTITY_INFO)) {
+          .containsKey(ContainerMetricsConstants.ALLOCATED_GPU_INFO)) {
         allocatedGPU = (Integer) entityInfo.get(
-            ContainerMetricsConstants.ALLOCATED_GPU_ENTITY_INFO);
+            ContainerMetricsConstants.ALLOCATED_GPU_INFO);
       }
       if (entityInfo
           .containsKey(ContainerMetricsConstants.ALLOCATED_PORT_INFO)) {

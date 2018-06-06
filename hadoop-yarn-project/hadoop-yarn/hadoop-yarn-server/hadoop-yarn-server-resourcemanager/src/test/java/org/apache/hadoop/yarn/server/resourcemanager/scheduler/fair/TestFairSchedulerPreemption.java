@@ -231,7 +231,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
   private void takeAllResources(String queueName) {
     // Create an app that takes up all the resources on the cluster
     ApplicationAttemptId appAttemptId
-        = createSchedulingRequest(GB, 1, queueName, "default",
+        = createSchedulingRequest(GB, 1, 1, queueName, "default",
         NODE_CAPACITY_MULTIPLE * rmNodes.size());
     greedyApp = scheduler.getSchedulerApp(appAttemptId);
     scheduler.update();
@@ -254,7 +254,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
   private void preemptHalfResources(String queueName)
       throws InterruptedException {
     ApplicationAttemptId appAttemptId
-        = createSchedulingRequest(2 * GB, 2, queueName, "default",
+        = createSchedulingRequest(2 * GB, 2, 1, queueName, "default",
         NODE_CAPACITY_MULTIPLE * rmNodes.size() / 2);
     starvingApp = scheduler.getSchedulerApp(appAttemptId);
 
@@ -333,30 +333,6 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
       Thread.sleep(10);
     }
     assertEquals(8, greedyApp.getLiveContainers().size());
-  }
-
-  private void registerNodeAndSubmitApp(
-          int memory, int vcores, int gpus, int GPLocation, int appContainers, int appMemory) {
-    RMNode node1 = MockNodes.newNodeInfo(
-            1, Resources.createResource(memory, vcores, gpus, GPLocation), 1, "node1");
-    NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
-    scheduler.handle(nodeEvent1);
-
-    assertEquals("Incorrect amount of resources in the cluster",
-            memory, scheduler.rootMetrics.getAvailableMB());
-    assertEquals("Incorrect amount of resources in the cluster",
-            vcores, scheduler.rootMetrics.getAvailableVirtualCores());
-
-    createSchedulingRequest(appMemory, "queueA", "user1", appContainers);
-    scheduler.update();
-    // Sufficient node check-ins to fully schedule containers
-    for (int i = 0; i < 3; i++) {
-      NodeUpdateSchedulerEvent nodeUpdate1 = new NodeUpdateSchedulerEvent(node1);
-      scheduler.handle(nodeUpdate1);
-    }
-    assertEquals("app1's request is not met",
-            memory - appContainers * appMemory,
-            scheduler.rootMetrics.getAvailableMB());
   }
 
   @Test

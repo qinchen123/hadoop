@@ -290,4 +290,55 @@ public class QueueStatisticsPBImpl extends QueueStatistics {
     maybeInitBuilder();
     builder.setReservedContainers(reservedContainers);
   }
+
+
+  @Override
+  public long getAvailableGPUs() {
+    QueueStatisticsProtoOrBuilder p = viaProto ? proto : builder;
+    return (p.hasAvailableGPUs()) ? p.getAvailableGPUs() : -1;
+  }
+
+  @Override
+  public void setAvailableGPUs(long availableGPUs) {
+    maybeInitBuilder();
+    builder.setAvailableGPUs(availableGPUs);
+  }
+
+  @Override
+  public long getAllocatedGPUs() {
+    QueueStatisticsProtoOrBuilder p = viaProto ? proto : builder;
+    return (p.hasAllocatedGPUs()) ? p.getAllocatedGPUs() : -1;
+  }
+
+  @Override
+  public void setAllocatedGPUs(long allocatedGPUs) {
+    maybeInitBuilder();
+    builder.setAllocatedGPUs(allocatedGPUs);
+  }
+
+  @Override
+  public long getPendingGPUs() {
+    QueueStatisticsProtoOrBuilder p = viaProto ? proto : builder;
+    return (p.hasPendingGPUs()) ? p.getPendingGPUs() : -1;
+  }
+
+  @Override
+  public void setPendingGPUs(long pendingGPUs) {
+    maybeInitBuilder();
+    builder.setAllocatedGPUs(pendingGPUs);
+  }
+
+
+  @Override
+  public long getReservedGPUs() {
+    QueueStatisticsProtoOrBuilder p = viaProto ? proto : builder;
+    return (p.hasReservedGPUs()) ? p.getReservedGPUs() : -1;
+  }
+
+
+  @Override
+  public void setReservedGPUs(long reservedGPUs) {
+    maybeInitBuilder();
+    builder.setReservedGPUs(reservedGPUs);
+  }
 }

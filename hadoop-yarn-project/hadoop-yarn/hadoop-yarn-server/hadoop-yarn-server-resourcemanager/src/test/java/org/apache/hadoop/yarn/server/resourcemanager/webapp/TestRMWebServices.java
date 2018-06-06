@@ -459,7 +459,7 @@ public class TestRMWebServices extends JerseyTestBase {
       int availableGPUs, int allocGPUs, int totalGPUs,
       int containersAlloc, int totalMB, int totalNodes,
       int lostNodes, int unhealthyNodes, int decommissionedNodes,
-      int rebootedNodes, int activeNodes) throws JSONException, Exception {
+      int rebootedNodes, int activeNodes, int shutdownNodes) throws JSONException, Exception {
 
     ResourceScheduler rs = rm.getResourceScheduler();
     QueueMetrics metrics = rs.getRootQueueMetrics();

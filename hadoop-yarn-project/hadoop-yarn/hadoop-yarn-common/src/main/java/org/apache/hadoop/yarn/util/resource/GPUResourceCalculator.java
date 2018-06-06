@@ -32,7 +32,7 @@ public class GPUResourceCalculator extends ResourceCalculator {
   }
 
   @Override
-  public int computeAvailableContainers(Resource available, Resource required) {
+  public long computeAvailableContainers(Resource available, Resource required) {
     // Only consider GPU
     if(!isInvalidDivisor(required)) {
         return available.getGPUs() / required.getGPUs();

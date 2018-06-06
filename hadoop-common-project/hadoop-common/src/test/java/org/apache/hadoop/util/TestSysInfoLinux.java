@@ -611,7 +611,7 @@ public class TestSysInfoLinux {
     assertEquals(8,plugin.getNumGPUs(false, 0));
     assertEquals(plugin.getGpuAttributeCapacity(false, 0),0xFC);
 
-    Thread.sleep(LinuxResourceCalculatorPlugin.REFRESH_INTERVAL_MS +1);
+    Thread.sleep(SysInfoLinux.REFRESH_INTERVAL_MS +1);
     assertEquals(8,plugin.getNumGPUs(false, 0));
     assertEquals(plugin.getGpuAttributeCapacity(false, 0),0xFC);
   }
@@ -635,7 +635,7 @@ public class TestSysInfoLinux {
     InitialPortsTestFile(25, 27, 28, 100, 1000);
     assertEquals("25,27,28,100,1000", plugin.getPortsUsage());
 
-    Thread.sleep(LinuxResourceCalculatorPlugin.REFRESH_INTERVAL_MS + 1);
+    Thread.sleep(SysInfoLinux.REFRESH_INTERVAL_MS + 1);
     assertEquals("25,27,28,100,1000", plugin.getPortsUsage());
   }
 

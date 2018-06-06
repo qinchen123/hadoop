@@ -823,6 +823,11 @@ public class MockRM extends ResourceManager {
     return nm;
   }
 
+  public MockNM registerNode(String nodeIdStr, int memory, int vCores)
+      throws Exception {
+     return registerNode(nodeIdStr, memory, vCores, 0);
+  }
+
   public MockNM registerNode(String nodeIdStr, int memory, int vCores, int GPUs)
       throws Exception {
     MockNM nm =
