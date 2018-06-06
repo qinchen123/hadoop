@@ -554,6 +554,11 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
                              availableAndKillable)) {
           // Stop if we find enough spaces
           availableContainers = 1;
+          if(capability.getGPUs() > 0 && capability.getGPUAttribute() == 0) {
+            LOG.info("GPU/Ports allocation request: " + capability + " from availability: " + available);
+            long allocated = Resources.allocateGPUs(capability, available);
+            capability.setGPUAttribute(allocated);
+          }
           break;
         }
       }
@@ -598,7 +603,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
       }
 
       ContainerAllocation result = new ContainerAllocation(unreservedContainer,
-          pendingAsk.getPerAllocationResource(), AllocationState.ALLOCATED);
+          capability, AllocationState.ALLOCATED);
       result.containerNodeType = type;
       result.setToKillContainers(toKillContainers);
       return result;
@@ -623,7 +628,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
         }
 
         ContainerAllocation result = new ContainerAllocation(null,
-            pendingAsk.getPerAllocationResource(), AllocationState.RESERVED);
+            capability, AllocationState.RESERVED);
         result.containerNodeType = type;
         result.setToKillContainers(null);
         return result;

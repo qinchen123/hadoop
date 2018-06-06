@@ -60,18 +60,18 @@ public class DominantResourceCalculator extends ResourceCalculator {
     }
     
     if (isInvalidDivisor(clusterResource)) {
-      if ((lhs.getMemorySize() < rhs.getMemorySize() &&
-          lhs.getVirtualCores() > rhs.getVirtualCores()) ||
-          (lhs.getMemorySize() > rhs.getMemorySize() &&
-          lhs.getVirtualCores() < rhs.getVirtualCores())) {
-        return 0;
-      } else if (lhs.getMemorySize() > rhs.getMemorySize()
-          || lhs.getVirtualCores() > rhs.getVirtualCores()) {
-        return 1;
-      } else if (lhs.getMemorySize() < rhs.getMemorySize()
-          || lhs.getVirtualCores() < rhs.getVirtualCores()) {
+      if(lhs.getMemorySize() < rhs.getMemorySize()  &&
+         lhs.getVirtualCores() < rhs.getVirtualCores() &&
+         lhs.getGPUs() < rhs.getGPUs()) {
         return -1;
       }
+
+      if(lhs.getMemorySize() > rhs.getMemorySize()  &&
+          lhs.getVirtualCores() > rhs.getVirtualCores() &&
+          lhs.getGPUs() > rhs.getGPUs()) {
+        return 1;
+      }
+      return 0;
     }
 
     float l = getResourceAsValue(clusterResource, lhs, true);
@@ -90,19 +90,7 @@ public class DominantResourceCalculator extends ResourceCalculator {
         return 1;
       }
     }
-
-    int diff = 0;
-    ValueRanges lPorts = lhs.getPorts();
-    ValueRanges rPorts = rhs.getPorts();
-    if (lPorts == null) {
-      diff = rPorts == null ? 0 : 1;
-    } else if (rPorts == null) {
-      diff = -1;
-    } else {
-      diff = lPorts.compareTo(rPorts);
-    }
-    
-    return diff;
+    return 0;
   }
 
 

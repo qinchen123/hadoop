@@ -33,13 +33,20 @@ public class GPUResourceCalculator extends ResourceCalculator {
 
   @Override
   public long computeAvailableContainers(Resource available, Resource required) {
+
+    int num = Integer.MAX_VALUE;
+    if (required.getPorts() != null && required.getPorts().getRangesCount() > 0) {
+      // required ports resource, so we can not allocate more than one container
+      num = 1;
+    }
     // Only consider GPU
     if(!isInvalidDivisor(required)) {
-        return available.getGPUs() / required.getGPUs();
+      num = Math.min(available.getGPUs() / required.getGPUs(), num);
     }
     else {
-        return available.getGPUs();
+      num = Math.min(available.getGPUs(), num);
     }
+    return num;
   }
 
   @Override
