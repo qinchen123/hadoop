@@ -97,7 +97,6 @@ public interface ApplicationBaseProtocol {
    * @throws YarnException
    * @throws IOException
    */
-
   @Public
   @Stable
   @Idempotent

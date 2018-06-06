@@ -235,7 +235,7 @@ public abstract class ApplicationResourceUsageReport {
   /**
    * Set the aggregated number of GPUs that the application has allocated
    * times the number of seconds the application has been running.
-   * @param GPUSeconds the aggregated number of GPU seconds
+   * @param gpuSeconds the aggregated number of GPU seconds
    */
   @Private
   @Unstable
