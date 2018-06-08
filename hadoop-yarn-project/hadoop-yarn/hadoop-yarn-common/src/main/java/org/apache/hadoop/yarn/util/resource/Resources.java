@@ -530,7 +530,8 @@ public class Resources {
         needAllocateCount -= (range.getEnd() - range.getBegin() + 1);
       }
     }
-    ValueRanges valueRanges = ValueRanges.newInstance(rangeList);
+    ValueRanges valueRanges = ValueRanges.newInstance();
+    valueRanges.setRangesList(rangeList);
     return valueRanges;
   }
 
