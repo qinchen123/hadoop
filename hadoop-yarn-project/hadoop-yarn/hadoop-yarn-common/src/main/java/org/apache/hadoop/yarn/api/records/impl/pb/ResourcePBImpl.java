@@ -43,6 +43,9 @@ public class ResourcePBImpl extends Resource {
       pb = new ResourcePBImpl();
       pb.setMemorySize(r.getMemorySize());
       pb.setVirtualCores(r.getVirtualCores());
+      pb.setGPUAttribute(r.getGPUAttribute());
+      pb.setGPUs(r.getGPUs());
+      pb.setPorts(r.getPorts());
     }
     return pb.getProto();
   }

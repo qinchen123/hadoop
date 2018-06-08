@@ -60,15 +60,15 @@ public class DominantResourceCalculator extends ResourceCalculator {
     }
     
     if (isInvalidDivisor(clusterResource)) {
-      if(lhs.getMemorySize() < rhs.getMemorySize()  &&
-         lhs.getVirtualCores() < rhs.getVirtualCores() &&
-         lhs.getGPUs() < rhs.getGPUs()) {
+      if(lhs.getMemorySize() <= rhs.getMemorySize()  &&
+         lhs.getVirtualCores() <= rhs.getVirtualCores() &&
+         lhs.getGPUs() <= rhs.getGPUs()) {
         return -1;
       }
 
-      if(lhs.getMemorySize() > rhs.getMemorySize()  &&
-          lhs.getVirtualCores() > rhs.getVirtualCores() &&
-          lhs.getGPUs() > rhs.getGPUs()) {
+      if(lhs.getMemorySize() >= rhs.getMemorySize()  &&
+          lhs.getVirtualCores() >= rhs.getVirtualCores() &&
+          lhs.getGPUs() >= rhs.getGPUs()) {
         return 1;
       }
       return 0;
