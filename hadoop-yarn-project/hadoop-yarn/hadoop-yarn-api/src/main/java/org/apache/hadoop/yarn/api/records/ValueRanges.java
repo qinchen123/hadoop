@@ -29,12 +29,6 @@ import org.apache.hadoop.yarn.util.Records;
 
 public abstract class ValueRanges implements Comparable<ValueRanges> {
 
-  public static ValueRanges newInstance(List<ValueRange> rangesList) {
-    ValueRanges valueRanges = Records.newRecord(ValueRanges.class);
-    valueRanges.setRangesList(rangesList);
-    return valueRanges;
-  }
-
   public static ValueRanges newInstance() {
     ValueRanges valueRanges = Records.newRecord(ValueRanges.class);
     return valueRanges;

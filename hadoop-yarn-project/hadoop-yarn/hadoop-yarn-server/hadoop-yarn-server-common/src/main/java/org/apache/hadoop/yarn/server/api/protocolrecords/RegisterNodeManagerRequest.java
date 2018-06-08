@@ -25,8 +25,8 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.NodeLabel;
 import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.util.Records;
 import org.apache.hadoop.yarn.api.records.ValueRanges;
+import org.apache.hadoop.yarn.util.Records;
 
 public abstract class RegisterNodeManagerRequest {
 

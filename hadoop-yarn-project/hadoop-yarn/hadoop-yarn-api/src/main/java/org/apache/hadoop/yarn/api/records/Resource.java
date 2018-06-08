@@ -127,6 +127,12 @@ public abstract class Resource implements Comparable<Resource> {
 
   @Public
   @Stable
+  public static Resource newInstance(int memory, int vCores, int GPUs) {
+    return newInstance(memory, vCores, GPUs, 0, null);
+  }
+
+  @Public
+  @Stable
   public static Resource newInstance(long memory, int vCores, int GPUs) {
     return newInstance(memory, vCores, GPUs, 0, null);
   }
