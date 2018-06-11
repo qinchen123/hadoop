@@ -49,11 +49,10 @@ public class TestSysInfoLinux {
 			                                       String procfsNetFile,
                                              String procfsDisksFile,
                                              String procfsGpuFile,
-                                             String procfsGpuUsingFile,
                                              String procfsPortsFile,
                                              long jiffyLengthInMillis) {
       super(procfsMemFile, procfsCpuFile, procfsStatFile, procfsNetFile,
-          procfsDisksFile, procfsGpuFile,  procfsGpuUsingFile, procfsPortsFile, jiffyLengthInMillis);
+          procfsDisksFile, procfsGpuFile,  procfsPortsFile, jiffyLengthInMillis);
     }
     @Override
     long getCurrentTime() {
@@ -76,7 +75,6 @@ public class TestSysInfoLinux {
   private static final String FAKE_NETFILE;
   private static final String FAKE_DISKSFILE;
   private static final String FAKE_GPUFILE;
-  private static final String FAKE_GPU_USINGFILE;
   private static final String FAKE_PORTSFILE;
   private static final long FAKE_JIFFY_LENGTH = 10L;
   static {
@@ -87,7 +85,6 @@ public class TestSysInfoLinux {
     FAKE_NETFILE = TEST_ROOT_DIR + File.separator + "NETINFO_" + randomNum;
     FAKE_DISKSFILE = TEST_ROOT_DIR + File.separator + "DISKSINFO_" + randomNum;
     FAKE_GPUFILE = TEST_ROOT_DIR + File.separator + "GPUINFO_" + randomNum;
-    FAKE_GPU_USINGFILE = TEST_ROOT_DIR + File.separator + "GPUUSINGINFO_" + randomNum;
     FAKE_PORTSFILE = TEST_ROOT_DIR + File.separator + "PORTSINFO_" + randomNum;
 
     plugin = new FakeLinuxResourceCalculatorPlugin(FAKE_MEMFILE, FAKE_CPUFILE,
@@ -95,7 +92,6 @@ public class TestSysInfoLinux {
                                                    FAKE_NETFILE,
                                                    FAKE_DISKSFILE,
                                                    FAKE_GPUFILE,
-                                                   FAKE_GPU_USINGFILE,
                                                    FAKE_PORTSFILE,
                                                    FAKE_JIFFY_LENGTH);
   }
@@ -598,6 +594,7 @@ public class TestSysInfoLinux {
     tempFile.deleteOnExit();
     FileWriter fWriter = new FileWriter(FAKE_GPUFILE);
     fWriter.write(NVIDIA_GPU_INFO_FORMAT);
+    fWriter.flush();
     fWriter.close();
   }
   /**
@@ -623,6 +620,7 @@ public class TestSysInfoLinux {
     FileWriter fWriter = new FileWriter(FAKE_PORTSFILE);
     fWriter.write(String.format(PORTSINFO_FORMAT,
         port1, port2, port3, port4, port5));
+    fWriter.flush();
     fWriter.close();
   }
 
@@ -633,7 +631,7 @@ public class TestSysInfoLinux {
     assertEquals("0,0,0,0,0", plugin.getPortsUsage());
 
     InitialPortsTestFile(25, 27, 28, 100, 1000);
-    assertEquals("25,27,28,100,1000", plugin.getPortsUsage());
+    assertEquals("0,0,0,0,0", plugin.getPortsUsage());
 
     Thread.sleep(SysInfoLinux.REFRESH_INTERVAL_MS + 1);
     assertEquals("25,27,28,100,1000", plugin.getPortsUsage());

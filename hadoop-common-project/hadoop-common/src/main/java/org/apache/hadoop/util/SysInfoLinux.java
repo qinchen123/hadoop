@@ -193,7 +193,6 @@ public class SysInfoLinux extends SysInfo {
   private String procfsNetFile;
   private String procfsDisksFile;
   private String procfsGpuFile;
-  private String procfsGpuUsingFile;
   private String procfsPortsFile;
   private long jiffyLengthInMillis;
 
@@ -259,7 +258,7 @@ public class SysInfoLinux extends SysInfo {
 
   public SysInfoLinux() {
     this(PROCFS_MEMFILE, PROCFS_CPUINFO, PROCFS_STAT,
-         PROCFS_NETFILE, PROCFS_DISKSFILE, null, null, null, JIFFY_LENGTH_IN_MILLIS);
+         PROCFS_NETFILE, PROCFS_DISKSFILE, null, null, JIFFY_LENGTH_IN_MILLIS);
   }
 
   /**
@@ -279,7 +278,6 @@ public class SysInfoLinux extends SysInfo {
                                        String procfsNetFile,
                                        String procfsDisksFile,
                                        String procfsGpuFile,
-                                       String procfsGpuUsingFile,
                                        String procfsPortsFile,
                                        long jiffyLengthInMillis) {
     this.procfsMemFile = procfsMemFile;
@@ -288,7 +286,6 @@ public class SysInfoLinux extends SysInfo {
     this.procfsNetFile = procfsNetFile;
     this.procfsDisksFile = procfsDisksFile;
     this.procfsGpuFile = procfsGpuFile;
-    this.procfsGpuUsingFile = procfsGpuUsingFile;
     this.procfsPortsFile = procfsPortsFile;
     this.jiffyLengthInMillis = jiffyLengthInMillis;
     this.cpuTimeTracker = new CpuTimeTracker(jiffyLengthInMillis);
