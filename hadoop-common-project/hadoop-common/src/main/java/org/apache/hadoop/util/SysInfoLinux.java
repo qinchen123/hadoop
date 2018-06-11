@@ -847,9 +847,10 @@ public class SysInfoLinux extends SysInfo {
         }
         input.close();
         ir.close();
+        LOG.info("GpuAttributeCapacity:" + Long.toBinaryString(gpuAttributeCapacity) + " GpuAttributeUsed:" + Long.toBinaryString(gpuAttributeUsed) + " GpuAttributeProcess:" + Long.toBinaryString(gpuAttributeProcess));
+
         Long ownerLessGpus = (gpuAttributeUsed & ~gpuAttributeProcess);
         if ((ownerLessGpus != 0)) {
-          LOG.info("GpuAttributeCapacity:" + Long.toBinaryString(gpuAttributeCapacity) + " GpuAttributeUsed:" + Long.toBinaryString(gpuAttributeUsed) + " GpuAttributeProcess:" + Long.toBinaryString(gpuAttributeProcess));
           if (excludeOwnerlessUsingGpus) {
             gpuAttributeCapacity = (gpuAttributeCapacity & ~ownerLessGpus);
             LOG.error("GPU:" + Long.toBinaryString(ownerLessGpus) + " is using by unknown process, will exclude these Gpus and won't schedule jobs into these Gpus");
@@ -895,6 +896,7 @@ public class SysInfoLinux extends SysInfo {
           mat = PORTS_FORMAT.matcher(ln);
           if (mat.find()) {
             String port = mat.group().substring(1);
+
             if (usedPorts.isEmpty()) {
               usedPorts = port;
             } else {
@@ -904,6 +906,7 @@ public class SysInfoLinux extends SysInfo {
         }
         input.close();
         ir.close();
+        LOG.info(usedPorts);
       } catch (Exception e) {
         LOG.warn("error get Ports usage info:" + e.toString());
       }
