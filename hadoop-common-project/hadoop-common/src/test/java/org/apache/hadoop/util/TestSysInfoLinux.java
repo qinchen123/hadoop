@@ -52,8 +52,8 @@ public class TestSysInfoLinux {
                                              String procfsGpuUsingFile,
                                              String procfsPortsFile,
                                              long jiffyLengthInMillis) {
-      super(procfsMemFile, procfsCpuFile, procfsStatFile, procfsGpuFile, procfsGpuUsingFile, procfsPortsFile, procfsNetFile,
-          procfsDisksFile, jiffyLengthInMillis);
+      super(procfsMemFile, procfsCpuFile, procfsStatFile, procfsNetFile,
+          procfsDisksFile, procfsGpuFile,  procfsGpuUsingFile, procfsPortsFile, jiffyLengthInMillis);
     }
     @Override
     long getCurrentTime() {
