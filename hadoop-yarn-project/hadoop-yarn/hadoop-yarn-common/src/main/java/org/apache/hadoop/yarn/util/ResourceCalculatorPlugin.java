@@ -178,8 +178,7 @@ public class ResourceCalculatorPlugin extends Configured {
    * @return number of GPUs
    */
   public int getNumGPUs(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold) {
-    //return sys.getNumGPUs(excludeOwnerlessUsingGpu, gpuNotReadyMemoryThreshold);
-    return 0;
+    return sys.getNumGPUs(excludeOwnerlessUsingGpu, gpuNotReadyMemoryThreshold);
   }
   
   /**
@@ -188,8 +187,7 @@ public class ResourceCalculatorPlugin extends Configured {
    * @return bit map set of gpu capacity.
    */
   public long getGpuAttributeCapacity(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold) {
-    //return sys.getGpuAttributeCapacity(excludeOwnerlessUsingGpu, gpuNotReadyMemoryThreshold);
-    return 0L;
+    return sys.getGpuAttributeCapacity(excludeOwnerlessUsingGpu, gpuNotReadyMemoryThreshold);
   }
 
   /**
@@ -197,8 +195,7 @@ public class ResourceCalculatorPlugin extends Configured {
    *
    * @return a string with ports like: "25,110,23,42"
    */
-  //public String getPortsUsage() {return sys.getPortsUsage();}
-  public String getPortsUsage() {return null;}
+  public String getPortsUsage() {return sys.getPortsUsage();}
 
   /**
    * Create the ResourceCalculatorPlugin from the class name and configure it. If
