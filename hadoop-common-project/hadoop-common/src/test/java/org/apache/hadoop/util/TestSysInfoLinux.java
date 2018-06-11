@@ -605,11 +605,7 @@ public class TestSysInfoLinux {
   public void parsingGPUFile() throws Exception {
 
     InitialGPUTestFile();
-    assertEquals(8, plugin.getNumGPUs(false, 0));
-    assertEquals(plugin.getGpuAttributeCapacity(false, 0),0xFC);
-
-    Thread.sleep(SysInfoLinux.REFRESH_INTERVAL_MS +1);
-    assertEquals(7, plugin.getNumGPUs(true, 0));
+    assertEquals(7, plugin.getNumGPUs(false, 0));
     assertEquals(plugin.getGpuAttributeCapacity(false, 0),0xFC);
   }
 
@@ -627,14 +623,8 @@ public class TestSysInfoLinux {
   @Test
   public void parsingPortsFile() throws Exception {
 
-    InitialPortsTestFile(0, 0, 0, 0, 0);
-    assertEquals("0,0,0,0,0", plugin.getPortsUsage());
-
-    InitialPortsTestFile(25, 27, 28, 100, 1000);
-    assertEquals("0,0,0,0,0", plugin.getPortsUsage());
-
-    Thread.sleep(SysInfoLinux.REFRESH_INTERVAL_MS + 1);
-    assertEquals("25,27,28,100,1000", plugin.getPortsUsage());
+    InitialPortsTestFile(025,27,28, 0, 0);
+    assertEquals("25,27,28,0,0", plugin.getPortsUsage());
   }
 
 
