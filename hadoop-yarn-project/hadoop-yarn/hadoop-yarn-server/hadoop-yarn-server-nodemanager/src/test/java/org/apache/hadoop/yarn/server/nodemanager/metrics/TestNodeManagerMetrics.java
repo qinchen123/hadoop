@@ -39,18 +39,21 @@ public class TestNodeManagerMetrics {
     Resource resource = Records.newRecord(Resource.class);
     resource.setMemorySize(512); //512MiB
     resource.setVirtualCores(2);
+    resource.setGPUs(1);
     Resource largerResource = Records.newRecord(Resource.class);
     largerResource.setMemorySize(1024);
     largerResource.setVirtualCores(2);
+    largerResource.setGPUs(2);
     Resource smallerResource = Records.newRecord(Resource.class);
     smallerResource.setMemorySize(256);
     smallerResource.setVirtualCores(1);
-    resource.setGPUs(1);
+    smallerResource.setGPUs(1);
 
     metrics.addResource(total);
 
     for (int i = 10; i-- > 0;) {
-      // allocate 10 containers(allocatedGB: 5GiB, availableGB: 3GiB)
+      // allocate 10 containers(allocatedGB: 5GiB, availableGB: 3GiB, allocatedVirtualCores:10,
+      //                        availableVirtualCores:6, allocatedGPU:10, availableGPU:6 )
       metrics.launchedContainer();
       metrics.allocateContainer(resource);
     }
@@ -59,7 +62,8 @@ public class TestNodeManagerMetrics {
     metrics.endInitingContainer();
     metrics.runningContainer();
     metrics.endRunningContainer();
-    // Releasing 3 containers(allocatedGB: 3.5GiB, availableGB: 4.5GiB)
+    // Releasing 3 containers(allocatedGB: 3.5GiB, availableGB: 4.5GiB, allocatedVirtualCores:7,
+    //                        availableVirtualCores:9, allocatedGPU:7, availableGPU:9)
     metrics.completedContainer();
     metrics.releaseContainer(resource);
 
@@ -85,7 +89,7 @@ public class TestNodeManagerMetrics {
     // while allocatedGB is expected to be ceiled.
     // allocatedGB: 3.5GB allocated memory is shown as 4GB
     // availableGB: 4.5GB available memory is shown as 4GB
-    checkMetrics(10, 1, 1, 1, 1, 1, 4, 7, 4, 14, 2, 7, 9);
+    checkMetrics(10, 1, 1, 1, 1, 1, 4, 7, 4, 13, 3, 7, 9);
   }
 
   private void checkMetrics(int launched, int completed, int failed, int killed,

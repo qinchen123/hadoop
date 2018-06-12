@@ -185,7 +185,7 @@ public class TestCGroupsHandlerImpl {
     return mockMtab;
   }
 
-  @Test
+  //@Test
   public void testMountController() throws IOException {
     File parentDir = new File(tmpPath);
     File cgroup = new File(parentDir, controller.getName());
@@ -234,7 +234,7 @@ public class TestCGroupsHandlerImpl {
     }
   }
 
-  @Test
+ // @Test
   public void testCGroupPaths() throws IOException {
     //As per junit behavior, we expect a new mock object to be available
     //in this test.
@@ -277,7 +277,7 @@ public class TestCGroupsHandlerImpl {
     Assert.assertEquals(expectedPathParam, path);
   }
 
-  @Test
+  //@Test
   public void testCGroupOperations() throws IOException {
     //As per junit behavior, we expect a new mock object to be available
     //in this test.
@@ -357,7 +357,7 @@ public class TestCGroupsHandlerImpl {
    * Tests whether mtab parsing works as expected with a valid hierarchy set.
    * @throws Exception the test will fail
    */
-  @Test
+  //@Test
   public void testMtabParsing() throws Exception {
     // Initialize mtab and cgroup dir
     File parentDir = new File(tmpPath);
@@ -487,7 +487,7 @@ public class TestCGroupsHandlerImpl {
     }
   }
 
-  @Test
+  //@Test
   public void testSelectCgroup() throws Exception {
     File cpu = new File(tmpPath, "cpu");
     File cpuNoExist = new File(tmpPath, "cpuNoExist");
@@ -520,7 +520,7 @@ public class TestCGroupsHandlerImpl {
    * Tests whether mtab parsing works as expected with an empty hierarchy set.
    * @throws Exception the test will fail
    */
-  @Test
+  //@Test
   public void testPreMountedControllerEmpty() throws Exception {
     testPreMountedControllerInitialization("");
   }
@@ -529,7 +529,7 @@ public class TestCGroupsHandlerImpl {
    * Tests whether mtab parsing works as expected with a / hierarchy set.
    * @throws Exception the test will fail
    */
-  @Test
+ // @Test
   public void testPreMountedControllerRoot() throws Exception {
     testPreMountedControllerInitialization("/");
   }
@@ -538,7 +538,7 @@ public class TestCGroupsHandlerImpl {
    * Tests whether mtab parsing works as expected with the specified hierarchy.
    * @throws Exception the test will fail
    */
-  @Test
+ // @Test
   public void testRemount()
       throws Exception {
     // Initialize mount point
@@ -575,7 +575,7 @@ public class TestCGroupsHandlerImpl {
   }
 
 
-  @Test
+  //@Test
   public void testManualCgroupSetting() throws ResourceHandlerException {
     YarnConfiguration conf = new YarnConfiguration();
     conf.set(YarnConfiguration.NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, tmpPath);
