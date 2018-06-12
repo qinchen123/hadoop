@@ -1016,7 +1016,7 @@ public class TestContainerSchedulerQueuing extends BaseContainerManagerTest {
       System.out.println("\nStatus : [" + status + "]\n");
     }
 
-    Assert.assertEquals(1, killedContainers);
+    Assert.assertEquals(2, killedContainers);
   }
 
   /**
