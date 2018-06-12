@@ -74,6 +74,7 @@ public class CapacitySchedulerPreemptionTestBase {
         1.0f);
     conf.setLong(CapacitySchedulerConfiguration.PREEMPTION_MONITORING_INTERVAL,
         60000L);
+    conf.setFloat(CapacitySchedulerConfiguration.MAXIMUM_APPLICATION_MASTERS_RESOURCE_PERCENT, 0.5f);
     mgr = new NullRMNodeLabelsManager();
     mgr.init(this.conf);
     clock = mock(Clock.class);

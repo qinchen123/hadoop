@@ -50,10 +50,9 @@ public class MockNM {
   private long memory;
   private int vCores;
   private int GPUs;
-  private int GPUAttribute;
+  private long GPUAttribute;
   private ValueRanges ports;
 
-  private ResourceCalculatorPlugin resourceCalculatorPlugin =  ResourceCalculatorPlugin.getResourceCalculatorPlugin(null, null);
   private ResourceTrackerService resourceTracker;
   private int httpPort = 2;
   private MasterKey currentContainerTokenMasterKey;
@@ -89,14 +88,14 @@ public class MockNM {
     String[] splits = nodeIdStr.split(":");
     nodeId = BuilderUtils.newNodeId(splits[0], Integer.parseInt(splits[1]));
     GPUAttribute = initGPUAttribute(GPUs);
-    ports = ValueRanges.iniFromExpression(resourceCalculatorPlugin.getPortsUsage());
+    ports = ValueRanges.iniFromExpression("[1-65535]");
   }
 
-  private int initGPUAttribute(int GPUs)
+  private long initGPUAttribute(int GPUs)
   {
-    int result = 0;
+    long result = 0;
     int pos = 1;
-    while (Integer.bitCount(result) < GPUs) {
+    while (Long.bitCount(result) < GPUs) {
       result = result | pos;
       pos = pos << 1;
     }
@@ -176,6 +175,9 @@ public class MockNM {
     if (newResource != null) {
       memory = (int) newResource.getMemorySize();
       vCores = newResource.getVirtualCores();
+      GPUs = newResource.getGPUs();
+      GPUAttribute = newResource.getGPUAttribute();
+      ports = newResource.getPorts();
     }
     containerStats.clear();
     if (containerReports != null) {
@@ -287,6 +289,9 @@ public class MockNM {
     if (newResource != null) {
       memory = newResource.getMemorySize();
       vCores = newResource.getVirtualCores();
+      GPUs = newResource.getGPUs();
+      GPUAttribute = newResource.getGPUAttribute();
+      ports = newResource.getPorts();
     }
 
     return heartbeatResponse;
@@ -307,7 +312,11 @@ public class MockNM {
     return GPUs;
   }
 
-  public int getGPUAttribute() {
+  public long getGPUAttribute() {
     return GPUAttribute;
+  }
+
+  public ValueRanges getPorts() {
+    return ports;
   }
 }
