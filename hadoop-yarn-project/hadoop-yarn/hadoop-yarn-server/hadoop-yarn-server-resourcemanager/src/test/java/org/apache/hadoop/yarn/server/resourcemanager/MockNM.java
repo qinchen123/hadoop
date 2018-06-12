@@ -94,7 +94,7 @@ public class MockNM {
   private long initGPUAttribute(int GPUs)
   {
     long result = 0;
-    int pos = 1;
+    long pos = 1;
     while (Long.bitCount(result) < GPUs) {
       result = result | pos;
       pos = pos << 1;
