@@ -26,14 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.Container;
-import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.api.records.ContainerState;
-import org.apache.hadoop.yarn.api.records.ContainerStatus;
-import org.apache.hadoop.yarn.api.records.NodeId;
-import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.api.protocolrecords.NMContainerStatus;
 import org.apache.hadoop.yarn.server.api.protocolrecords.NodeHeartbeatRequest;
@@ -46,6 +39,7 @@ import org.apache.hadoop.yarn.server.api.records.NodeHealthStatus;
 import org.apache.hadoop.yarn.server.api.records.NodeStatus;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.Records;
+import org.apache.hadoop.yarn.util.ResourceCalculatorPlugin;
 import org.apache.hadoop.yarn.util.YarnVersionInfo;
 import org.mortbay.log.Log;
 
@@ -57,7 +51,9 @@ public class MockNM {
   private int vCores;
   private int GPUs;
   private int GPUAttribute;
+  private ValueRanges ports;
 
+  private ResourceCalculatorPlugin resourceCalculatorPlugin =  ResourceCalculatorPlugin.getResourceCalculatorPlugin(null, null);
   private ResourceTrackerService resourceTracker;
   private int httpPort = 2;
   private MasterKey currentContainerTokenMasterKey;
@@ -76,13 +72,11 @@ public class MockNM {
         Math.min(Math.max(1, (memory * YarnConfiguration.DEFAULT_NM_GPUS) /
             YarnConfiguration.DEFAULT_NM_PMEM_MB), 32),   // Maximum number of GPUs expressed by bit vector
         resourceTracker);
-    GPUAttribute = initGPUAttribute(GPUs);
   }
 
   public MockNM(String nodeIdStr, int memory, int vcores, int GPUs,
       ResourceTrackerService resourceTracker) {
     this(nodeIdStr, memory, vcores, GPUs, resourceTracker, YarnVersionInfo.getVersion());
-    GPUAttribute = initGPUAttribute(GPUs);
   }
 
   public MockNM(String nodeIdStr, int memory, int vcores, int GPUs,
@@ -95,6 +89,7 @@ public class MockNM {
     String[] splits = nodeIdStr.split(":");
     nodeId = BuilderUtils.newNodeId(splits[0], Integer.parseInt(splits[1]));
     GPUAttribute = initGPUAttribute(GPUs);
+    ports = ValueRanges.iniFromExpression(resourceCalculatorPlugin.getPortsUsage());
   }
 
   private int initGPUAttribute(int GPUs)
@@ -167,6 +162,7 @@ public class MockNM {
     req.setNodeId(nodeId);
     req.setHttpPort(httpPort);
     Resource resource = BuilderUtils.newResource(memory, vCores, GPUs, GPUAttribute);
+    resource.setPorts(ports);
     req.setResource(resource);
     req.setContainerStatuses(containerReports);
     req.setNMVersion(version);
@@ -259,6 +255,11 @@ public class MockNM {
     healthStatus.setIsNodeHealthy(isHealthy);
     healthStatus.setLastHealthReportTime(1);
     status.setNodeHealthStatus(healthStatus);
+
+    Resource resource = BuilderUtils.newResource(memory, vCores, GPUs, GPUAttribute);
+    resource.setPorts(ports);
+    status.setResource(resource);
+
     req.setNodeStatus(status);
     req.setLastKnownContainerTokenMasterKey(this.currentContainerTokenMasterKey);
     req.setLastKnownNMTokenMasterKey(this.currentNMTokenMasterKey);
