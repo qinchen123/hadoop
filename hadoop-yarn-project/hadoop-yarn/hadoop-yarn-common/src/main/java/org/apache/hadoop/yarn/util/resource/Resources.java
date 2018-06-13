@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.yarn.util.resource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
 import org.apache.hadoop.yarn.api.records.*;
@@ -30,7 +32,9 @@ import java.util.ArrayList;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 @Unstable
 public class Resources {
-  
+
+  private static final Log LOG = LogFactory
+      .getLog(Resources.class);
   // Java doesn't have const :(
   private static final Resource NONE = new Resource() {
 
@@ -270,19 +274,20 @@ public class Resources {
     lhs.setMemorySize(lhs.getMemorySize() - rhs.getMemorySize());
     lhs.setVirtualCores(lhs.getVirtualCores() - rhs.getVirtualCores());
     lhs.setGPUs(lhs.getGPUs() - rhs.getGPUs());
-   
-    assert (lhs.getGPUAttribute() | rhs.getGPUAttribute()) == lhs.getGPUAttribute() : "lhs GPU attribute is " +
-            lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute();
+
+    if ( (lhs.getGPUAttribute() | rhs.getGPUAttribute()) != lhs.getGPUAttribute()) {
+      LOG.warn("lhs GPU attribute is " +
+          lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute());
+    }
 
     lhs.setGPUAttribute(lhs.getGPUAttribute() & ~rhs.getGPUAttribute());
 
     if (lhs.getPorts() != null) {
       lhs.setPorts(lhs.getPorts().minusSelf(rhs.getPorts()));
     }
-
     return lhs;
   }
-
+  
   public static Resource subtract(Resource lhs, Resource rhs) {
     return subtractFrom(clone(lhs), rhs);
   }
