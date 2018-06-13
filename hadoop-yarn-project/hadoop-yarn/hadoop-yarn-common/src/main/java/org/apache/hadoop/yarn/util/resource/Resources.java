@@ -252,10 +252,11 @@ public class Resources {
     lhs.setMemorySize(lhs.getMemorySize() + rhs.getMemorySize());
     lhs.setVirtualCores(lhs.getVirtualCores() + rhs.getVirtualCores());
     lhs.setGPUs(lhs.getGPUs() + rhs.getGPUs());
-    
-    assert (lhs.getGPUAttribute() & rhs.getGPUAttribute()) == 0 : "lhs GPU attribute is " +
-            lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute();
 
+    if ( (lhs.getGPUAttribute() & rhs.getGPUAttribute()) != 0) {
+      LOG.warn("Resource.addTo: lhs GPU attribute is " +
+          lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute());
+    }
     lhs.setGPUAttribute(lhs.getGPUAttribute() | rhs.getGPUAttribute());
 
     if (lhs.getPorts() != null) {
@@ -276,7 +277,7 @@ public class Resources {
     lhs.setGPUs(lhs.getGPUs() - rhs.getGPUs());
 
     if ( (lhs.getGPUAttribute() | rhs.getGPUAttribute()) != lhs.getGPUAttribute()) {
-      LOG.warn("lhs GPU attribute is " +
+      LOG.warn("Resource.subtractFrom: lhs GPU attribute is " +
           lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute());
     }
 
@@ -287,7 +288,7 @@ public class Resources {
     }
     return lhs;
   }
-  
+
   public static Resource subtract(Resource lhs, Resource rhs) {
     return subtractFrom(clone(lhs), rhs);
   }
