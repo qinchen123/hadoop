@@ -562,6 +562,7 @@ public class MockRM extends ResourceManager {
       throws Exception {
     Resource resource = Records.newRecord(Resource.class);
     resource.setMemorySize(masterMemory);
+    resource.setVirtualCores(1);
     Priority priority = Priority.newInstance(0);
     return submitApp(resource, name, user, acls, false, queue,
       super.getConfig().getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS,
