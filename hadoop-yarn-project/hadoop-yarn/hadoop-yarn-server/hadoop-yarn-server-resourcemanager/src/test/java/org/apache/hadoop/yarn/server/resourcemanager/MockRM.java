@@ -108,6 +108,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
+import sun.rmi.runtime.Log;
 
 
 @SuppressWarnings("unchecked")
@@ -776,6 +777,10 @@ public class MockRM extends ResourceManager {
       }
     }
     sub.setAMContainerResourceRequests(amResourceRequests);
+
+    LOG.info("request:" + sub.toString());
+    LOG.info("request resource:" + sub.getResource());
+
     req.setApplicationSubmissionContext(sub);
     UserGroupInformation fakeUser =
       UserGroupInformation.createUserForTesting(user, new String[] {"someGroup"});

@@ -92,6 +92,7 @@ public class DefaultResourceCalculator extends ResourceCalculator {
           + "Please ensure the scheduler configuration is correct.");
       stepFactor = minimumResource;
     }
+
     long normalizedMemory = Math.min(
         roundUp(
             Math.max(r.getMemorySize(), minimumResource.getMemorySize()),

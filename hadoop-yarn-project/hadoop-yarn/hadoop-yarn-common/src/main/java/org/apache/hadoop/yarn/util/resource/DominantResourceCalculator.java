@@ -93,7 +93,6 @@ public class DominantResourceCalculator extends ResourceCalculator {
     return 0;
   }
 
-
   /**
    * Use 'dominant' for now since we only have 3 resources - gives us a slight
    * performance boost.

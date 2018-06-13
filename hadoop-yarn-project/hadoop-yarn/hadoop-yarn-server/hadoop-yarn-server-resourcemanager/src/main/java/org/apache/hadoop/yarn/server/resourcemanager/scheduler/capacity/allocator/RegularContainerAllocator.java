@@ -495,7 +495,8 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
       LOG.debug("assignContainers: node=" + node.getNodeName()
           + " application=" + application.getApplicationId()
           + " priority=" + schedulerKey.getPriority()
-          + " pendingAsk=" + pendingAsk + " type=" + type);
+          + " pendingAsk=" + pendingAsk + " type=" + type
+          + " Node:" + node.toString());
     }
 
     Resource capability = pendingAsk.getPerAllocationResource();
