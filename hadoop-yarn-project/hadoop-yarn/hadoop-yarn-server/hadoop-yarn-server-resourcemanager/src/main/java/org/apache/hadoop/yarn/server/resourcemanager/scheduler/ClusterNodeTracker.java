@@ -61,6 +61,7 @@ public class ClusterNodeTracker<N extends SchedulerNode> {
   // Max allocation
   private long maxNodeMemory = -1;
   private int maxNodeVCores = -1;
+  private int maxNodeGPUs = -1;
   private Resource configuredMaxAllocation;
   private boolean forceConfiguredMaxAllocation = true;
   private long configuredMaxAllocationWaitTime;
@@ -215,13 +216,14 @@ public class ClusterNodeTracker<N extends SchedulerNode> {
       }
 
       if (forceConfiguredMaxAllocation
-          || maxNodeMemory == -1 || maxNodeVCores == -1) {
+          || maxNodeMemory == -1 || maxNodeVCores == -1 || maxNodeGPUs == -1) {
         return configuredMaxAllocation;
       }
 
       return Resources.createResource(
           Math.min(configuredMaxAllocation.getMemorySize(), maxNodeMemory),
-          Math.min(configuredMaxAllocation.getVirtualCores(), maxNodeVCores)
+          Math.min(configuredMaxAllocation.getVirtualCores(), maxNodeVCores),
+          Math.min(configuredMaxAllocation.getGPUs(), maxNodeGPUs)
       );
     } finally {
       readLock.unlock();
@@ -241,6 +243,10 @@ public class ClusterNodeTracker<N extends SchedulerNode> {
         if (nodeVCores > maxNodeVCores) {
           maxNodeVCores = nodeVCores;
         }
+        int nodeGPUs = totalResource.getGPUs();
+        if (nodeGPUs > maxNodeGPUs) {
+          maxNodeGPUs = nodeGPUs;
+        }
       } else {  // removed node
         if (maxNodeMemory == totalResource.getMemorySize()) {
           maxNodeMemory = -1;
@@ -248,9 +254,14 @@ public class ClusterNodeTracker<N extends SchedulerNode> {
         if (maxNodeVCores == totalResource.getVirtualCores()) {
           maxNodeVCores = -1;
         }
+
+        if (maxNodeGPUs == totalResource.getGPUs()) {
+          maxNodeGPUs = -1;
+        }
+
         // We only have to iterate through the nodes if the current max memory
         // or vcores was equal to the removed node's
-        if (maxNodeMemory == -1 || maxNodeVCores == -1) {
+        if (maxNodeMemory == -1 || maxNodeVCores == -1 || maxNodeGPUs == -1) {
           // Treat it like an empty cluster and add nodes
           for (N n : nodes.values()) {
             updateMaxResources(n, true);

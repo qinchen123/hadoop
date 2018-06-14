@@ -45,6 +45,7 @@ import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.metrics2.MetricsSystem;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 import org.apache.hadoop.net.NetUtils;
+import org.apache.hadoop.util.Time;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerExitStatus;
@@ -657,6 +658,7 @@ public class TestResourceTrackerService extends NodeLabelTestBase {
     status.setResponseId(0);
     status.setContainersStatuses(Collections.EMPTY_LIST);
     status.setKeepAliveApplications(Collections.EMPTY_LIST);
+    status.setNodeHealthStatus(NodeHealthStatus.newInstance(true, "healthReport", 1000));
     return status;
   }
 

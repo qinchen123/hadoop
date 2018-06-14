@@ -157,7 +157,8 @@ public class NodeManager implements ContainerManagementProtocol {
     nodeStatus.setResponseId(responseID);
     NodeHeartbeatRequest request = recordFactory
         .newRecordInstance(NodeHeartbeatRequest.class);
-    request.setNodeStatus(nodeStatus);
+        request.setNodeStatus(nodeStatus);
+    nodeStatus.setResource(capability);
     NodeHeartbeatResponse response = resourceTrackerService
         .nodeHeartbeat(request);
     responseID = response.getResponseId();
