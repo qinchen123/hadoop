@@ -291,6 +291,7 @@ public class AllocationFileLoaderService extends AbstractService {
         if ("queue".equals(element.getTagName()) ||
           "pool".equals(element.getTagName())) {
           queueElements.add(element);
+          LOG.debug("add queue element:" + element.toString());
         } else if ("user".equals(element.getTagName())) {
           String userName = element.getAttribute("name");
           NodeList fields = element.getChildNodes();
@@ -383,6 +384,7 @@ public class AllocationFileLoaderService extends AbstractService {
         }
         parent = null;
       }
+      LOG.debug("queue:" + element.getAttribute("name"));
       loadQueue(parent, element, minQueueResources, maxQueueResources,
           maxChildQueueResources, queueMaxApps, userMaxApps, queueMaxAMShares,
           queueWeights, queuePolicies, minSharePreemptionTimeouts,
