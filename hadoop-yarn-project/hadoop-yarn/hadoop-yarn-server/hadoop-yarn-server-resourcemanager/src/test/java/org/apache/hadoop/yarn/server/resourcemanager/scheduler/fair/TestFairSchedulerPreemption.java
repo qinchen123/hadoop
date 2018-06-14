@@ -116,6 +116,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
      *      |--- child-1
      *      |--- child-2
      */
+    ALLOC_FILE.deleteOnExit();
     PrintWriter out = new PrintWriter(new FileWriter(ALLOC_FILE));
     out.println("<?xml version=\"1.0\"?>");
     out.println("<allocations>");
