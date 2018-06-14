@@ -195,8 +195,8 @@ public class TestResourceManager {
     String host1 = "host1";
     final int memory = 4 * 1024;
     org.apache.hadoop.yarn.server.resourcemanager.NodeManager nm1 = 
-      registerNode(host1, 1234, 2345, NetworkTopology.DEFAULT_RACK, 
-          Resources.createResource(memory, 1, 1, 1, ValueRanges.newInstance()));
+      registerNode(host1, 1234, 2345, NetworkTopology.DEFAULT_RACK,
+          Resources.createResource(memory, 4, 4, 15, ValueRanges.newInstance()));
     nm1.heartbeat();
     nm1.heartbeat();
     Collection<RMNode> values = resourceManager.getRMContext().getRMNodes().values();

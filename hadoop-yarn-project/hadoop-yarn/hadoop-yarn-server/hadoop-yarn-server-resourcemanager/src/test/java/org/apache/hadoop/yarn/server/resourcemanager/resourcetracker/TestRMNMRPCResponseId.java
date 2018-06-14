@@ -114,6 +114,7 @@ public class TestRMNMRPCResponseId {
     NodeHealthStatus nodeHealthStatus = recordFactory.newRecordInstance(NodeHealthStatus.class);
     nodeHealthStatus.setIsNodeHealthy(true);
     nodeStatus.setNodeHealthStatus(nodeHealthStatus);
+    nodeStatus.setResource(BuilderUtils.newResource(4024, 4, 4, 15));
     NodeHeartbeatRequest nodeHeartBeatRequest = recordFactory
         .newRecordInstance(NodeHeartbeatRequest.class);
     nodeHeartBeatRequest.setNodeStatus(nodeStatus);

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.ContainerStatus;
 import org.apache.hadoop.yarn.api.records.NodeId;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceUtilization;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -91,6 +92,8 @@ public class TestMiniYarnClusterNodeUtilization {
     nodeStatus = createNodeStatus(nm.getNMContext().getNodeId(), responseId,
         CONTAINER_PMEM_1, CONTAINER_VMEM_1, CONTAINER_CPU_1,
         NODE_PMEM_1, NODE_VMEM_1, NODE_CPU_1);
+    nodeStatus.setResource(Resource.newInstance(4096, 4, 4, 15));
+
     nm.setNodeStatus(nodeStatus);
   }
 

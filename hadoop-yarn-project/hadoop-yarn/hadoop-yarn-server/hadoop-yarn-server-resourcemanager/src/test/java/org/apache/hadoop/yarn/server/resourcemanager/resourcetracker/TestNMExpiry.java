@@ -109,7 +109,7 @@ public class TestNMExpiry {
           nodeStatus.setResponseId(lastResponseID);
           nodeStatus.setNodeHealthStatus(recordFactory.newRecordInstance(NodeHealthStatus.class));
           nodeStatus.getNodeHealthStatus().setIsNodeHealthy(true);
-
+          nodeStatus.setResource(Resource.newInstance(4096,  4, 4, 15));
           NodeHeartbeatRequest request = recordFactory
               .newRecordInstance(NodeHeartbeatRequest.class);
           request.setNodeStatus(nodeStatus);
