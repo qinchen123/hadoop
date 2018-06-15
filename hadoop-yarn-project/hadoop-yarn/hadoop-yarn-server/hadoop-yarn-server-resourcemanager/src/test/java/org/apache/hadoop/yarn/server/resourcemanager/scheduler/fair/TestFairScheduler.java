@@ -325,15 +325,15 @@ public class TestFairScheduler extends FairSchedulerTestBase {
 
     // Add one big node (only care about aggregate capacity)
     RMNode node1 =
-        MockNodes.newNodeInfo(1, Resources.createResource(10 * 1024, 3, 3), 1,
+        MockNodes.newNodeInfo(1, Resources.createResource(10 * 1024), 1,
             "127.0.0.1");
     NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
     scheduler.handle(nodeEvent1);
 
     // Have two queues which want entire cluster capacity
-    createSchedulingRequest(10 * 1024, 3, 3, "queue1", "user1");
-    createSchedulingRequest(10 * 1024, 3, 3, "queue2", "user1");
-    createSchedulingRequest(10 * 1024, 3, 3, "root.default", "user1");
+    createSchedulingRequest(10 * 1024, "queue1", "user1");
+    createSchedulingRequest(10 * 1024, "queue2", "user1");
+    createSchedulingRequest(10 * 1024, "root.default", "user1");
 
     scheduler.update();
     scheduler.getQueueManager().getRootQueue()
@@ -349,10 +349,6 @@ public class TestFairScheduler extends FairSchedulerTestBase {
       assertEquals(3414, p.getMetrics().getFairShareMB());
       assertEquals(3414, p.getSteadyFairShare().getMemorySize());
       assertEquals(3414, p.getMetrics().getSteadyFairShareMB());
-      assertEquals(1, p.getFairShare().getGPUs());
-      assertEquals(1, p.getMetrics().getFairShareGPUs());
-      assertEquals(1, p.getSteadyFairShare().getGPUs());
-      assertEquals(1, p.getMetrics().getSteadyFairShareGPUs());
     }
   }
 
@@ -2911,7 +2907,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     scheduler.reinitialize(conf, resourceManager.getRMContext());
 
     RMNode node =
-        MockNodes.newNodeInfo(1, Resources.createResource(16384, 16, 16, 65535), 0,
+        MockNodes.newNodeInfo(1, Resources.createResource(16384, 16), 0,
             "127.0.0.1");
     NodeAddedSchedulerEvent nodeEvent = new NodeAddedSchedulerEvent(node);
     NodeUpdateSchedulerEvent updateEvent = new NodeUpdateSchedulerEvent(node);
@@ -4724,15 +4720,15 @@ public class TestFairScheduler extends FairSchedulerTestBase {
         new ConfigurableResource(Resource.newInstance(1024, 1)));
 
     ApplicationAttemptId appAttId =
-        createSchedulingRequest(1024, 1, 1, "queue1", "user1", 3);
-    RMNode node = MockNodes.newNodeInfo(1, Resources.createResource(2048, 2, 2, 3));
+        createSchedulingRequest(1024, 1, 0, "queue1", "user1", 3);
+    RMNode node = MockNodes.newNodeInfo(1, Resources.createResource(2048, 2, 0, 0));
     NodeAddedSchedulerEvent nodeEvent = new NodeAddedSchedulerEvent(node);
     NodeUpdateSchedulerEvent updateEvent = new NodeUpdateSchedulerEvent(node);
     scheduler.handle(nodeEvent);
     scheduler.handle(updateEvent);
     scheduler.handle(updateEvent);
     
-    assertEquals(Resource.newInstance(2048, 2, 2), oldQueue.getResourceUsage());
+    assertEquals(Resource.newInstance(2048, 2, 0), oldQueue.getResourceUsage());
     scheduler.moveApplication(appAttId.getApplicationId(), "queue2");
   }
   
