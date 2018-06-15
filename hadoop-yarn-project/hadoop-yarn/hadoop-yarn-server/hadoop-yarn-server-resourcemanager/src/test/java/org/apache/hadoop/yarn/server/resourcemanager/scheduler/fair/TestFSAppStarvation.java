@@ -207,7 +207,7 @@ public class TestFSAppStarvation extends FairSchedulerTestBase {
         "</fairSharePreemptionThreshold>");
     out.println("<minSharePreemptionTimeout>0" +
         "</minSharePreemptionTimeout>");
-    out.println("<minResources>2048mb,2vcores</minResources>");
+    out.println("<minResources>2048mb,2vcores,2gpus</minResources>");
     out.println("</queue>");
 
     // FAIR queue with fairshare preemption enabled

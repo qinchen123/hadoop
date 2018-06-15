@@ -658,6 +658,7 @@ public class TestResourceTrackerService extends NodeLabelTestBase {
     status.setResponseId(0);
     status.setContainersStatuses(Collections.EMPTY_LIST);
     status.setKeepAliveApplications(Collections.EMPTY_LIST);
+    status.setResource(Resource.newInstance(4096, 4, 4, 15));
     status.setNodeHealthStatus(NodeHealthStatus.newInstance(true, "healthReport", 1000));
     return status;
   }

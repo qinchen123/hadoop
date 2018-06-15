@@ -4114,7 +4114,7 @@ public class TestCapacityScheduler {
     String host_0 = "host_0";
     org.apache.hadoop.yarn.server.resourcemanager.NodeManager nm_0 =
         registerNode(host_0, 1234, 2345, NetworkTopology.DEFAULT_RACK,
-            Resources.createResource(8 * GB, 4));
+            Resources.createResource(8 * GB, 4, 4, 15));
     // ResourceRequest priorities
     Priority priority_0 = Priority.newInstance(0);
 

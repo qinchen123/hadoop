@@ -29,29 +29,47 @@ public class TestFairSchedulerConfiguration {
   public void testParseResourceConfigValue() throws Exception {
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("2 vcores, 1024 mb").getResource());
+    assertEquals(BuilderUtils.newResource(1024, 2, 2),
+        parseResourceConfigValue("2 vcores, 1024 mb, 2 gpus").getResource());
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("1024 mb, 2 vcores").getResource());
+    assertEquals(BuilderUtils.newResource(1024, 2, 2),
+        parseResourceConfigValue("1024 mb, 2 vcores, 2 gpus").getResource());
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("2vcores,1024mb").getResource());
+    assertEquals(BuilderUtils.newResource(1024, 2, 2),
+        parseResourceConfigValue("2vcores,1024mb,2gpus").getResource());
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("1024mb,2vcores").getResource());
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("1024   mb, 2    vcores").getResource());
+    assertEquals(BuilderUtils.newResource(1024, 2, 2),
+        parseResourceConfigValue("1024   mb, 2    vcores, 2    gpus").getResource());
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("1024 Mb, 2 vCores").getResource());
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("  1024 mb, 2 vcores  ").getResource());
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("  1024.3 mb, 2.35 vcores  ").getResource());
+    assertEquals(BuilderUtils.newResource(1024, 2, 2),
+        parseResourceConfigValue("  1024.3 mb, 2.35 vcores 2.35gpus").getResource());
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("  1024. mb, 2. vcores  ").getResource());
+    assertEquals(BuilderUtils.newResource(1024, 2, 2),
+        parseResourceConfigValue("  1024. mb, 2. vcores 2. gpus ").getResource());
 
-    Resource clusterResource = BuilderUtils.newResource(2048, 4);
+    Resource clusterResource = BuilderUtils.newResource(2048, 4, 4);
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("50% memory, 50% cpu").
             getResource(clusterResource));
+    assertEquals(BuilderUtils.newResource(1024, 2, 2),
+        parseResourceConfigValue("50% memory, 50% cpu, 50%gpus").
+            getResource(clusterResource));
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("50% Memory, 50% CpU").
+            getResource(clusterResource));
+    assertEquals(BuilderUtils.newResource(1024, 2, 2),
+        parseResourceConfigValue("50% Memory, 50% CpU, 50% GPUs").
             getResource(clusterResource));
     assertEquals(BuilderUtils.newResource(1024, 2),
         parseResourceConfigValue("50%").getResource(clusterResource));

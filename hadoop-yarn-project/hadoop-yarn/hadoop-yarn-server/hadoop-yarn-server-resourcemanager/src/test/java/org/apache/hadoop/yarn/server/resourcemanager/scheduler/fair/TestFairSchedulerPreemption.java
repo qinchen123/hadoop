@@ -183,7 +183,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
 
   private void writeResourceParams(PrintWriter out) {
     if (!fairsharePreemption) {
-      out.println("<minResources>4096mb,4vcores</minResources>");
+      out.println("<minResources>4096mb,4vcores,4gpus</minResources>");
     }
   }
 

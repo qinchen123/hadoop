@@ -312,9 +312,14 @@ public class FairSchedulerConfiguration extends Configuration {
       } else {
         int memory = findResource(val, "mb");
         int vcores = findResource(val, "vcores");
-        int gpus = findResource(val, "gpus");
-        configurableResource = new ConfigurableResource(
-            BuilderUtils.newResource(memory, vcores, gpus));
+        if(val.contains("gpus")) {
+          int gpus = findResource(val, "gpus");
+          configurableResource = new ConfigurableResource(
+              BuilderUtils.newResource(memory, vcores, gpus));
+        } else {
+          configurableResource = new ConfigurableResource(
+              BuilderUtils.newResource(memory, vcores));
+        }
       }
     } catch (AllocationConfigurationException ex) {
       throw ex;
