@@ -335,6 +335,8 @@ public class Resources {
     lhs.setMemorySize(lhs.getMemorySize() + (long)(rhs.getMemorySize() * by));
     lhs.setVirtualCores(lhs.getVirtualCores()
         + (int)(rhs.getVirtualCores() * by));
+    lhs.setGPUs(lhs.getGPUs()
+        + (int)(rhs.getGPUs() * by));
     return lhs;
   }
 
