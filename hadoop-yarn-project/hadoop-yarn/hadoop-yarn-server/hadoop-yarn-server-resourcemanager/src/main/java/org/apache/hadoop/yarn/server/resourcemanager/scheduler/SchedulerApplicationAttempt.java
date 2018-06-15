@@ -122,7 +122,6 @@ public class SchedulerApplicationAttempt implements SchedulableEntity {
       ConcurrentHashMultiset.create();
   
   private volatile Resource resourceLimit = Resource.newInstance(0, 0);
-
   private boolean unmanagedAM = true;
   private boolean amRunning = false;
   private LogAggregationContext logAggregationContext;

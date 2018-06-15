@@ -341,7 +341,6 @@ public class AppSchedulingInfo {
     return changed;
   }
 
-
   public boolean getAndResetBlacklistChanged() {
     return userBlacklistChanged.getAndSet(false);
   }
