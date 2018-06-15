@@ -103,7 +103,6 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.event.ReleaseCont
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.event.SchedulerEvent;
 import org.apache.hadoop.yarn.server.resourcemanager.security.RMContainerTokenSecretManager;
 import org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator;
-import org.apache.hadoop.yarn.util.resource.GPUResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.DominantResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
@@ -145,7 +144,7 @@ public class FairScheduler extends
       LogFactory.getLog(FairScheduler.class.getName() + ".statedump");
 
   private static final ResourceCalculator RESOURCE_CALCULATOR =
-      new GPUResourceCalculator();
+      new DefaultResourceCalculator();
   private static final ResourceCalculator DOMINANT_RESOURCE_CALCULATOR =
       new DominantResourceCalculator();
   

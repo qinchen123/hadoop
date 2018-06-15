@@ -164,6 +164,10 @@ public class SchedulerUtils {
     Resource normalized = Resources.normalize(
         resourceCalculator, ask, minimumResource,
         maximumResource, incrementResource);
+    if(LOG.isDebugEnabled()){
+      LOG.debug("ask:" + ask + " minimumResource:" + minimumResource + " maximumResource:" + maximumResource
+      + " incrementResource:" + incrementResource + " ==>normalized:" + normalized);
+    }
     return normalized;
   }
 
