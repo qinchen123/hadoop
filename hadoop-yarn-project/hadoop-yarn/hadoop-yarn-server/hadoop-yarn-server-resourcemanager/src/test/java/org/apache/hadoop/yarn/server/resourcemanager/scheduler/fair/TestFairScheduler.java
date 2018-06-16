@@ -2610,7 +2610,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     // Add a node
     RMNode node1 =
         MockNodes
-            .newNodeInfo(1, Resources.createResource(8192, 8, 8, 255), 1, "127.0.0.1");
+            .newNodeInfo(1, Resources.createResource(8192, 8), 1, "127.0.0.1");
     NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
     scheduler.handle(nodeEvent1);
 
@@ -2718,7 +2718,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     scheduler.reinitialize(conf, resourceManager.getRMContext());
 
     // Add a node
-    RMNode node1 = MockNodes.newNodeInfo(1, Resources.createResource(2048, 2));
+    RMNode node1 = MockNodes.newNodeInfo(1, Resources.createResource(2048, 2, 2));
     NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
     scheduler.handle(nodeEvent1);
     NodeUpdateSchedulerEvent updateEvent = new NodeUpdateSchedulerEvent(node1);

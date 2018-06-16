@@ -165,7 +165,7 @@ public class TestContinuousScheduling extends FairSchedulerTestBase {
     triggerSchedulingAttempt();
 
     FSAppAttempt app = scheduler.getSchedulerApp(appAttemptId);
-    checkAppConsumption(app, Resources.createResource(1024, 1));
+    checkAppConsumption(app, Resources.createResource(1024, 1, 1));
 
     // another request
     request =

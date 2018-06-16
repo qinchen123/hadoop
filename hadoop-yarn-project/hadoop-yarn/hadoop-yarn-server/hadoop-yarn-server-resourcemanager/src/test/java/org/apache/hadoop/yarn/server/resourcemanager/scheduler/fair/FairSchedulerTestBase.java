@@ -320,9 +320,19 @@ public class FairSchedulerTestBase {
    * @param cores cpu capacity of the node
    */
   protected void addNode(int memory, int cores) {
+    addNode(memory, cores, 0);
+  }
+
+  /**
+   * Add a node to the cluster and track the nodes in {@link #rmNodes}.
+   * @param memory memory capacity of the node
+   * @param cores cpu capacity of the node
+   * @param gpus gpu capacity of the node
+   */
+  protected void addNode(int memory, int cores, int gpus) {
     int id = rmNodes.size() + 1;
     RMNode node =
-        MockNodes.newNodeInfo(1, Resources.createResource(memory, cores), id,
+        MockNodes.newNodeInfo(1, Resources.createResource(memory, cores, gpus), id,
             "127.0.0." + id);
     scheduler.handle(new NodeAddedSchedulerEvent(node));
     rmNodes.add(node);

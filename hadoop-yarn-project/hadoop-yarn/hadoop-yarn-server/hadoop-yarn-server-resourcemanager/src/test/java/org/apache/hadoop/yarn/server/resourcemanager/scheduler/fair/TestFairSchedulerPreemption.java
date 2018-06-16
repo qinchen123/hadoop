@@ -198,8 +198,8 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
 
     // Create and add two nodes to the cluster, with capacities
     // disproportional to the container requests.
-    addNode(NODE_CAPACITY_MULTIPLE * GB, 3 * NODE_CAPACITY_MULTIPLE);
-    addNode(NODE_CAPACITY_MULTIPLE * GB, 3 * NODE_CAPACITY_MULTIPLE);
+    addNode(NODE_CAPACITY_MULTIPLE * GB, 3 * NODE_CAPACITY_MULTIPLE, 3 * NODE_CAPACITY_MULTIPLE);
+    addNode(NODE_CAPACITY_MULTIPLE * GB, 3 * NODE_CAPACITY_MULTIPLE, 3 * NODE_CAPACITY_MULTIPLE);
 
     // Reinitialize the scheduler so DRF policy picks up cluster capacity
     // TODO (YARN-6194): One shouldn't need to call this

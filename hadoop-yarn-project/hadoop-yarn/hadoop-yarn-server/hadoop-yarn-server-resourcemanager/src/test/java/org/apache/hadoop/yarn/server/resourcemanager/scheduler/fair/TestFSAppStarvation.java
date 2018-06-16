@@ -245,8 +245,8 @@ public class TestFSAppStarvation extends FairSchedulerTestBase {
         scheduler.preemptionThread;
 
     // Create and add two nodes to the cluster
-    addNode(NODE_CAPACITY_MULTIPLE * 1024, NODE_CAPACITY_MULTIPLE);
-    addNode(NODE_CAPACITY_MULTIPLE * 1024, NODE_CAPACITY_MULTIPLE);
+    addNode(NODE_CAPACITY_MULTIPLE * 1024, NODE_CAPACITY_MULTIPLE, NODE_CAPACITY_MULTIPLE);
+    addNode(NODE_CAPACITY_MULTIPLE * 1024, NODE_CAPACITY_MULTIPLE, NODE_CAPACITY_MULTIPLE);
 
     // Create an app that takes up all the resources on the cluster
     ApplicationAttemptId app
