@@ -60,9 +60,9 @@ public abstract class ResourceCalculator {
   }
 
   public static int divideAndCeil(int a, int b) {
-    if (b == 0) {    
-      return 0;    
-    } 
+    if (b == 0) {
+      return 0;
+    }
     return (a + (b - 1)) / b;
   }
 

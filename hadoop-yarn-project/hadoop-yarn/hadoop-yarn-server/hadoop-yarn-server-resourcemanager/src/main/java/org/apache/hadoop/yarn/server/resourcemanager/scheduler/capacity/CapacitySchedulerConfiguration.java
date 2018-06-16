@@ -47,7 +47,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.FairOrderi
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.FifoOrderingPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.OrderingPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.policy.SchedulableEntity;
-import org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator;
+import org.apache.hadoop.yarn.util.resource.DominantResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
@@ -198,7 +198,7 @@ public class CapacitySchedulerConfiguration extends ReservationSchedulerConfigur
       PREFIX + "resource-calculator";
 
   @Private public static final Class<? extends ResourceCalculator> 
-  DEFAULT_RESOURCE_CALCULATOR_CLASS = DefaultResourceCalculator.class;
+  DEFAULT_RESOURCE_CALCULATOR_CLASS = DominantResourceCalculator.class;
   
   @Private
   public static final String ROOT = "root";

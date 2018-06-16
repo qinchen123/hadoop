@@ -75,12 +75,7 @@ public class DefaultResourceCalculator extends ResourceCalculator {
   @Override
   public Resource divideAndCeil(Resource numerator, float denominator) {
     return Resources.createResource(
-        divideAndCeil(numerator.getMemorySize(), denominator),
-        numerator.getVirtualCores(), 
-        numerator.getGPUs(), 
-        numerator.getGPUAttribute(),
-        numerator.getPorts()
-        );
+        divideAndCeil(numerator.getMemorySize(), denominator));
   }
 
   @Override
@@ -98,47 +93,28 @@ public class DefaultResourceCalculator extends ResourceCalculator {
             Math.max(r.getMemorySize(), minimumResource.getMemorySize()),
             stepFactor.getMemorySize()),
             maximumResource.getMemorySize());
-
-    return Resources.createResource(normalizedMemory,
-        r.getVirtualCores(),
-        r.getGPUs(),
-        r.getGPUAttribute(),
-        r.getPorts()
-    );
+    return Resources.createResource(normalizedMemory);
   }
 
   @Override
   public Resource roundUp(Resource r, Resource stepFactor) {
     return Resources.createResource(
-        roundUp(r.getMemorySize(), stepFactor.getMemorySize()),
-        r.getVirtualCores(), 
-        r.getGPUs(), 
-        r.getGPUAttribute(),
-        r.getPorts()
+        roundUp(r.getMemorySize(), stepFactor.getMemorySize())
         );
   }
 
   @Override
   public Resource roundDown(Resource r, Resource stepFactor) {
     return Resources.createResource(
-        roundDown(r.getMemorySize(), stepFactor.getMemorySize()),
-        r.getVirtualCores(),
-        r.getGPUs(), 
-        r.getGPUAttribute(),
-        r.getPorts()
-        );
+        roundDown(r.getMemorySize(), stepFactor.getMemorySize()));
   }
 
   @Override
   public Resource multiplyAndNormalizeUp(Resource r, double by,
       Resource stepFactor) {
     return Resources.createResource(
-        roundUp((int)(r.getMemorySize() * by + 0.5), stepFactor.getMemorySize()),
-        r.getVirtualCores(),
-        r.getGPUs(), 
-        r.getGPUAttribute(),
-        r.getPorts()
-        );
+        roundUp((long) (r.getMemorySize() * by + 0.5),
+            stepFactor.getMemorySize()));
   }
 
   @Override
@@ -148,11 +124,7 @@ public class DefaultResourceCalculator extends ResourceCalculator {
         roundDown(
             (int)(r.getMemorySize() * by),
             stepFactor.getMemorySize()
-            ),
-        r.getVirtualCores(), 
-        r.getGPUs(), 
-        r.getGPUAttribute(),
-        r.getPorts()
+            )
         );
   }
 
