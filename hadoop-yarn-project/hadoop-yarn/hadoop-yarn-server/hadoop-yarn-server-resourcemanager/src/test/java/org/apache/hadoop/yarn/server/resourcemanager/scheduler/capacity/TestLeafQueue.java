@@ -309,12 +309,12 @@ public class TestLeafQueue {
 
     a.updateClusterResource(clusterResource,
         new ResourceLimits(clusterResource));
-    assertEquals(Resource.newInstance(1 * GB, 1, 1),
+    assertEquals(Resource.newInstance(1 * GB, 1),
         a.calculateAndGetAMResourceLimit());
 
     b.updateClusterResource(clusterResource,
         new ResourceLimits(clusterResource));
-    assertEquals(Resource.newInstance(5 * GB, 1, 1),
+    assertEquals(Resource.newInstance(5 * GB, 1),
         b.calculateAndGetAMResourceLimit());
   }
  
@@ -3057,7 +3057,7 @@ public class TestLeafQueue {
     assertEquals(0.1f, a.getMaxAMResourcePerQueuePercent(), 1e-3f);
 
     assertEquals(a.calculateAndGetAMResourceLimit(),
-        Resources.createResource(160 * GB, 1, 1));
+        Resources.createResource(160 * GB, 1));
 
     csConf.setFloat(CapacitySchedulerConfiguration.
         MAXIMUM_APPLICATION_MASTERS_RESOURCE_PERCENT, 0.2f);
@@ -3065,7 +3065,7 @@ public class TestLeafQueue {
     a.reinitialize(newA, clusterResource);
     assertEquals(0.2f, a.getMaxAMResourcePerQueuePercent(), 1e-3f);
     assertEquals(a.calculateAndGetAMResourceLimit(),
-        Resources.createResource(320 * GB, 1, 1));
+        Resources.createResource(320 * GB, 1));
 
     Resource newClusterResource = Resources.createResource(100 * 20 * GB,
         100 * 32, 100 * 32);
@@ -3073,7 +3073,7 @@ public class TestLeafQueue {
         new ResourceLimits(newClusterResource));
     //  100 * 20 * 0.2 = 400
     assertEquals(a.calculateAndGetAMResourceLimit(),
-        Resources.createResource(400 * GB, 1, 1));
+        Resources.createResource(400 * GB, 1));
   }
   
   @Test

@@ -218,7 +218,7 @@ public class TestContainerResizing {
     boolean rmNodeReceivedDecreaseContainer = false;
     for (Container c : decreasedContainers) {
       if (c.getId().equals(containerId1)
-          && c.getResource().equals(Resources.createResource(1 * GB))) {
+          && c.getResource().equals(Resources.createResource(1 * GB, 1))) {
         rmNodeReceivedDecreaseContainer = true;
       }
     }

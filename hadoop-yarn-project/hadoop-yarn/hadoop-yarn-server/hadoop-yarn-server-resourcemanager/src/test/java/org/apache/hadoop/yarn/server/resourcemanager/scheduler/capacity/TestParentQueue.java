@@ -75,7 +75,8 @@ public class TestParentQueue {
   YarnConfiguration conf;
   CapacitySchedulerConfiguration csConf;
   CapacitySchedulerContext csContext;
-  
+  PreemptionManager preemptionManger = new PreemptionManager();
+
   final static int GB = 1024;
   final static String DEFAULT_RACK = "/default";
 
@@ -87,7 +88,7 @@ public class TestParentQueue {
     rmContext = TestUtils.getMockRMContext();
     conf = new YarnConfiguration();
     csConf = new CapacitySchedulerConfiguration();
-    
+    new PreemptionManager();
     csContext = mock(CapacitySchedulerContext.class);
     when(csContext.getConf()).thenReturn(conf);
     when(csContext.getConfiguration()).thenReturn(csConf);
@@ -100,6 +101,7 @@ public class TestParentQueue {
     when(csContext.getResourceCalculator()).
         thenReturn(resourceComparator);
     when(csContext.getRMContext()).thenReturn(rmContext);
+    when(csContext.getPreemptionManager()).thenReturn(preemptionManger);
   }
   
   private static final String A = "a";

@@ -221,8 +221,8 @@ public class TestApplicationLimits {
     assertEquals(0, queue.getNumPendingApplications(user_0));
     
     // AMLimits unchanged
-    assertEquals(Resource.newInstance(8 * GB, 1, 1), queue.getAMResourceLimit());
-    assertEquals(Resource.newInstance(4 * GB, 1, 1),
+    assertEquals(Resource.newInstance(8 * GB, 1), queue.getAMResourceLimit());
+    assertEquals(Resource.newInstance(4 * GB, 1),
       queue.getUserAMResourceLimit());
     
     // One app for user_1, starts
@@ -646,7 +646,7 @@ public class TestApplicationLimits {
     // Schedule to compute 
     queue.assignContainers(clusterResource, node_0, new ResourceLimits(
         clusterResource), SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY);
-    Resource expectedHeadroom = Resources.createResource(10*16*GB, 1, 1);
+    Resource expectedHeadroom = Resources.createResource(10*16*GB, 1);
     assertEquals(expectedHeadroom, app_0_0.getHeadroom());
 
     // Submit second application from user_0, check headroom
