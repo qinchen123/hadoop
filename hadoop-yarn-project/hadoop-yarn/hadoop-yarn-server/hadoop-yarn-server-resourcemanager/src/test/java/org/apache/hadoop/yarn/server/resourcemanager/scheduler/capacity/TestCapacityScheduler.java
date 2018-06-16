@@ -320,10 +320,10 @@ public class TestCapacityScheduler {
     application_0.addNodeManager(host_0, 1234, nm_0);
     application_0.addNodeManager(host_1, 1234, nm_1);
 
-    Resource capability_0_0 = Resources.createResource(1 * GB, 1, 1);
+    Resource capability_0_0 = Resources.createResource(1 * GB, 1);
     application_0.addResourceRequestSpec(priority_1, capability_0_0);
 
-    Resource capability_0_1 = Resources.createResource(2 * GB, 1, 1);
+    Resource capability_0_1 = Resources.createResource(2 * GB, 1);
     application_0.addResourceRequestSpec(priority_0, capability_0_1);
 
     Task task_0_0 = new Task(application_0, priority_1,
@@ -337,10 +337,10 @@ public class TestCapacityScheduler {
     application_1.addNodeManager(host_0, 1234, nm_0);
     application_1.addNodeManager(host_1, 1234, nm_1);
 
-    Resource capability_1_0 = Resources.createResource(3 * GB, 1, 1);
+    Resource capability_1_0 = Resources.createResource(3 * GB, 1);
     application_1.addResourceRequestSpec(priority_1, capability_1_0);
     
-    Resource capability_1_1 = Resources.createResource(2 * GB, 1, 1);
+    Resource capability_1_1 = Resources.createResource(2 * GB, 1);
 
     application_1.addResourceRequestSpec(priority_0, capability_1_1);
 
@@ -1906,10 +1906,10 @@ public class TestCapacityScheduler {
     application_0.addNodeManager(host_0, 1234, nm_0);
     application_0.addNodeManager(host_1, 1234, nm_1);
 
-    Resource capability_0_0 = Resources.createResource(1 * GB, 1, 1);
+    Resource capability_0_0 = Resources.createResource(1 * GB, 1);
     application_0.addResourceRequestSpec(priority_1, capability_0_0);
 
-    Resource capability_0_1 = Resources.createResource(2 * GB, 1, 1);
+    Resource capability_0_1 = Resources.createResource(2 * GB, 1);
     application_0.addResourceRequestSpec(priority_0, capability_0_1);
 
     Task task_0_0 =
@@ -1924,10 +1924,10 @@ public class TestCapacityScheduler {
     application_1.addNodeManager(host_0, 1234, nm_0);
     application_1.addNodeManager(host_1, 1234, nm_1);
 
-    Resource capability_1_0 = Resources.createResource(1 * GB, 1, 1);
+    Resource capability_1_0 = Resources.createResource(1 * GB, 1);
     application_1.addResourceRequestSpec(priority_1, capability_1_0);
 
-    Resource capability_1_1 = Resources.createResource(2 * GB, 1, 1);
+    Resource capability_1_1 = Resources.createResource(2 * GB, 1);
     application_1.addResourceRequestSpec(priority_0, capability_1_1);
 
     Task task_1_0 =
@@ -2040,10 +2040,10 @@ public class TestCapacityScheduler {
     application_1.addNodeManager(host_0, 1234, nm_0);
     application_1.addNodeManager(host_1, 1234, nm_1);
 
-    Resource capability_1_0 = Resources.createResource(1 * GB, 1, 1);
+    Resource capability_1_0 = Resources.createResource(1 * GB, 1);
     application_1.addResourceRequestSpec(priority_1, capability_1_0);
 
-    Resource capability_1_1 = Resources.createResource(2 * GB, 1, 1);
+    Resource capability_1_1 = Resources.createResource(2 * GB, 1);
     application_1.addResourceRequestSpec(priority_0, capability_1_1);
 
     Task task_1_0 =
@@ -2210,10 +2210,10 @@ public class TestCapacityScheduler {
     application_1.addNodeManager(host_0, 1234, nm_0);
     application_1.addNodeManager(host_1, 1234, nm_1);
 
-    Resource capability_1_0 = Resources.createResource(1 * GB, 1, 1);
+    Resource capability_1_0 = Resources.createResource(1 * GB, 1);
     application_1.addResourceRequestSpec(priority_1, capability_1_0);
 
-    Resource capability_1_1 = Resources.createResource(2 * GB, 1, 1);
+    Resource capability_1_1 = Resources.createResource(2 * GB, 1);
     application_1.addResourceRequestSpec(priority_0, capability_1_1);
 
     Task task_1_0 =
