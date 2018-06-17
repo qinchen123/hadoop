@@ -871,15 +871,16 @@ public class RMAppImpl implements RMApp, Recoverable {
 
     try {
       ApplicationId appID = event.getApplicationId();
-      LOG.debug("Processing event for " + appID + " of type "
-          + event.getType());
+
       final RMAppState oldState = getState();
+      LOG.debug("Processing event for " + appID + " of type "
+          + event.getType() + "current state=" + oldState);
       try {
         /* keep the master in sync with the state machine */
         this.stateMachine.doTransition(event.getType(), event);
       } catch (InvalidStateTransitionException e) {
         LOG.error("App: " + appID
-            + " can't handle this event at current state", e);
+            + " can't handle this event at current state:" + getState() , e);
         /* TODO fail the application on the failed transition */
       }
 

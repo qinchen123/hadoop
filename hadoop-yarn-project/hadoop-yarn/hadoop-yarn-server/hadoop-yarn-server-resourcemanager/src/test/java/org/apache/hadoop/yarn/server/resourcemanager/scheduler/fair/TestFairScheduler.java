@@ -5389,24 +5389,23 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     child1.updateDemand();
 
     String childQueueString = "{Name: root.parent.child1,"
-        + " Weight: <memory weight=1.0, cpu weight=1.0>,"
+        + " Weight: <memory weight=1.0, cpu weight=1.0, gpu weight=1.0>,"
         + " Policy: fair,"
-        + " FairShare: <memory:0, vCores:0>,"
-        + " SteadyFairShare: <memory:0, vCores:0>,"
-        + " MaxShare: <memory:4096, vCores:4>,"
-        + " MinShare: <memory:0, vCores:0>,"
-        + " ResourceUsage: <memory:4096, vCores:4>,"
-        + " Demand: <memory:4096, vCores:4>,"
+        + " FairShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
+        + " SteadyFairShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
+        + " MaxShare: <memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: null>,"
+        + " MinShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
+        + " ResourceUsage: <memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: null>,"
+        + " Demand: <memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: null>,"
         + " Runnable: 1,"
         + " NumPendingApps: 0,"
         + " NonRunnable: 0,"
         + " MaxAMShare: 0.5,"
-        + " MaxAMResource: <memory:0, vCores:0>,"
-        + " AMResourceUsage: <memory:0, vCores:0>,"
+        + " MaxAMResource: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
+        + " AMResourceUsage: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
         + " LastTimeAtMinShare: " + clock.getTime()
         + "}";
 
-    LOG.info(child1.dumpState());
     assertTrue(child1.dumpState().equals(childQueueString));
     FSParentQueue parent =
         scheduler.getQueueManager().getParentQueue("parent", false);
@@ -5414,12 +5413,12 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     parent.updateDemand();
 
     String parentQueueString = "{Name: root.parent,"
-        + " Weight: <memory weight=1.0, cpu weight=1.0>,"
+        + " Weight: <memory weight=1.0, cpu weight=1.0, gpu weight=1.0>,"
         + " Policy: fair,"
-        + " FairShare: <memory:0, vCores:0>,"
-        + " SteadyFairShare: <memory:0, vCores:0>,"
+        + " FairShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
+        + " SteadyFairShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
         + " MaxShare: <memory:4096, vCores:4>,"
-        + " MinShare: <memory:0, vCores:0>,"
+        + " MinShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
         + " ResourceUsage: <memory:4096, vCores:4>,"
         + " Demand: <memory:4096, vCores:4>,"
         + " MaxAMShare: 0.5,"
