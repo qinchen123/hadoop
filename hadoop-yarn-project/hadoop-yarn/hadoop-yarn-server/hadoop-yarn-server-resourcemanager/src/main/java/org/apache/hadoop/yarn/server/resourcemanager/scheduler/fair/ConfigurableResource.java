@@ -55,7 +55,8 @@ public class ConfigurableResource {
     if (percentages != null && clusterResource != null) {
       long memory = (long) (clusterResource.getMemorySize() * percentages[0]);
       int vcore = (int) (clusterResource.getVirtualCores() * percentages[1]);
-      return Resource.newInstance(memory, vcore);
+      int gpu = (int) (clusterResource.getGPUs() * percentages[2]);
+      return Resource.newInstance(memory, vcore, gpu);
     } else {
       return resource;
     }

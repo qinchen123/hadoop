@@ -430,7 +430,7 @@ public abstract class FSQueue implements Queue, Schedulable {
             + " because it has reserved containers.");
       }
       return false;
-    } else if (!Resources.fitsIn(getResourceUsage(), getMaxShare())) {
+    } else if (Resources.greaterThan(scheduler.getResourceCalculator(), null, getResourceUsage(), getMaxShare())) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Assigning container failed on node '" + node.getNodeName()
             + " because queue resource usage is larger than MaxShare: "
@@ -527,7 +527,7 @@ public abstract class FSQueue implements Queue, Schedulable {
     Resource usagePlusAddition =
         Resources.add(getResourceUsage(), additionalResource);
 
-    if (!Resources.fitsIn(usagePlusAddition, getMaxShare())) {
+    if (Resources.greaterThan(scheduler.getResourceCalculator(), null, usagePlusAddition, getMaxShare())) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Resource usage plus resource request: " + usagePlusAddition
             + " exceeds maximum resource allowed:" + getMaxShare()

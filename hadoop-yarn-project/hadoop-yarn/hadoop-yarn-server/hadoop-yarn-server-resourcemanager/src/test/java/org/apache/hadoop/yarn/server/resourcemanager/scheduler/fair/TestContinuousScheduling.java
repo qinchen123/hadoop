@@ -147,6 +147,7 @@ public class TestContinuousScheduling extends FairSchedulerTestBase {
     // available resource
     Assert.assertEquals(scheduler.getClusterResource().getMemorySize(), 16 * 1024);
     Assert.assertEquals(scheduler.getClusterResource().getVirtualCores(), 16);
+    Assert.assertEquals(scheduler.getClusterResource().getGPUs(), 16);
 
     // send application request
     ApplicationAttemptId appAttemptId =
