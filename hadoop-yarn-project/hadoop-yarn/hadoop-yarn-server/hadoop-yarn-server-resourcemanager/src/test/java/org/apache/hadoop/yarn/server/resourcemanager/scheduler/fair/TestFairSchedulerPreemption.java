@@ -232,7 +232,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
   private void takeAllResources(String queueName) {
     // Create an app that takes up all the resources on the cluster
     ApplicationAttemptId appAttemptId
-        = createSchedulingRequest(GB, 1, 1, queueName, "default",
+        = createSchedulingRequest(GB, 1, 0, queueName, "default",
         NODE_CAPACITY_MULTIPLE * rmNodes.size());
     greedyApp = scheduler.getSchedulerApp(appAttemptId);
     scheduler.update();
@@ -255,7 +255,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
   private void preemptHalfResources(String queueName)
       throws InterruptedException {
     ApplicationAttemptId appAttemptId
-        = createSchedulingRequest(2 * GB, 2, 1, queueName, "default",
+        = createSchedulingRequest(2 * GB, 2, 0, queueName, "default",
         NODE_CAPACITY_MULTIPLE * rmNodes.size() / 2);
     starvingApp = scheduler.getSchedulerApp(appAttemptId);
 
