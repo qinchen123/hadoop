@@ -115,7 +115,7 @@ public class FairSchedulerTestBase {
   protected ResourceRequest createResourceRequest(
       int memory, String host, int priority, int numContainers,
       boolean relaxLocality) {
-    return createResourceRequest(memory, 1, 1, host, priority, numContainers,
+    return createResourceRequest(memory, 1, 0, host, priority, numContainers,
         relaxLocality);
   }
 
@@ -174,7 +174,7 @@ public class FairSchedulerTestBase {
 
   protected ApplicationAttemptId createSchedulingRequest(
       int memory, String queueId, String userId, int numContainers, int priority) {
-    return createSchedulingRequest(memory, 1, 1, queueId, userId, numContainers,
+    return createSchedulingRequest(memory, 1, 0, queueId, userId, numContainers,
         priority);
   }
 
