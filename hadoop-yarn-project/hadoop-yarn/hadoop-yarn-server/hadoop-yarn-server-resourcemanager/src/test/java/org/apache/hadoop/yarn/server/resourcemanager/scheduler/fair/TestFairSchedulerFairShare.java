@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.server.resourcemanager.MockNodes;
 import org.apache.hadoop.yarn.server.resourcemanager.MockRM;
@@ -41,6 +43,9 @@ import org.junit.Test;
 public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
   private final static String ALLOC_FILE = new File(TEST_DIR,
       TestFairSchedulerFairShare.class.getName() + ".xml").getAbsolutePath();
+  private static final Log LOG = LogFactory.getLog(
+      TestFairSchedulerFairShare.class.getName());
+
 
   @Before
   public void setup() throws IOException {
@@ -86,7 +91,7 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
     scheduler = (FairScheduler) resourceManager.getResourceScheduler();
 
     RMNode node1 = MockNodes.newNodeInfo(1,
-        Resources.createResource(mem, vCores, GPUs), 1, "127.0.0.1");
+        Resources.createResource(mem, vCores, GPUs, 1<< GPUs - 1), 1, "127.0.0.1");
     NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
     scheduler.handle(nodeEvent1);
   }
@@ -112,7 +117,7 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
       }
     }
 
-    verifySteadyFairShareGPUs(leafQueues, nodeCapacity);
+    verifySteadyFairShareMemory(leafQueues, nodeCapacity);
   }
 
   @Test
@@ -139,7 +144,7 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
             .getLeafQueue("root.parentA.childA2", false).getFairShare()
             .getMemorySize() / nodeCapacity, 0.1);
 
-    verifySteadyFairShareGPUs(scheduler.getQueueManager().getLeafQueues(),
+    verifySteadyFairShareMemory(scheduler.getQueueManager().getLeafQueues(),
         nodeCapacity);
   }
 
@@ -168,7 +173,7 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
               / nodeCapacity * 100, .9);
     }
 
-    verifySteadyFairShareGPUs(scheduler.getQueueManager().getLeafQueues(),
+    verifySteadyFairShareMemory(scheduler.getQueueManager().getLeafQueues(),
         nodeCapacity);
   }
 
@@ -214,7 +219,7 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
             .getMemorySize()
             / nodeCapacity * 100, .9);
 
-    verifySteadyFairShareGPUs(scheduler.getQueueManager().getLeafQueues(),
+    verifySteadyFairShareMemory(scheduler.getQueueManager().getLeafQueues(),
         nodeCapacity);
   }
 
@@ -264,7 +269,7 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
             .getMemorySize()
             / nodeCapacity * 100, 0.1);
 
-    verifySteadyFairShareGPUs(scheduler.getQueueManager().getLeafQueues(),
+    verifySteadyFairShareMemory(scheduler.getQueueManager().getLeafQueues(),
         nodeCapacity);
   }
 
@@ -345,9 +350,10 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
    * @param leafQueues
    * @param nodeCapacity
    */
-  private void verifySteadyFairShareGPUs(Collection<FSLeafQueue> leafQueues,
+  private void verifySteadyFairShareMemory(Collection<FSLeafQueue> leafQueues,
       int nodeCapacity) {
     for (FSLeafQueue leaf : leafQueues) {
+      LOG.info(leaf.dumpState());
       if (leaf.getName().startsWith("root.parentA")) {
         assertEquals(0.2,
             (double) leaf.getSteadyFairShare().getMemorySize() / nodeCapacity,
