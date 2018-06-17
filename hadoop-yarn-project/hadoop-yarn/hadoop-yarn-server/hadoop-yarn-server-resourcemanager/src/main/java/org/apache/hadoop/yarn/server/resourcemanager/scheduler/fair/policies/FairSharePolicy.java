@@ -204,11 +204,16 @@ public class FairSharePolicy extends SchedulingPolicy {
   @Override
   public Resource getHeadroom(Resource queueFairShare,
                               Resource queueUsage, Resource maxAvailable) {
-     int queueAvailableGPU = Math.max(
+    int queueAvailableGPU = Math.max(
         queueFairShare.getGPUs() - queueUsage.getGPUs(), 0);
+    int queueAvailableVcores = Math.max(
+        queueFairShare.getVirtualCores() - queueUsage.getVirtualCores(), 0);
+    long queueAvailableMemory = Math.max(
+        queueFairShare.getMemorySize() - queueUsage.getMemorySize(), 0);
+
     Resource headroom = Resources.createResource(
-        maxAvailable.getMemorySize(),
-        maxAvailable.getVirtualCores(),
+        Math.min(maxAvailable.getMemorySize(), queueAvailableMemory),
+        Math.min(maxAvailable.getVirtualCores(),queueAvailableVcores),
         Math.min(maxAvailable.getGPUs(), queueAvailableGPU));
     return headroom;
   }
@@ -217,6 +222,8 @@ public class FairSharePolicy extends SchedulingPolicy {
   public void computeShares(Collection<? extends Schedulable> schedulables,
       Resource totalResources) {
     ComputeFairShares.computeShares(schedulables, totalResources, ResourceType.MEMORY);
+    ComputeFairShares.computeShares(schedulables, totalResources, ResourceType.CPU);
+    ComputeFairShares.computeShares(schedulables, totalResources, ResourceType.GPU);
   }
 
   @Override
@@ -224,6 +231,10 @@ public class FairSharePolicy extends SchedulingPolicy {
       Resource totalResources) {
     ComputeFairShares.computeSteadyShares(queues, totalResources,
         ResourceType.MEMORY);
+    ComputeFairShares.computeSteadyShares(queues, totalResources,
+        ResourceType.CPU);
+    ComputeFairShares.computeSteadyShares(queues, totalResources,
+        ResourceType.GPU);
   }
 
   @Override

@@ -5420,7 +5420,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
         + " Policy: fair,"
         + " FairShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
         + " SteadyFairShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
-        + " MaxShare: <memory:4096, vCores:4>,"
+        + " MaxShare: <memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: null>,"
         + " MinShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
         + " ResourceUsage: <memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: null>,"
         + " Demand: <memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: null>,"
