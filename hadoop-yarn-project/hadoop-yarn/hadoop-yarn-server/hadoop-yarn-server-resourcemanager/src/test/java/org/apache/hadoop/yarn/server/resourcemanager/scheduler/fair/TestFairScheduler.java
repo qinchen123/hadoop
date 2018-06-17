@@ -3791,6 +3791,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     int amPriority = RMAppAttemptImpl.AM_CONTAINER_PRIORITY.getPriority();
     // Exceeds no limits
     ApplicationAttemptId attId1 = createAppAttemptId(1, 1);
+    LOG.info("attId1:" + attId1.getApplicationId());
     createApplicationWithAMResource(attId1, "queue1", "user1", amResource1);
     createSchedulingRequestExistingApplication(1024, 1, 1, amPriority, attId1);
     FSAppAttempt app1 = scheduler.getSchedulerApp(attId1);
@@ -3805,9 +3806,11 @@ public class TestFairScheduler extends FairSchedulerTestBase {
 
     // Exceeds no limits
     ApplicationAttemptId attId2 = createAppAttemptId(2, 1);
+    LOG.info("attId2:" + attId2.getApplicationId());
     createApplicationWithAMResource(attId2, "queue1", "user1", amResource1);
     createSchedulingRequestExistingApplication(1024, 1, 1, amPriority, attId2);
     FSAppAttempt app2 = scheduler.getSchedulerApp(attId2);
+
     scheduler.update();
     scheduler.handle(updateEvent);
     assertEquals("Application2's AM requests 1024 MB memory",
@@ -5419,8 +5422,8 @@ public class TestFairScheduler extends FairSchedulerTestBase {
         + " SteadyFairShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
         + " MaxShare: <memory:4096, vCores:4>,"
         + " MinShare: <memory:0, vCores:0, GPUs:0, GPUAttribute:0, ports: null>,"
-        + " ResourceUsage: <memory:4096, vCores:4>,"
-        + " Demand: <memory:4096, vCores:4>,"
+        + " ResourceUsage: <memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: null>,"
+        + " Demand: <memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: null>,"
         + " MaxAMShare: 0.5,"
         + " Runnable: 0}";
 
