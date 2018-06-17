@@ -169,8 +169,8 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
           37.5,
           (double) scheduler.getQueueManager()
               .getLeafQueue("root.parentA.childA" + i, false).getFairShare()
-              .getMemorySize()
-              / (nodeCapacity *1024) * 100, .9);
+              .getGPUs()
+              / nodeCapacity * 100, .9);
     }
 
     verifySteadyFairShareMemory(scheduler.getQueueManager().getLeafQueues(),
@@ -204,8 +204,8 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
           43.75,
           (double) scheduler.getQueueManager()
               .getLeafQueue("root.parentA.childA" + i, false).getFairShare()
-              .getMemorySize()
-              / (nodeCapacity *1024) * 100, .9);
+              .getGPUs()
+              / nodeCapacity * 100, .9);
     }
 
     // The child queue under parentB would get a fair share of 10%,
@@ -357,7 +357,7 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
     }
     for (FSLeafQueue leaf : leafQueues) {
       if (leaf.getName().startsWith("root.parentA")) {
-        assertEquals(0.8,
+        assertEquals(0.2,
             (double) leaf.getSteadyFairShare().getMemorySize() / (1024 *nodeCapacity),
             0.001);
       } else if (leaf.getName().startsWith("root.parentB")) {
