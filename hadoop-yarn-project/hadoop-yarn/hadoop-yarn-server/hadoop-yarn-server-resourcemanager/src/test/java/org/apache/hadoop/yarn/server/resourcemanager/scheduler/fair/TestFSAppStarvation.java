@@ -250,7 +250,7 @@ public class TestFSAppStarvation extends FairSchedulerTestBase {
 
     // Create an app that takes up all the resources on the cluster
     ApplicationAttemptId app
-        = createSchedulingRequest(1024, 1, 1, "root.default", "default", 8);
+        = createSchedulingRequest(1024, 1, 0, "root.default", "default", 8);
 
     scheduler.update();
     sendEnoughNodeUpdatesToAssignFully();
