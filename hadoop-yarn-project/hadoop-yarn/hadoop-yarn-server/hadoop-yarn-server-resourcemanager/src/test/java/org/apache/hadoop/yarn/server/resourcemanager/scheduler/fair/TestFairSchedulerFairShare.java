@@ -353,15 +353,17 @@ public class TestFairSchedulerFairShare extends FairSchedulerTestBase {
   private void verifySteadyFairShareMemory(Collection<FSLeafQueue> leafQueues,
       int nodeCapacity) {
     for (FSLeafQueue leaf : leafQueues) {
-      LOG.info(leaf.dumpState());
+      LOG.info("verifySteadyFairShareMemory:" + leaf.dumpState());
+    }
+    for (FSLeafQueue leaf : leafQueues) {
       if (leaf.getName().startsWith("root.parentA")) {
         assertEquals(0.2,
             (double) leaf.getSteadyFairShare().getMemorySize() / nodeCapacity,
             0.001);
       } else if (leaf.getName().startsWith("root.parentB")) {
-        assertEquals(0.05,
+        assertEquals(50,
             (double) leaf.getSteadyFairShare().getMemorySize() / nodeCapacity,
-            0.001);
+            1);
       }
     }
   }
