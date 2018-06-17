@@ -216,14 +216,14 @@ public class FairSharePolicy extends SchedulingPolicy {
   @Override
   public void computeShares(Collection<? extends Schedulable> schedulables,
       Resource totalResources) {
-    ComputeFairShares.computeShares(schedulables, totalResources, ResourceType.GPU);
+    ComputeFairShares.computeShares(schedulables, totalResources, ResourceType.MEMORY);
   }
 
   @Override
   public void computeSteadyShares(Collection<? extends FSQueue> queues,
       Resource totalResources) {
     ComputeFairShares.computeSteadyShares(queues, totalResources,
-        ResourceType.GPU);
+        ResourceType.MEMORY);
   }
 
   @Override
