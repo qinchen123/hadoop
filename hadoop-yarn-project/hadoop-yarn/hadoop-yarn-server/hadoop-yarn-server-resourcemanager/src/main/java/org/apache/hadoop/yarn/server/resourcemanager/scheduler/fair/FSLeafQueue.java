@@ -489,6 +489,11 @@ public class FSLeafQueue extends FSQueue {
           getMaxShare().getVirtualCores()));
     }
 
+    if (maxResource.getGPUs() == 0) {
+      maxResource.setGPUs(Math.min(
+          scheduler.getRootQueueMetrics().getAvailableGPUs(),
+          getMaxShare().getGPUs()));
+    }
     // Round up to allow AM to run when there is only one vcore on the cluster
     return Resources.multiplyAndRoundUp(maxResource, maxAMShare);
   }

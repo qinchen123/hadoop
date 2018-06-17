@@ -362,6 +362,7 @@ public class Resources {
     Resource out = clone(lhs);
     out.setMemorySize((long)Math.ceil(lhs.getMemorySize() * by));
     out.setVirtualCores((int)Math.ceil(lhs.getVirtualCores() * by));
+    out.setGPUs((int)Math.ceil(lhs.getGPUs() * by));
     return out;
   }
   

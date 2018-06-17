@@ -44,6 +44,8 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.ha.HAServiceProtocol;
@@ -129,6 +131,8 @@ public class TestFairScheduler extends FairSchedulerTestBase {
   private final int GB = 1024;
   private final static String ALLOC_FILE =
       new File(TEST_DIR, "test-queues").getAbsolutePath();
+  private static final Log LOG = LogFactory.getLog(
+      TestFairScheduler.class.getName());
 
   @Before
   public void setUp() throws IOException {
@@ -336,6 +340,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     createSchedulingRequest(10 * 1024, "root.default", "user1");
 
     scheduler.update();
+    LOG.info("cluster resource:" + scheduler.getClusterResource());
     scheduler.getQueueManager().getRootQueue()
         .setSteadyFairShare(scheduler.getClusterResource());
     scheduler.getQueueManager().getRootQueue().recomputeSteadyShares();
@@ -672,7 +677,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     int cpuCapacity = 20;
     RMNode node =
         MockNodes.newNodeInfo(1, Resources.createResource(memCapacity,
-            cpuCapacity, 20), 0, "127.0.0.1");
+            cpuCapacity, 20, 0xFFFFF), 0, "127.0.0.1");
     NodeAddedSchedulerEvent nodeEvent = new NodeAddedSchedulerEvent(node);
     NodeUpdateSchedulerEvent updateEvent = new NodeUpdateSchedulerEvent(node);
     scheduler.handle(nodeEvent);
