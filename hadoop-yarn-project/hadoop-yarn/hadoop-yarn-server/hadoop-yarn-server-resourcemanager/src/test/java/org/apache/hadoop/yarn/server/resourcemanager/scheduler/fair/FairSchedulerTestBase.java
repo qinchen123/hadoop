@@ -331,8 +331,10 @@ public class FairSchedulerTestBase {
    */
   protected void addNode(int memory, int cores, int gpus) {
     int id = rmNodes.size() + 1;
+    long gpuAttribute = 1;
+    gpuAttribute = (gpuAttribute << gpus) - 1;
     RMNode node =
-        MockNodes.newNodeInfo(1, Resources.createResource(memory, cores, gpus), id,
+        MockNodes.newNodeInfo(1, Resources.createResource(memory, cores, gpus, gpuAttribute), id,
             "127.0.0." + id);
     scheduler.handle(new NodeAddedSchedulerEvent(node));
     rmNodes.add(node);
