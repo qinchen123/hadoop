@@ -1964,7 +1964,7 @@ public class TestRMRestart extends ParameterizedSchedulerTestBase {
       MockNM nm1 = rm1.registerNode("localhost:1234", 8000);
       MockNM nm2 = rm1.registerNode("host2:1234", 8000);
       Resource expectedCapability =
-          Resource.newInstance(nm1.getMemory(), nm1.getvCores());
+          Resource.newInstance(nm1.getMemory(), nm1.getvCores(), nm1.getGPUs(), nm1.getGPUAttribute(),nm1.getPorts());
       String expectedVersion = nm1.getVersion();
       Assert
           .assertEquals(0,
