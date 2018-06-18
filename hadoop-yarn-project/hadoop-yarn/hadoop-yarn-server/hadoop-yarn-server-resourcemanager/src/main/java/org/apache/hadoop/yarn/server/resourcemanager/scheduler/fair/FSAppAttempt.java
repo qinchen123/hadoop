@@ -918,6 +918,11 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
   private boolean isReservable(Resource capacity) {
     // Reserve only when the app is starved and the requested container size
     // is larger than the configured threshold
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("isStarted:" + isStarved());
+    }
+
     return isStarved() &&
         scheduler.isAtLeastReservationThreshold(
             getQueue().getPolicy().getResourceCalculator(), capacity);

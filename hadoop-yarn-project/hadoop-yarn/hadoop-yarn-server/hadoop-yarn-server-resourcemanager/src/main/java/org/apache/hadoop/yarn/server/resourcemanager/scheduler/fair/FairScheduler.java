@@ -211,6 +211,7 @@ public class FairScheduler extends
 
   public boolean isAtLeastReservationThreshold(
       ResourceCalculator resourceCalculator, Resource resource) {
+    LOG.debug("isAtLeastReservationThreshold: resource:" + resource + " reservationThreshold");
     return Resources.greaterThanOrEqual(resourceCalculator,
         getClusterResource(), resource, reservationThreshold);
   }
