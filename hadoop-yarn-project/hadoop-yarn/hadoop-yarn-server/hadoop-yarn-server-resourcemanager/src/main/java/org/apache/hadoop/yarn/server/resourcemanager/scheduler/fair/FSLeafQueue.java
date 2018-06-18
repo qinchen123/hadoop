@@ -518,7 +518,7 @@ public class FSLeafQueue extends FSQueue {
 
   void addAMResourceUsage(Resource amResource) {
     if (amResource != null) {
-      Resources.addTo(amResourceUsage, amResource);f
+      Resources.addTo(amResourceUsage, amResource);
       getMetrics().setAMResourceUsage(amResourceUsage);
     }
   }
