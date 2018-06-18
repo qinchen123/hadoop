@@ -920,7 +920,7 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     // is larger than the configured threshold
 
     if (LOG.isDebugEnabled()) {
-      LOG.debug("isStarted:" + isStarved());
+      LOG.debug("isStarved:" + isStarved());
     }
 
     return isStarved() &&
@@ -1206,6 +1206,9 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
    * Is application starved for fairshare or minshare.
    */
   boolean isStarved() {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("getResourceUsage:" + getResourceUsage() + " getFairShare:" + getFairShare() + " minshareStarvation:" + minshareStarvation);
+    }
     return isStarvedForFairShare() || !Resources.isNone(minshareStarvation);
   }
 
