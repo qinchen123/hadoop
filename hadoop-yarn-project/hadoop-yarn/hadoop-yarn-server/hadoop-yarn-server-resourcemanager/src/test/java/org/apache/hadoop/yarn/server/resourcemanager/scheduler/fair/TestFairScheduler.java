@@ -517,7 +517,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
 
     // Add one big node (only care about aggregate capacity)
     RMNode node1 =
-        MockNodes.newNodeInfo(1, Resources.createResource(8 * 1024, 8), 1,
+        MockNodes.newNodeInfo(1, Resources.createResource(8 * 1024, 8, 8, 0xFF), 1,
             "127.0.0.1");
 
     NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
@@ -551,7 +551,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     out.println("<?xml version=\"1.0\"?>");
     out.println("<allocations>");
     out.println("  <queue name=\"queueA\" type=\"parent\">");
-    out.println("    <maxChildResources>3072mb,3vcores</maxChildResources>");
+    out.println("    <maxChildResources>3072mb,3vcores, 3gpus</maxChildResources>");
     out.println("  </queue>");
     out.println("</allocations>");
     out.close();
@@ -574,7 +574,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     out.println("<?xml version=\"1.0\"?>");
     out.println("<allocations>");
     out.println("  <queue name=\"queueA\" type=\"parent\">");
-    out.println("    <maxChildResources>1024mb,1vcores</maxChildResources>");
+    out.println("    <maxChildResources>1024mb,1vcores, 1gpus</maxChildResources>");
     out.println("  </queue>");
     out.println("</allocations>");
     out.close();
@@ -1518,7 +1518,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     scheduler.reinitialize(conf, resourceManager.getRMContext());
 
     RMNode node =
-            MockNodes.newNodeInfo(1, Resources.createResource(8192, 20),
+            MockNodes.newNodeInfo(1, Resources.createResource(8192, 20, 20, 0xFFFFF),
                     0, "127.0.0.1");
     NodeAddedSchedulerEvent nodeEvent = new NodeAddedSchedulerEvent(node);
     NodeUpdateSchedulerEvent updateEvent = new NodeUpdateSchedulerEvent(node);
@@ -1612,8 +1612,9 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     // Make sure queue 2 is allocated app capacity
     assertEquals(1024, scheduler.getQueueManager().getQueue("queue2").
       getResourceUsage().getMemorySize());
-    
+
     ApplicationAttemptId attId1 = createSchedulingRequest(1024, "queue1", "user1", 1);
+    LOG.info("testContainerReservationNotExceedingQueueMax: attId1-" + attId1);
     scheduler.update();
     scheduler.handle(updateEvent);
 
@@ -1623,6 +1624,8 @@ public class TestFairScheduler extends FairSchedulerTestBase {
 
     // Exercise checks that reservation fits
     scheduler.handle(updateEvent);
+
+    LOG.info("testContainerReservationNotExceedingQueueMax: attId1-end-" + attId1);
 
     // Ensure the reservation still exists as allocated memory of queue1 doesn't
     // exceed max
