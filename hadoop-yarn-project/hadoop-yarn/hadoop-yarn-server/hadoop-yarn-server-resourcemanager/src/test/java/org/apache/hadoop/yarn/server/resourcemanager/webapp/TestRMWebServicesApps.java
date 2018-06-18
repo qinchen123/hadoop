@@ -1650,7 +1650,7 @@ public class TestRMWebServicesApps extends JerseyTestBase {
 
     assertEquals("queueUsagePerc doesn't match", 50.0f, queueUsagePerc, 0.01f);
     assertEquals("clusterUsagePerc doesn't match", 50.0f, clusterUsagePerc, 0.01f);
-    assertEquals("allocatedGPUs doesn't match", 1, allocatedGPUs);
+    assertEquals("allocatedGPUs doesn't match", 0, allocatedGPUs);
     assertEquals("numContainers doesn't match", 1, numContainers);
     assertEquals("preemptedResourceMB doesn't match", app
         .getRMAppMetrics().getResourcePreempted().getMemorySize(),
