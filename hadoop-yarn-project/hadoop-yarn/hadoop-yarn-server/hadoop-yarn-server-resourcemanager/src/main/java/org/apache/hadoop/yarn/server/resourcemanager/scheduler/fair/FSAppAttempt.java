@@ -892,6 +892,9 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     // The desired container won't fit here, so reserve
     // Reserve only, if app does not wait for preempted resources on the node,
     // otherwise we may end up with duplicate reservations
+    if(LOG.isDebugEnabled()) {
+      LOG.debug("isReservable:" + isReservable(capability) + " node.isPreemptedForApp:" + node.isPreemptedForApp(this));
+    }
     if (isReservable(capability) &&
         !node.isPreemptedForApp(this) &&
         reserve(pendingAsk.getPerAllocationResource(), node, reservedContainer, type, schedulerKey)) {
@@ -943,11 +946,6 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     //
     // This function is called by several places. attemptScheduling() in FairScheduler.jave
     // seems a main entry point.
-
-    // MJTHIS: However, we have to consider what if for all requests (or one starving) 'capability' may fit in
-    // 'available', but GPU locality can not be satisfied. Do we have to worry about potential high scheduling
-    // delay or starvation by this? Now, everything is without history; scheduling is work-conserving, so 'node'
-    // is just one that issues the heartbeat message.
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Node offered to app: " + getName() + " reserved: " + reserved);
