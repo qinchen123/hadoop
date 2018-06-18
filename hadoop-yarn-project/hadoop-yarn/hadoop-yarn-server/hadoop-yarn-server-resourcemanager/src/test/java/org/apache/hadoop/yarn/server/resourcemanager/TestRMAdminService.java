@@ -282,7 +282,7 @@ public class TestRMAdminService {
 
     RMNode niAfter = rm.getRMContext().getRMNodes().get(nid);
     Resource resourceAfter = niAfter.getTotalCapability();
-    Assert.assertEquals("<memory:4096, vCores:4>", resourceAfter.toString());
+    Assert.assertEquals("<memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: [1-65535]>", resourceAfter.toString());
   }
 
   @Test
@@ -329,7 +329,7 @@ public class TestRMAdminService {
 
     RMNode niAfter = rm.getRMContext().getRMNodes().get(nid);
     Resource resourceAfter = niAfter.getTotalCapability();
-    Assert.assertEquals("<memory:4096, vCores:4>", resourceAfter.toString());
+    Assert.assertEquals("<memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: [1-65535]>", resourceAfter.toString());
 
     Assert.assertEquals(4096, nm.getMemory());
     Assert.assertEquals(4, nm.getvCores());
@@ -378,7 +378,7 @@ public class TestRMAdminService {
 
     RMNode niAfter = rm.getRMContext().getRMNodes().get(nid);
     Resource resourceAfter = niAfter.getTotalCapability();
-    Assert.assertEquals("<memory:4096, vCores:4>", resourceAfter.toString());
+    Assert.assertEquals("<memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: [1-65535]>", resourceAfter.toString());
 
     Assert.assertEquals(4096, nm.getMemory());
     Assert.assertEquals(4, nm.getvCores());
@@ -405,7 +405,7 @@ public class TestRMAdminService {
     NodeId nid = NodeId.fromString("h1:1234");
     RMNode ni = rm.getRMContext().getRMNodes().get(nid);
     Resource resource = ni.getTotalCapability();
-    Assert.assertEquals("<memory:5120, vCores:5, GPUs:5, GPUAttribute:31,>", resource.toString());
+    Assert.assertEquals("<memory:5120, vCores:5, GPUs:5, GPUAttribute:31, ports: [1-65535]>", resource.toString());
 
     DynamicResourceConfiguration drConf =
         new DynamicResourceConfiguration();
