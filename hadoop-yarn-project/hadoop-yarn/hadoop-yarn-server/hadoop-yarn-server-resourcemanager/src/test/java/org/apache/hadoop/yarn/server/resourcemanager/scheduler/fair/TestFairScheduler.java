@@ -1726,7 +1726,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     // Now another node checks in with capacity
     RMNode node2 =
         MockNodes
-            .newNodeInfo(1, Resources.createResource(1024, 4, 4 0xF), 2, "127.0.0.2");
+            .newNodeInfo(1, Resources.createResource(1024, 4, 4, 0xF), 2, "127.0.0.2");
     NodeAddedSchedulerEvent nodeEvent2 = new NodeAddedSchedulerEvent(node2);
     NodeUpdateSchedulerEvent updateEvent2 = new NodeUpdateSchedulerEvent(node2);
     scheduler.handle(nodeEvent2);
