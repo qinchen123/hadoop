@@ -1184,7 +1184,7 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     }
 
     if(LOG.isDebugEnabled()){
-      LOG.debug("fairShareStarvation: ResourceUsage:" + getResourceUsage() + "  fairDemand:" + fairDemand + " isStarved:" + starved);
+      LOG.debug("queueName:" + this.getQueueName() + " attemptID:" + this.attemptId + " fairShareStarvation: ResourceUsage:" + getResourceUsage() + "  fairDemand:" + fairDemand + " isStarved:" + starved);
     }
 
     return fairshareStarvation;
