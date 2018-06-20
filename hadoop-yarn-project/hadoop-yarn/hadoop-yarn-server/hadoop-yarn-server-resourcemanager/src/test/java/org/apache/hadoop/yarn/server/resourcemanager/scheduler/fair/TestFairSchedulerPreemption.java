@@ -62,7 +62,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
   private static final Log LOG = LogFactory.getLog(
       TestFairSchedulerPreemption.class.getName());
 
-  private final boolean fairsharePreemption;
+  private final boolean fairsharePreemption = true;
   private final boolean drf;
 
   // App that takes up the entire cluster
