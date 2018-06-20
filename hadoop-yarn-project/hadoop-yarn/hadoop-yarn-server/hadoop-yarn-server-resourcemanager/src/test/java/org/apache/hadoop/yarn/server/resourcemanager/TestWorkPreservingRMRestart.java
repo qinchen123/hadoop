@@ -508,7 +508,7 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
     // ************ check queue metrics ****************
     QueueMetrics queueMetrics = scheduler.getRootQueueMetrics();
     assertMetrics(queueMetrics, 1, 0, 1, 0, 2, (int)availableResources.getMemorySize(),
-        availableResources.getVirtualCores(), usedResources.getGPUs(), (int)usedResources.getMemorySize(),
+        availableResources.getVirtualCores(), availableResources.getGPUs(), (int)usedResources.getMemorySize(),
         usedResources.getVirtualCores(), usedResources.getGPUs());
 
     // ************ check AM resources ****************

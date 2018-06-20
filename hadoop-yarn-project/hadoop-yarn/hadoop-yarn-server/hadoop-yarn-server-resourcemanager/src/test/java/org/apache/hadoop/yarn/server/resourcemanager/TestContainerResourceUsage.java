@@ -121,10 +121,6 @@ public class TestContainerResourceUsage {
         "While app is running, vcore seconds should be >0 but is "
             + rmAppMetrics.getVcoreSeconds(),
         rmAppMetrics.getVcoreSeconds() > 0);
-    Assert.assertTrue(
-        "While app is running, gpu seconds should be >0 but is "
-            + rmAppMetrics.getGPUSeconds(),
-        rmAppMetrics.getGPUSeconds() > 0);
 
     MockRM.finishAMAndVerifyAppState(app0, rm, nm, am0);
 

@@ -17,6 +17,8 @@
  */
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.server.resourcemanager.MockRM;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
@@ -56,6 +58,9 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
 
   // Node Capacity = NODE_CAPACITY_MULTIPLE * (1 GB or 1 vcore)
   private static final int NODE_CAPACITY_MULTIPLE = 4;
+
+  private static final Log LOG = LogFactory.getLog(
+      TestFairSchedulerPreemption.class.getName());
 
   private final boolean fairsharePreemption;
   private final boolean drf;
@@ -339,12 +344,15 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
   @Test
   public void testPreemptionWithinSameLeafQueue() throws Exception {
     String queue = "root.preemptable.child-1";
+    LOG.info("testPreemptionWithinSameLeafQueue:" + queue);
     submitApps(queue, queue);
+    LOG.info("testPreemptionWithinSameLeafQueue: done submitApps");
     if (fairsharePreemption) {
       verifyPreemption(2);
     } else {
       verifyNoPreemption();
     }
+    LOG.info("testPreemptionWithinSameLeafQueue: done verifyNoPreemption");
   }
 
   @Test

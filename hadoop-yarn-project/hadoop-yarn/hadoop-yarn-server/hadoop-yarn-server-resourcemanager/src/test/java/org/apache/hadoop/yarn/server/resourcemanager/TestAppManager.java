@@ -826,8 +826,8 @@ public class TestAppManager{
     when(app.getApplicationType()).thenReturn("MAPREDUCE");
     when(app.getSubmitTime()).thenReturn(1000L);
     RMAppMetrics metrics =
-        new RMAppMetrics(Resource.newInstance(1234, 56),
-            10, 1, 16384, 64, 0, 0, 0);
+        new RMAppMetrics(Resource.newInstance(1234, 56, 56),
+            10, 1, 16384, 64, 64, 0, 0);
     when(app.getRMAppMetrics()).thenReturn(metrics);
 
     RMAppManager.ApplicationSummary.SummaryBuilder summary =

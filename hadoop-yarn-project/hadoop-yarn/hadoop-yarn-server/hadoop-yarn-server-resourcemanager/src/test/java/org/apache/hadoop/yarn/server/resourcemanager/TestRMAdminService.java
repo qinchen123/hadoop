@@ -378,7 +378,7 @@ public class TestRMAdminService {
 
     RMNode niAfter = rm.getRMContext().getRMNodes().get(nid);
     Resource resourceAfter = niAfter.getTotalCapability();
-    Assert.assertEquals("<memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: null>", resourceAfter.toString());
+    Assert.assertEquals("<memory:4096, vCores:4, GPUs:0, GPUAttribute:0, ports: [1-65535]>", resourceAfter.toString());
 
     Assert.assertEquals(4096, nm.getMemory());
     Assert.assertEquals(4, nm.getvCores());
@@ -450,7 +450,7 @@ public class TestRMAdminService {
     resourceAfter = niAfter.getTotalCapability();
     // new resource in registration should take effective as we empty
     // dynamic resource file already.
-    Assert.assertEquals("<memory:8192, vCores:8, GPUs:0, GPUAttribute:0, ports: null>", resourceAfter.toString());
+    Assert.assertEquals("<memory:8192, vCores:8, GPUs:0, GPUAttribute:0, ports: [1-65535]>", resourceAfter.toString());
   }
 
   @Test
