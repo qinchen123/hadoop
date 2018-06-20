@@ -1182,6 +1182,11 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
       fairshareStarvation =
           Resources.subtractFromNonNegative(fairDemand, getResourceUsage());
     }
+
+    if(LOG.isDebugEnabled()){
+      LOG.debug("fairShareStarvation: ResourceUsage:" + getResourceUsage() + "  fairDemand:" + fairDemand + " isStarved:" + starved);
+    }
+
     return fairshareStarvation;
   }
 
