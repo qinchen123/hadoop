@@ -214,7 +214,7 @@ public class TestAppRunnability extends FairSchedulerTestBase {
     FSLeafQueue targetQueue = queueMgr.getLeafQueue("queue2", true);
 
     ApplicationAttemptId appAttId =
-        createSchedulingRequest(1024, 1, 1, "queue1", "user1", 3);
+        createSchedulingRequest(1024, 1, 0, "queue1", "user1", 3);
     ApplicationId appId = appAttId.getApplicationId();
     RMNode node = MockNodes.newNodeInfo(1, Resources.createResource(1024));
     NodeAddedSchedulerEvent nodeEvent = new NodeAddedSchedulerEvent(node);

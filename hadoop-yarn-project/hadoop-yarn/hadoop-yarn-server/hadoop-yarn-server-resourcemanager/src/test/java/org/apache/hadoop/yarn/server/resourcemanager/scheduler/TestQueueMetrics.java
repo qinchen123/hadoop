@@ -72,12 +72,12 @@ public class TestQueueMetrics {
     checkApps(queueSource, 1, 1, 0, 0, 0, 0, true);
 
     metrics.setAvailableResourcesToQueue(RMNodeLabelsManager.NO_LABEL,
-        Resources.createResource(100*GB, 100, 100));
+        Resources.createResource(100*GB, 100));
     metrics.incrPendingResources(RMNodeLabelsManager.NO_LABEL,
-        user, 5, Resources.createResource(3*GB, 3, 3));
+        user, 5, Resources.createResource(3*GB, 3));
     // Available resources is set externally, as it depends on dynamic
     // configurable cluster/queue resources
-    checkResources(queueSource, 0, 0, 0, 0, 0, 0, 100*GB, 100, 100, 15*GB, 15, 15, 5, 0, 0, 0, 0);
+    checkResources(queueSource, 0, 0, 0, 0, 0, 100*GB, 100, 15*GB, 15, 5, 0, 0, 0);
 
     metrics.runAppAttempt(app.getApplicationId(), user);
     checkApps(queueSource, 1, 0, 1, 0, 0, 0, true);
@@ -190,8 +190,8 @@ public class TestQueueMetrics {
         user, 5, Resources.createResource(3*GB, 3));
     // Available resources is set externally, as it depends on dynamic
     // configurable cluster/queue resources
-    checkResources(queueSource, 0, 0, 0, 0, 0, 0, 100*GB, 100, 100, 15*GB, 15, 15, 5, 0, 0, 0, 0);
-    checkResources(userSource, 0, 0, 0, 0, 0, 0, 10*GB, 10, 10, 15*GB, 15, 15, 5, 0, 0, 0, 0);
+    checkResources(queueSource, 0, 0, 0, 0, 0,  100*GB, 100, 15*GB, 15, 5, 0, 0, 0);
+    checkResources(userSource, 0, 0, 0, 0, 0, 10*GB, 10, 15*GB, 15, 5, 0, 0, 0);
 
     metrics.runAppAttempt(app.getApplicationId(), user);
     checkApps(queueSource, 1, 0, 1, 0, 0, 0, true);
@@ -425,34 +425,19 @@ public class TestQueueMetrics {
       long aggreReleasedCtnrs, long availableMB, int availableCores, long pendingMB,
       int pendingCores, int pendingCtnrs, long reservedMB, int reservedCores,
       int reservedCtnrs) {
-    checkResources(source, allocatedMB, allocatedCores, 0, allocCtnrs, aggreAllocCtnrs, aggreReleasedCtnrs,
-        availableMB, availableCores, 0, pendingMB, pendingCores, 0, pendingCtnrs, reservedMB, reservedCores,
-        0, reservedCtnrs);
-  }
-
-  public static void checkResources(MetricsSource source, long allocatedMB,
-      int allocatedCores, int allocatedGPUs,  int allocCtnrs, long aggreAllocCtnrs,
-      long aggreReleasedCtnrs, long availableMB, int availableCores, int availableGPUs, long pendingMB,
-      int pendingCores, int pendingGPUs, int pendingCtnrs, long reservedMB, int reservedCores,
-      int reservedGPUs, int reservedCtnrs) {
-
     MetricsRecordBuilder rb = getMetrics(source);
     assertGauge("AllocatedMB", allocatedMB, rb);
     assertGauge("AllocatedVCores", allocatedCores, rb);
-    assertGauge("AllocatedGPUs", allocatedGPUs, rb);
     assertGauge("AllocatedContainers", allocCtnrs, rb);
     assertCounter("AggregateContainersAllocated", aggreAllocCtnrs, rb);
     assertCounter("AggregateContainersReleased", aggreReleasedCtnrs, rb);
     assertGauge("AvailableMB", availableMB, rb);
     assertGauge("AvailableVCores", availableCores, rb);
-    assertGauge("AvailableGPUs", availableGPUs, rb);
     assertGauge("PendingMB", pendingMB, rb);
     assertGauge("PendingVCores", pendingCores, rb);
-    assertGauge("PendingGPUs", pendingGPUs, rb);
     assertGauge("PendingContainers", pendingCtnrs, rb);
     assertGauge("ReservedMB", reservedMB, rb);
     assertGauge("ReservedVCores", reservedCores, rb);
-    assertGauge("ReservedGPUs", reservedGPUs, rb);
     assertGauge("ReservedContainers", reservedCtnrs, rb);
   }
 

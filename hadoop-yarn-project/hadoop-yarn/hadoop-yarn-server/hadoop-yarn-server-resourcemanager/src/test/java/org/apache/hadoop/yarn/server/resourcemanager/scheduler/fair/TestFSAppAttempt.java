@@ -253,14 +253,13 @@ public class TestFSAppAttempt extends FairSchedulerTestBase {
             queueMaxResourcesAvailable.getGPUs())
     );
 
-    // Fair ignores CPU and memory of queue, so use cluster available CPU and memory
     Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
         .getInstance(FairSharePolicy.class));
     verifyHeadroom(schedulerApp,
         (int)min(queueStarvation.getMemorySize(),
             clusterAvailable.getMemorySize(),
             queueMaxResourcesAvailable.getMemorySize()),
-        Math.min(
+        (int)min(queueStarvation.getVirtualCores(),
             clusterAvailable.getVirtualCores(),
             queueMaxResourcesAvailable.getVirtualCores()),
         (int)min(queueStarvation.getGPUs(),
@@ -274,7 +273,7 @@ public class TestFSAppAttempt extends FairSchedulerTestBase {
         (int)min(queueStarvation.getMemorySize(),
             clusterAvailable.getMemorySize(),
             queueMaxResourcesAvailable.getMemorySize()),
-        Math.min(
+        (int)min(queueStarvation.getVirtualCores(),
             clusterAvailable.getVirtualCores(),
             queueMaxResourcesAvailable.getVirtualCores()),
         (int)min(queueStarvation.getGPUs(),

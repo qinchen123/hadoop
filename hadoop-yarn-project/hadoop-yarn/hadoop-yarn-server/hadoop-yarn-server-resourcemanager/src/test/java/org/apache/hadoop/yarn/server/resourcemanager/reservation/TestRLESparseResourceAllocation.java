@@ -515,19 +515,19 @@ public class TestRLESparseResourceAllocation {
       Resource resource = entry.getValue();
       if (interval.getStartTime() == 101L) {
         Assert.assertTrue(interval.getEndTime() == 102L);
-        Assert.assertEquals(resource, Resource.newInstance(5 * 1024, 5));
+        Assert.assertEquals(resource, Resource.newInstance(5 * 1024, 5, 5));
       } else if (interval.getStartTime() == 102L) {
         Assert.assertTrue(interval.getEndTime() == 104L);
-        Assert.assertEquals(resource, Resource.newInstance(10 * 1024, 10));
+        Assert.assertEquals(resource, Resource.newInstance(10 * 1024, 10, 10));
       } else if (interval.getStartTime() == 104L) {
         Assert.assertTrue(interval.getEndTime() == 105L);
-        Assert.assertEquals(resource, Resource.newInstance(5 * 1024, 5));
+        Assert.assertEquals(resource, Resource.newInstance(5 * 1024, 5, 5));
       } else if (interval.getStartTime() == 105L) {
         Assert.assertTrue(interval.getEndTime() == 106L);
-        Assert.assertEquals(resource, Resource.newInstance(0 * 1024, 0));
+        Assert.assertEquals(resource, Resource.newInstance(0 * 1024, 0, 0));
       } else if (interval.getStartTime() == 106L) {
         Assert.assertTrue(interval.getEndTime() == 107L);
-        Assert.assertEquals(resource, Resource.newInstance(5 * 1024, 5));
+        Assert.assertEquals(resource, Resource.newInstance(5 * 1024, 5, 5));
       } else {
         Assert.fail();
       }
@@ -618,7 +618,7 @@ public class TestRLESparseResourceAllocation {
       }
       req.put(new ReservationInterval(startTime + i, startTime + i + 1),
           ReservationSystemUtil.toResource(ReservationRequest
-              .newInstance(Resource.newInstance(1024, 1), (numContainers))));
+              .newInstance(Resource.newInstance(1024, 1, 1), (numContainers))));
     }
     return req;
   }

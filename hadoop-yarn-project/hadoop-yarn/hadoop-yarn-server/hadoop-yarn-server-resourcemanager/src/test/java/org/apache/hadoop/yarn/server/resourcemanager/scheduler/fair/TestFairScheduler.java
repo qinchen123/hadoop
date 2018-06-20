@@ -4672,7 +4672,7 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     scheduler.reinitialize(conf, resourceManager.getRMContext());
 
     RMNode node1 = MockNodes.newNodeInfo(
-        1, Resources.createResource(1 * GB, 4, 4, 0xF), 1, "127.0.0.1");
+        1, Resources.createResource(1 * GB, 8, 4, 0xF), 1, "127.0.0.1");
     NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
     scheduler.handle(nodeEvent1);
 

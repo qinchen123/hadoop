@@ -144,6 +144,8 @@ public class TimelineServiceV1Publisher extends AbstractSystemMetricsPublisher {
         appMetrics.getVcoreSeconds());
     entity.addOtherInfo(ApplicationMetricsConstants.APP_MEM_METRICS,
         appMetrics.getMemorySeconds());
+    entity.addOtherInfo(ApplicationMetricsConstants.APP_GPU_METRICS,
+        appMetrics.getGPUSeconds());
     entity.addOtherInfo(ApplicationMetricsConstants.APP_MEM_PREEMPT_METRICS,
         appMetrics.getPreemptedMemorySeconds());
     entity.addOtherInfo(ApplicationMetricsConstants.APP_CPU_PREEMPT_METRICS,

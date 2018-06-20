@@ -234,7 +234,7 @@ public class TestAllocationFileLoaderService {
     assertEquals(Resources.createResource(0),
         queueConf.getMinResources("root." + YarnConfiguration.DEFAULT_QUEUE_NAME));
 
-    assertEquals(Resources.createResource(2048, 10),
+    assertEquals(Resources.createResource(2048, 10, 10),
         queueConf.getMaxResources("root.queueA").getResource());
     assertEquals(Resources.createResource(5120, 110),
         queueConf.getMaxResources("root.queueB").getResource());

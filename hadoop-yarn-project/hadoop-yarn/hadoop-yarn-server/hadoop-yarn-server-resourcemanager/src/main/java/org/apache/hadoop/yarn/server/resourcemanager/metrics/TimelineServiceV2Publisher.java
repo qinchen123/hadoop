@@ -196,6 +196,9 @@ public class TimelineServiceV2Publisher extends AbstractSystemMetricsPublisher {
         ApplicationMetricsConstants.APP_MEM_METRICS, timestamp,
         appMetrics.getMemorySeconds()));
     entityMetrics.add(getTimelineMetric(
+        ApplicationMetricsConstants.APP_GPU_METRICS, timestamp,
+        appMetrics.getMemorySeconds()));
+    entityMetrics.add(getTimelineMetric(
         ApplicationMetricsConstants.APP_MEM_PREEMPT_METRICS, timestamp,
         appMetrics.getPreemptedMemorySeconds()));
     entityMetrics.add(getTimelineMetric(

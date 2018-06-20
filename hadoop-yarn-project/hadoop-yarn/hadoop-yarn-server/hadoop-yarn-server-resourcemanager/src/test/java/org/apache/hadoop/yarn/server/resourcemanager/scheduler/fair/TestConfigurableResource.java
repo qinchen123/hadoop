@@ -34,7 +34,7 @@ public class TestConfigurableResource {
   @Test
   public void testGetResourceWithPercentage() {
     ConfigurableResource configurableResource =
-        new ConfigurableResource(new double[] {0.5, 0.5});
+        new ConfigurableResource(new double[] {0.5, 0.5, 0.5});
     assertEquals(
         configurableResource.getResource(clusterResource).getMemorySize(),
         1024);
