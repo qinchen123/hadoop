@@ -183,7 +183,7 @@ class FSPreemptionThread extends Thread {
       }
 
       // Check if we have already identified enough containers
-      if(!Resources.lessThan(this.scheduler.getResourceCalculator(), null, request, potential)) {
+      if (Resources.fitsIn(request, potential)) {
         return preemptableContainers;
       }
     }

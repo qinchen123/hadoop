@@ -732,7 +732,7 @@ public class FifoScheduler extends
         // Update usage for this container
         increaseUsedResources(rmContainer);
       }
-    }    
+    }
     return assignedContainers;
   }
 

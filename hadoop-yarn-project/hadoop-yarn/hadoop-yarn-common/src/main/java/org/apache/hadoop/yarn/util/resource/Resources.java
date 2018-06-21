@@ -460,9 +460,14 @@ public class Resources {
   }
 
   public static boolean fitsIn(Resource smaller, Resource bigger) {
-      boolean fitsIn = smaller.getMemorySize() <= bigger.getMemorySize() &&
-                       smaller.getVirtualCores() <= bigger.getVirtualCores() &&
-                       smaller.getGPUs() <= bigger.getGPUs();
+    boolean fitsIn = smaller.getMemorySize() <= bigger.getMemorySize() &&
+        smaller.getVirtualCores() <= bigger.getVirtualCores() &&
+        smaller.getGPUs() <= bigger.getGPUs();
+    return fitsIn;
+  }
+
+  public static boolean fitsInWithAttribute(Resource smaller, Resource bigger) {
+      boolean fitsIn = fitsIn(smaller, bigger);
       if (fitsIn) {
           if((smaller.getGPUAttribute() & bigger.getGPUAttribute()) != smaller.getGPUAttribute()) {
               fitsIn = false;

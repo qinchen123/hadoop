@@ -843,7 +843,7 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     }
 
     // Can we allocate a container on this node?
-    if (Resources.fitsIn(capability, available)) {
+    if (Resources.fitsInWithAttribute(capability, available)) {
       // Inform the application of the new container for this request
 
       if(capability.getGPUs() > 0) {
