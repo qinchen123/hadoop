@@ -342,7 +342,11 @@ public class FairSchedulerConfiguration extends Configuration {
     } else {
       resourcePercentage[0] = findPercentage(val, "memory")/100;
       resourcePercentage[1] = findPercentage(val, "cpu")/100;
-      resourcePercentage[1] = findPercentage(val, "gpus")/100;
+      if(val.contains("gpus")) {
+        resourcePercentage[2] = findPercentage(val, "gpus") / 100;
+      }else{
+        resourcePercentage[2] = 0;
+      }
     }
     return resourcePercentage;
   }
