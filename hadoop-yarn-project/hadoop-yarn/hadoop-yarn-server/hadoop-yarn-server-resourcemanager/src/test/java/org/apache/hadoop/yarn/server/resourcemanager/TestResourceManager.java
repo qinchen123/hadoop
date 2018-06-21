@@ -125,7 +125,7 @@ public class TestResourceManager {
     
     final int memory2 = 2048;
 
-    Resource capability2 = Resources.createResource(memory2, 1, 0s);
+    Resource capability2 = Resources.createResource(memory2, 1, 0);
     Priority priority0 = Priority.newInstance(0); // higher
     application.addResourceRequestSpec(priority0, capability2);
     
