@@ -700,7 +700,7 @@ public class TestApplicationLimits {
     queue.getUsersManager().userLimitNeedsRecompute();
     queue.assignContainers(clusterResource, node_0, new ResourceLimits(
         clusterResource), SchedulingMode.RESPECT_PARTITION_EXCLUSIVITY); // Schedule to compute
-    expectedHeadroom = Resources.createResource(9*16*GB / 2, 1, 1); // changes
+    expectedHeadroom = Resources.createResource(9*16*GB / 2, 1); // changes
     assertEquals(expectedHeadroom, app_0_0.getHeadroom());
     assertEquals(expectedHeadroom, app_0_1.getHeadroom());
     assertEquals(expectedHeadroom, app_1_0.getHeadroom());

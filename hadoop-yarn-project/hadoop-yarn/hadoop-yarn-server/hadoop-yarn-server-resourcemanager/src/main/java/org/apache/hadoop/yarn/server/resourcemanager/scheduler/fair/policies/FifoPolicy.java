@@ -123,12 +123,14 @@ public class FifoPolicy extends SchedulingPolicy {
                               Resource queueUsage, Resource maxAvailable) {
     long queueAvailableMemory = Math.max(
         queueFairShare.getMemorySize() - queueUsage.getMemorySize(), 0);
+    int queueAvailableVCores= Math.max(
+        queueFairShare.getVirtualCores() - queueUsage.getVirtualCores(), 0);
     int queueAvailableGPU = Math.max(
         queueFairShare.getGPUs() - queueUsage.getGPUs(), 0);
 
     Resource headroom = Resources.createResource(
         Math.min(maxAvailable.getMemorySize(), queueAvailableMemory),
-        maxAvailable.getVirtualCores(),
+        Math.min(maxAvailable.getVirtualCores(), queueAvailableVCores),
         Math.min(maxAvailable.getGPUs(), queueAvailableGPU));
     return headroom;
   }
