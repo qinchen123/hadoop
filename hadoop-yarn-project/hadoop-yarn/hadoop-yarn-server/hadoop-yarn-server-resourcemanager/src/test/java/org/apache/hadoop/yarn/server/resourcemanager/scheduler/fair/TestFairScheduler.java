@@ -484,14 +484,14 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     scheduler.handle(updateEvent);
     scheduler.handle(updateEvent);
     scheduler.handle(updateEvent);
-
+    LOG.info("testFairShareWithLowMaxResources:exit");
     // App 1 should be running with 1 container
     assertEquals("App 1 is not running with the correct number of containers",
         1, scheduler.getSchedulerApp(attId1).getLiveContainers().size());
     // App 2 should be running with 3 containers
     assertEquals("App 2 is not running with the correct number of containers",
         3, scheduler.getSchedulerApp(attId2).getLiveContainers().size());
-    LOG.info("testFairShareWithLowMaxResources:exit");
+
   }
 
   /**
@@ -1553,10 +1553,9 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     FSAppAttempt app2 = scheduler.getSchedulerApp(attId2);
     scheduler.update();
     scheduler.handle(updateEvent);
+    LOG.info("testRequestAMResourceInZeroFairShareQueue: exit");
     assertEquals("Application 2 should be running",
             1, app2.getLiveContainers().size());
-
-    LOG.info("testRequestAMResourceInZeroFairShareQueue: exit");
     // A managed AM which need 1G memory will get resource, even thought its
     // fair share is 0 because its weight is tiny(0.000001).
     ApplicationAttemptId attId3 = createAppAttemptId(3, 1);
@@ -4069,10 +4068,11 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     // so the AM is accepted.
     ApplicationAttemptId attId1 = createAppAttemptId(1, 1);
     createApplicationWithAMResource(attId1, "queue1", "test1", amResource1);
-    createSchedulingRequestExistingApplication(1024, 1, 1, amPriority, attId1);
+    createSchedulingRequestExistingApplication(1024, 1, 0, amPriority, attId1);
     FSAppAttempt app1 = scheduler.getSchedulerApp(attId1);
     scheduler.update();
     scheduler.handle(updateEvent);
+    LOG.info("testQueueMaxAMShareDefault: exit");
     assertEquals("Application1's AM requests 1024 MB memory",
         1024, app1.getAMResource().getMemorySize());
     assertEquals("Application1's AM should be running",
@@ -4080,7 +4080,6 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     assertEquals("Queue1's AM resource usage should be 1024 MB memory",
         1024, queue1.getAmResourceUsage().getMemorySize());
 
-    LOG.info("testQueueMaxAMShareDefault: exit");
 
     // Now the fair share is 1639 MB, and the maxAMShare is 0.4f,
     // so the AM is not accepted.
@@ -4272,14 +4271,13 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     scheduler.update();
     // Allocate app4's AM container on node3.
     scheduler.handle(updateE3);
+    LOG.info("testQueueMaxAMShareWithContainerReservation: exit");
     assertEquals("Application4's AM requests 5120 MB memory",
         5120, app4.getAMResource().getMemorySize());
     assertEquals("Application4's AM should be running",
         1, app4.getLiveContainers().size());
     assertEquals("Queue1's AM resource usage should be 7168 MB memory",
         7168, queue1.getAmResourceUsage().getMemorySize());
-
-    LOG.info("testQueueMaxAMShareWithContainerReservation: exit");
 
     AppAttemptRemovedSchedulerEvent appRemovedEvent1 =
         new AppAttemptRemovedSchedulerEvent(attId1,
@@ -4682,7 +4680,6 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     scheduler.start();
     scheduler.reinitialize(conf, resourceManager.getRMContext());
 
-    LOG.info("testResourceUsageByMoveApp entry");
     RMNode node1 = MockNodes.newNodeInfo(
         1, Resources.createResource(1 * GB, 8, 4, 0xF), 1, "127.0.0.1");
     NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
@@ -4712,7 +4709,6 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     Assert.assertEquals(queue2.getResourceUsage().getMemorySize(), 1 * GB);
     Assert.assertEquals(parent1.getResourceUsage().getMemorySize(), 0);
     Assert.assertEquals(queue1.getResourceUsage().getMemorySize(), 0);
-    LOG.info("testResourceUsageByMoveApp exit");
   }
     
   @Test (expected = YarnException.class)

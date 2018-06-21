@@ -211,7 +211,7 @@ public class FairSharePolicy extends SchedulingPolicy {
 
     Resource headroom = Resources.createResource(
         Math.min(maxAvailable.getMemorySize(), queueAvailableMemory),
-        Math.min(maxAvailable.getVirtualCores(),queueAvailableVcores),
+        Math.min(maxAvailable.getVirtualCores(), queueAvailableVcores),
         Math.min(maxAvailable.getGPUs(), queueAvailableGPU));
     return headroom;
   }
