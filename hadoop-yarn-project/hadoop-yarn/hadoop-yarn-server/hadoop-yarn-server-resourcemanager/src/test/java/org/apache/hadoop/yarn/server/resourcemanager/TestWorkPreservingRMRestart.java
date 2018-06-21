@@ -152,7 +152,7 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
       DominantResourceCalculator.class.getName());
 
     int containerMemory = 1024;
-    Resource containerResource = Resource.newInstance(containerMemory, 1, 1, 1);
+    Resource containerResource = Resource.newInstance(containerMemory, 1);
 
     rm1 = new MockRM(conf);
     rm1.start();
@@ -315,7 +315,7 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
     // 1. Set up dynamic reservable queue.
     Configuration schedulerConf = getSchedulerDynamicConfiguration();
     int containerMemory = 1024;
-    Resource containerResource = Resource.newInstance(containerMemory, 1, 1);
+    Resource containerResource = Resource.newInstance(containerMemory, 1);
 
     rm1 = new MockRM(schedulerConf);
     rm1.start();
@@ -508,8 +508,8 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
     // ************ check queue metrics ****************
     QueueMetrics queueMetrics = scheduler.getRootQueueMetrics();
     assertMetrics(queueMetrics, 1, 0, 1, 0, 2, (int)availableResources.getMemorySize(),
-        availableResources.getVirtualCores(), availableResources.getGPUs(), (int)usedResources.getMemorySize(),
-        usedResources.getVirtualCores(), usedResources.getGPUs());
+        availableResources.getVirtualCores(), (int)usedResources.getMemorySize(),
+        usedResources.getVirtualCores(), usedResources.getVirtualCores(), usedResources.getGPUs());
 
     // ************ check AM resources ****************
     assertEquals(amResources,
