@@ -188,7 +188,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
 
   private void writeResourceParams(PrintWriter out) {
     if (!fairsharePreemption) {
-      out.println("<minResources>4096mb,4vcores,4gpus</minResources>");
+      out.println("<minResources>4096mb,4vcores</minResources>");
     }
   }
 
@@ -203,8 +203,8 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
 
     // Create and add two nodes to the cluster, with capacities
     // disproportional to the container requests.
-    addNode(NODE_CAPACITY_MULTIPLE * GB, 3 * NODE_CAPACITY_MULTIPLE, 3 * NODE_CAPACITY_MULTIPLE);
-    addNode(NODE_CAPACITY_MULTIPLE * GB, 3 * NODE_CAPACITY_MULTIPLE, 3 * NODE_CAPACITY_MULTIPLE);
+    addNode(NODE_CAPACITY_MULTIPLE * GB, 3 * NODE_CAPACITY_MULTIPLE, 0);
+    addNode(NODE_CAPACITY_MULTIPLE * GB, 3 * NODE_CAPACITY_MULTIPLE, 0);
 
     // Reinitialize the scheduler so DRF policy picks up cluster capacity
     // TODO (YARN-6194): One shouldn't need to call this
@@ -237,7 +237,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
   private void takeAllResources(String queueName) {
     // Create an app that takes up all the resources on the cluster
     ApplicationAttemptId appAttemptId
-        = createSchedulingRequest(GB, 1, 1, queueName, "default",
+        = createSchedulingRequest(GB, 1, 0, queueName, "default",
         NODE_CAPACITY_MULTIPLE * rmNodes.size());
     greedyApp = scheduler.getSchedulerApp(appAttemptId);
     scheduler.update();
@@ -260,7 +260,7 @@ public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
   private void preemptHalfResources(String queueName)
       throws InterruptedException {
     ApplicationAttemptId appAttemptId
-        = createSchedulingRequest(2 * GB, 2, 2, queueName, "default",
+        = createSchedulingRequest(2 * GB, 2, 0, queueName, "default",
         NODE_CAPACITY_MULTIPLE * rmNodes.size() / 2);
     starvingApp = scheduler.getSchedulerApp(appAttemptId);
 
