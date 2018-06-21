@@ -71,7 +71,7 @@ public class TestFairSchedulerConfiguration {
     assertEquals(BuilderUtils.newResource(1024, 2, 2),
         parseResourceConfigValue("50% Memory, 50% CpU, 50% GPUs").
             getResource(clusterResource));
-    assertEquals(BuilderUtils.newResource(1024, 2),
+    assertEquals(BuilderUtils.newResource(1024, 2, 2),
         parseResourceConfigValue("50%").getResource(clusterResource));
     assertEquals(BuilderUtils.newResource(1024, 4),
         parseResourceConfigValue("50% memory, 100% cpu").
