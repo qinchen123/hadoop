@@ -513,7 +513,7 @@ public class FSLeafQueue extends FSQueue {
     Resource maxAMResource = computeMaxAMResource();
     getMetrics().setMaxAMShare(maxAMResource);
     Resource ifRunAMResource = Resources.add(amResourceUsage, amResource);
-    return Resources.lessThan(scheduler.getResourceCalculator(), null, ifRunAMResource, maxAMResource);
+    return Resources.fitsIn(ifRunAMResource, maxAMResource);
   }
 
   void addAMResourceUsage(Resource amResource) {
