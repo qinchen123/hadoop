@@ -196,7 +196,8 @@ public class TestFairScheduler extends FairSchedulerTestBase {
     }
 
     conf = new YarnConfiguration();
-
+    conf.setInt(YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS, 1);
+    conf.setInt(YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_GPUS, 2);
     try {
       scheduler.serviceInit(conf);
       fail("Exception is expected because the min gpus allocation is" +

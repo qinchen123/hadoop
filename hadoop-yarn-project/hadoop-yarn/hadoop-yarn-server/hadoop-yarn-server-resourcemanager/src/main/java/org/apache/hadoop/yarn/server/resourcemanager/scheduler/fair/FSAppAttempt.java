@@ -52,7 +52,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerUtils;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.PendingAsk;
 import org.apache.hadoop.yarn.server.scheduler.SchedulerRequestKey;
 import org.apache.hadoop.yarn.server.utils.BuilderUtils;
-import org.apache.hadoop.yarn.util.resource.GPUResourceCalculator;
+import org.apache.hadoop.yarn.util.resource.DefaultResourceCalculator;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
 /**
@@ -64,8 +64,8 @@ public class FSAppAttempt extends SchedulerApplicationAttempt
     implements Schedulable {
 
   private static final Log LOG = LogFactory.getLog(FSAppAttempt.class);
-  private static final GPUResourceCalculator RESOURCE_CALCULATOR
-      = new GPUResourceCalculator();
+  private static final DefaultResourceCalculator RESOURCE_CALCULATOR
+      = new DefaultResourceCalculator();
 
   private final long startTime;
   private final Priority appPriority;

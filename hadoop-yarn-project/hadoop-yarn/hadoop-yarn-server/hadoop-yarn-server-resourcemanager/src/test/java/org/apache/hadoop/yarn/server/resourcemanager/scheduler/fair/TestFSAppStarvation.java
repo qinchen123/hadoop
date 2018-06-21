@@ -271,7 +271,7 @@ public class TestFSAppStarvation extends FairSchedulerTestBase {
 
   private void submitAppsToEachLeafQueue() {
     for (String queue : QUEUES) {
-      createSchedulingRequest(1024, 1, 1,  "root." + queue, "user", 1);
+      createSchedulingRequest(1024, 1, 0,  "root." + queue, "user", 1);
     }
     scheduler.update();
   }
