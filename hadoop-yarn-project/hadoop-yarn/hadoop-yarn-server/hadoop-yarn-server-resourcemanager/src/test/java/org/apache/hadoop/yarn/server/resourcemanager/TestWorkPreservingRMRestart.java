@@ -982,7 +982,7 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
         new MockNM("127.1.1.1:4321", 8192, rm2.getResourceTrackerService());
     NMContainerStatus previousAttemptContainer =
         TestRMRestart.createNMContainerStatus(am1.getApplicationAttemptId(), 4,
-          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL, 8);
+          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL);
     nm2.registerNode(Arrays.asList(previousAttemptContainer), null);
     // Wait for RM to settle down on recovering containers;
     Thread.sleep(3000);
