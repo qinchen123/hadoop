@@ -308,6 +308,11 @@ public class Resources {
     if (lhs.getVirtualCores() < 0) {
       lhs.setVirtualCores(0);
     }
+
+    if (lhs.getGPUs() < 0) {
+      lhs.setGPUs(0);
+    }
+
     return lhs;
   }
 
