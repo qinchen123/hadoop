@@ -528,11 +528,10 @@ public class TestReservationSystemWithRMHA extends RMHATestBase {
         rm.getRMContext().getReservationSystem().synchronizePlan(planName,
             false);
         if (rm.getResourceScheduler()
-            .getQueueInfo(reservationId.toString(), false, false)
+            .getQueueInfo(planName, false, false)
             .getCapacity() > 0f) {
           break;
         }
-        LOG.info("Waiting for reservation to be active");
         Thread.sleep(100);
       } while (attempts-- > 0);
       if (attempts <= 0) {
