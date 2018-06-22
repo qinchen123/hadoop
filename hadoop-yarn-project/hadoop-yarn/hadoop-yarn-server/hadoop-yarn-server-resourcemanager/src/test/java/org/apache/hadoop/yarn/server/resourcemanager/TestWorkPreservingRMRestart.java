@@ -19,6 +19,8 @@
 package org.apache.hadoop.yarn.server.resourcemanager;
 
 import com.google.common.base.Supplier;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
@@ -105,6 +107,7 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase {
 
+  private static final Log LOG = LogFactory.getLog(TestWorkPreservingRMRestart.class);
   private YarnConfiguration conf;
   MockRM rm1 = null;
   MockRM rm2 = null;
@@ -156,6 +159,8 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
 
     rm1 = new MockRM(conf);
     rm1.start();
+
+    LOG.info("containerResource:" + containerResource);
     MockNM nm1 =
         new MockNM("127.0.0.1:1234", 8192, rm1.getResourceTrackerService());
     nm1.registerNode();
@@ -205,6 +210,9 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
     AbstractYarnScheduler scheduler =
         (AbstractYarnScheduler) rm2.getResourceScheduler();
     SchedulerNode schedulerNode1 = scheduler.getSchedulerNode(nm1.getNodeId());
+
+    LOG.info("schedulerNode1:" + schedulerNode1.getUnallocatedResource());
+
     assertTrue(
         "SchedulerNode#toString is not in expected format",
         schedulerNode1
@@ -227,6 +235,8 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
       .getContainerId()));
     // 2 launched containers, 1 completed container
     assertEquals(2, schedulerNode1.getNumContainers());
+
+    LOG.info("schedulerNode1:" + schedulerNode1.getUnallocatedResource());
 
     assertEquals(Resources.subtract(nmResource, usedResources),
       schedulerNode1.getUnallocatedResource());
