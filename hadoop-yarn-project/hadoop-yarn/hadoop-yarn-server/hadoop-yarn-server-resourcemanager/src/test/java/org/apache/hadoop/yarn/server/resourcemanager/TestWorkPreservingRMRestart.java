@@ -547,13 +547,13 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
         new ArrayList<NMContainerStatus>();
     NMContainerStatus amContainer =
         TestRMRestart.createNMContainerStatus(am.getApplicationAttemptId(), 1,
-          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL, 1);
+          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL);
     NMContainerStatus runningContainer =
         TestRMRestart.createNMContainerStatus(am.getApplicationAttemptId(), 2,
-          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL, 2);
+          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL);
     NMContainerStatus completedContainer =
         TestRMRestart.createNMContainerStatus(am.getApplicationAttemptId(), 3,
-          ContainerState.COMPLETE, RMNodeLabelsManager.NO_LABEL, 4);
+          ContainerState.COMPLETE, RMNodeLabelsManager.NO_LABEL);
     list.add(amContainer);
     list.add(runningContainer);
     list.add(completedContainer);
@@ -957,13 +957,13 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
 
     NMContainerStatus amContainer =
         TestRMRestart.createNMContainerStatus(am1.getApplicationAttemptId(), 1,
-          ContainerState.COMPLETE, RMNodeLabelsManager.NO_LABEL, 1);
+          ContainerState.COMPLETE, RMNodeLabelsManager.NO_LABEL);
     NMContainerStatus runningContainer =
         TestRMRestart.createNMContainerStatus(am1.getApplicationAttemptId(), 2,
-          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL, 2);
+          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL);
     NMContainerStatus completedContainer =
         TestRMRestart.createNMContainerStatus(am1.getApplicationAttemptId(), 3,
-          ContainerState.COMPLETE, RMNodeLabelsManager.NO_LABEL, 4);
+          ContainerState.COMPLETE, RMNodeLabelsManager.NO_LABEL);
     nm1.registerNode(Arrays.asList(amContainer, runningContainer,
       completedContainer), null);
     rm2.waitForState(am1.getApplicationAttemptId(), RMAppAttemptState.FAILED);
