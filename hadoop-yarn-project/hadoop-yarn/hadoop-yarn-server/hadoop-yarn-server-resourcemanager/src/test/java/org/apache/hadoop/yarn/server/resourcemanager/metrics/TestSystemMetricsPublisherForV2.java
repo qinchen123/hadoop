@@ -219,7 +219,7 @@ public class TestSystemMetricsPublisherForV2 {
     File appFile = new File(outputDirApp, timelineServiceFileName);
     Assert.assertTrue(appFile.exists());
     verifyEntity(
-        appFile, 3, ApplicationMetricsConstants.CREATED_EVENT_TYPE, 8, 0);
+        appFile, 3, ApplicationMetricsConstants.CREATED_EVENT_TYPE, 9, 0);
   }
 
   @Test(timeout = 10000)
