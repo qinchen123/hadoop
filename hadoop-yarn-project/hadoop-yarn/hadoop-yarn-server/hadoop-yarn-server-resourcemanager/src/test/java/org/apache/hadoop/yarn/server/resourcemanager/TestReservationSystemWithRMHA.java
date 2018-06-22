@@ -528,7 +528,7 @@ public class TestReservationSystemWithRMHA extends RMHATestBase {
         rm.getRMContext().getReservationSystem().synchronizePlan(planName,
             false);
         if (rm.getResourceScheduler()
-            .getQueueInfo(planName, false, false)
+            .getQueueInfo(reservationId.toString(), false, false)
             .getCapacity() > 0f) {
           break;
         }

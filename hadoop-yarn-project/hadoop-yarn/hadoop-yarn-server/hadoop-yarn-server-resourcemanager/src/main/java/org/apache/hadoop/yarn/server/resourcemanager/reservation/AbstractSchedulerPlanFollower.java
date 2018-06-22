@@ -91,6 +91,9 @@ public abstract class AbstractSchedulerPlanFollower implements PlanFollower {
     Resource clusterResources = scheduler.getClusterResource();
     Resource planResources =
         getPlanResources(plan, planQueue, clusterResources);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("clusterResources: " + clusterResources + " planResources:" + planResources);
+    }
     Set<ReservationAllocation> currentReservations =
         plan.getReservationsAtTime(now);
     Set<String> curReservationNames = new HashSet<String>();
@@ -161,8 +164,7 @@ public abstract class AbstractSchedulerPlanFollower implements PlanFollower {
         Resource capToAssign = res.getResourcesAtTime(now);
         float targetCapacity = 0f;
         if (planResources.getMemorySize() > 0
-            && planResources.getVirtualCores() > 0
-            && planResources.getGPUs() > 0) {
+            && planResources.getVirtualCores() > 0) {
           if (shouldResize) {
             capToAssign = calculateReservationToPlanProportion(
                 plan.getResourceCalculator(), planResources, reservedResources,
