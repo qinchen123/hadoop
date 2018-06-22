@@ -181,19 +181,19 @@ public class TestWorkPreservingRMRestart extends ParameterizedSchedulerTestBase 
     RMAppAttempt loadedAttempt1 = recoveredApp1.getCurrentAppAttempt();
     NMContainerStatus amContainer =
         TestRMRestart.createNMContainerStatus(am1.getApplicationAttemptId(), 1,
-          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL, 1);
+          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL);
 
     LOG.info("amContainer:" + amContainer);
 
     NMContainerStatus runningContainer =
         TestRMRestart.createNMContainerStatus(am1.getApplicationAttemptId(), 2,
-          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL, 2);
+          ContainerState.RUNNING, RMNodeLabelsManager.NO_LABEL);
 
     LOG.info("runningContainer:" + amContainer);
 
     NMContainerStatus completedContainer =
         TestRMRestart.createNMContainerStatus(am1.getApplicationAttemptId(), 3,
-          ContainerState.COMPLETE, RMNodeLabelsManager.NO_LABEL, 4);
+          ContainerState.COMPLETE, RMNodeLabelsManager.NO_LABEL);
 
     LOG.info("completedContainer:" + amContainer);
 
