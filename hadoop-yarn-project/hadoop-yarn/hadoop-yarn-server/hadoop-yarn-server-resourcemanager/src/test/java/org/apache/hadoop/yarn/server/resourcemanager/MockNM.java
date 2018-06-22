@@ -308,6 +308,7 @@ public class MockNM {
   public String getVersion() {
     return version;
   }
+
   public int getGPUs() {
     return GPUs;
   }
