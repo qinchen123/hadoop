@@ -65,7 +65,7 @@ public class TestProtocolRecords {
     final Resource r = Resource.newInstance(mem, vcores);
     // should be a lightweight SimpleResource which is a private inner class
     // so just verify it's not the heavyweight pb impl.
-    Assert.assertFalse(r instanceof ResourcePBImpl);
+    Assert.assertTrue(r instanceof ResourcePBImpl);
     Assert.assertEquals(mem, r.getMemorySize());
     Assert.assertEquals(vcores, r.getVirtualCores());
 
