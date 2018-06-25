@@ -23,6 +23,7 @@ import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.classification.InterfaceStability.Stable;
 import org.apache.hadoop.yarn.api.ApplicationMasterProtocol;
+import org.apache.hadoop.yarn.util.Records;
 
 
 /**
@@ -52,77 +53,16 @@ import org.apache.hadoop.yarn.api.ApplicationMasterProtocol;
 @Stable
 public abstract class Resource implements Comparable<Resource> {
 
-  private static class SimpleResource extends Resource {
-    private long memory;
-    private long vcores;
-    private int GPUs;
-    private long GPUAttribute;
-    ValueRanges ports;
-
-    SimpleResource(long memory, long vcores) {
-      this.memory = memory;
-      this.vcores = vcores;
-    }
-    @Override
-    public int getMemory() {
-      return castToIntSafely(memory);
-    }
-    @Override
-    public void setMemory(int memory) {
-      this.memory = memory;
-    }
-    @Override
-    public long getMemorySize() {
-      return memory;
-    }
-    @Override
-    public void setMemorySize(long memory) {
-      this.memory = memory;
-    }
-    @Override
-    public int getVirtualCores() {
-      return castToIntSafely(vcores);
-    }
-    @Override
-    public void setVirtualCores(int vcores) {
-      this.vcores = vcores;
-    }
-    @Override
-    public int getGPUs() {
-      return GPUs;
-    }
-    @Override
-    public void setGPUs(int GPUs) {
-      this.GPUs = GPUs;
-    }
-    @Override
-    public long getGPUAttribute() {
-      return GPUAttribute;
-    }
-    @Override
-    public void setGPUAttribute(long GPUAttribute) {
-      this.GPUAttribute = GPUAttribute;
-    }
-    @Override
-    public ValueRanges getPorts() {
-      return ports;
-    }
-    @Override
-    public void setPorts(ValueRanges ports) {
-      this.ports = ports;
-    }
-  }
-
   @Public
   @Stable
   public static Resource newInstance(int memory, int vCores) {
-    return new SimpleResource(memory, vCores);
+    return newInstance(memory, vCores, 0, 0, null);
   }
 
   @Public
   @Stable
   public static Resource newInstance(long memory, int vCores) {
-    return new SimpleResource(memory, vCores);
+    return newInstance(memory, vCores, 0, 0, null);
   }
 
   @Public
@@ -146,7 +86,7 @@ public abstract class Resource implements Comparable<Resource> {
   @Public
   @Stable
   public static Resource newInstance(long memory, int vCores, int GPUs, long GPUAttribute, ValueRanges ports) {
-    SimpleResource resource = new SimpleResource(memory, vCores);
+    Resource resource = Records.newRecord(Resource.class);
     resource.setMemorySize(memory);
     resource.setVirtualCores(vCores);
     resource.setGPUs(GPUs);
