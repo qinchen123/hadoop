@@ -351,7 +351,7 @@ public class ProportionalCapacityPreemptionPolicy
           }
 
           if (LOG.isDebugEnabled()) {
-            LOG.debug("raise MARK_CONTAINER_FOR_PREEMPTION" + appAttemptId
+            LOG.debug("raise MARK_CONTAINER_FOR_PREEMPTION:" + appAttemptId
                 + " #container=" + container + "  currentTime=" + currentTime + " maxWaitTime:" + maxWaitTime);
           }
 
@@ -458,7 +458,7 @@ public class ProportionalCapacityPreemptionPolicy
       long startTime = 0;
       if (LOG.isDebugEnabled()) {
         LOG.debug(MessageFormat
-            .format("Trying to use {0} to select preemption candidates",
+            .format("Trying to use {0} to select preemption candidates  + clusterResources:" + clusterResources + " totalPreemptionAllowed:" + totalPreemptionAllowed,
                 selector.getClass().getName()));
         startTime = clock.getTime();
       }
