@@ -148,6 +148,11 @@ public class TestAMRMClient {
         YarnConfiguration.OPPORTUNISTIC_CONTAINER_ALLOCATION_ENABLED, true);
     conf.setInt(
         YarnConfiguration.NM_OPPORTUNISTIC_CONTAINERS_MAX_QUEUE_LENGTH, 10);
+    conf.setInt(
+        YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_GPUS, 8);
+    conf.setInt(
+        YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES, 8);
+
     yarnCluster = new MiniYARNCluster(TestAMRMClient.class.getName(), nodeCount, 1, 1);
     yarnCluster.init(conf);
     yarnCluster.start();
