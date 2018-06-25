@@ -330,6 +330,10 @@ public class ProportionalCapacityPreemptionPolicy
             && preemptionCandidates.get(container)
                 + maxWaitTime <= currentTime) {
           // kill it
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("kill container: in app=" + appAttemptId
+                + " #container=" + container);
+          }
           rmContext.getDispatcher().getEventHandler().handle(
               new ContainerPreemptEvent(appAttemptId, container,
                   SchedulerEventType.MARK_CONTAINER_FOR_KILLABLE));
@@ -338,7 +342,17 @@ public class ProportionalCapacityPreemptionPolicy
           if (preemptionCandidates.get(container) != null) {
             // We already updated the information to scheduler earlier, we need
             // not have to raise another event.
+            // kill it
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("already raised, skip this time: in app=" + appAttemptId
+                  + " #container=" + container);
+            }
             continue;
+          }
+
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("raise MARK_CONTAINER_FOR_PREEMPTION" + appAttemptId
+                + " #container=" + container + "  currentTime=" + currentTime + " maxWaitTime:" + maxWaitTime);
           }
 
           //otherwise just send preemption events
