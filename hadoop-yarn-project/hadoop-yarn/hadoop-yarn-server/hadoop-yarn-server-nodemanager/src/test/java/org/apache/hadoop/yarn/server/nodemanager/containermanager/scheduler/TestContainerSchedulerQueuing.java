@@ -961,7 +961,7 @@ public class TestContainerSchedulerQueuing extends BaseContainerManagerTest {
 
     ContainerLaunchContext containerLaunchContext =
         recordFactory.newRecordInstance(ContainerLaunchContext.class);
-
+    LOG.debug("testKillOnlyRequiredOpportunisticContainers:enter");
     List<StartContainerRequest> list = new ArrayList<>();
     // Fill NM with Opportunistic containers
     for (int i = 0; i < 4; i++) {
@@ -1016,6 +1016,7 @@ public class TestContainerSchedulerQueuing extends BaseContainerManagerTest {
       System.out.println("\nStatus : [" + status + "]\n");
     }
 
+    LOG.debug("testKillOnlyRequiredOpportunisticContainers");
     Assert.assertEquals(2, killedContainers);
   }
 
