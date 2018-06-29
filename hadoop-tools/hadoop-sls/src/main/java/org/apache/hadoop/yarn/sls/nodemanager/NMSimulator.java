@@ -134,6 +134,7 @@ public class NMSimulator extends TaskRunner.Task {
     ns.setKeepAliveApplications(new ArrayList<ApplicationId>());
     ns.setResponseId(RESPONSE_ID ++);
     ns.setNodeHealthStatus(NodeHealthStatus.newInstance(true, "", 0));
+    ns.setResource(node.getTotalCapability());
     beatRequest.setNodeStatus(ns);
     NodeHeartbeatResponse beatResponse =
         rm.getResourceTrackerService().nodeHeartbeat(beatRequest);

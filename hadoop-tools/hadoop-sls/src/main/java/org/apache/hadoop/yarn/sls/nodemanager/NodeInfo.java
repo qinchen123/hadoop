@@ -83,6 +83,7 @@ public class NodeInfo {
       toCleanUpApplications = new ArrayList<ApplicationId>();
       toCleanUpContainers = new ArrayList<ContainerId>();
       runningApplications = new ArrayList<ApplicationId>();
+
     }
 
     public NodeId getNodeID() {

@@ -303,7 +303,7 @@ public class TestDistCpViewFs {
 
       runTest(listFile, target, false, false);
 
-      checkResult(target, 2, "multifile/file3", "multifile/file4", "multifile/file5",
+      checkResult(target, 3, "multifile/file3", "multifile/file4", "multifile/file5",
           "singledir/dir2/file6");
     } finally {
       TestDistCpUtils.delete(fs, root);
@@ -323,7 +323,7 @@ public class TestDistCpViewFs {
 
       runTest(listFile, target, false, true);
 
-      checkResult(target, 4, "file3", "file4", "file5", "dir2/file6");
+      checkResult(target, 5, "file3", "file4", "file5", "dir2/file6");
     } finally {
       TestDistCpUtils.delete(fs, root);
       TestDistCpUtils.delete(fs, "target/tmp1");
@@ -343,7 +343,7 @@ public class TestDistCpViewFs {
 
       runTest(listFile, target, false, false);
 
-      checkResult(target, 4, "file3", "file4", "file5",
+      checkResult(target, 5, "file3", "file4", "file5",
           "dir3/file7", "dir3/file8", "dir3/file9");
     } finally {
       TestDistCpUtils.delete(fs, root);
@@ -364,7 +364,7 @@ public class TestDistCpViewFs {
 
       runTest(listFile, target, false, true);
 
-      checkResult(target, 6, "file3", "file4", "file5",
+      checkResult(target, 8, "file3", "file4", "file5",
           "file7", "file8", "file9");
     } finally {
       TestDistCpUtils.delete(fs, root);
