@@ -75,7 +75,7 @@ public class NodeLabelsPage extends RmView {
         } else {
           row = row.td(String.valueOf(nActiveNMs));
         }
-        row.td(info.getResource().toString())._();
+        row.td(info.getResource().toNoAttributeString())._();
       }
       tbody._()._();
     }

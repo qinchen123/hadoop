@@ -77,23 +77,26 @@ class NodesPage extends RmView {
               .th(".nodeaddress", "Node Address")
               .th(".nodehttpaddress", "Node HTTP Address")
               .th(".lastHealthUpdate", "Last health-update")
-              .th(".healthReport", "Health-report")
-              .th(".GPUs", "GPUs Used")
-              .th(".GPUs", "GPUs Avail")
-              .th(".GPUs", "GPUs Avail attribute");
+              .th(".healthReport", "Health-report");
 
       if (!this.opportunisticContainersEnabled) {
         trbody.th(".containers", "Containers")
             .th(".mem", "Mem Used")
             .th(".mem", "Mem Avail")
             .th(".vcores", "VCores Used")
-            .th(".vcores", "VCores Avail");
+            .th(".vcores", "VCores Avail")
+            .th(".GPUs", "GPUs Used")
+            .th(".GPUs", "GPUs Avail")
+            .th(".GPUs", "GPUs Avail attribute");
       } else {
         trbody.th(".containers", "Running Containers (G)")
             .th(".mem", "Mem Used (G)")
             .th(".mem", "Mem Avail (G)")
             .th(".vcores", "VCores Used (G)")
             .th(".vcores", "VCores Avail (G)")
+            .th(".GPUs", "GPUs Used")
+            .th(".GPUs", "GPUs Avail")
+            .th(".GPUs", "GPUs Avail attribute")
             .th(".containers", "Running Containers (O)")
             .th(".mem", "Mem Used (O)")
             .th(".vcores", "VCores Used (O)")
@@ -184,9 +187,6 @@ class NodesPage extends RmView {
             .append(String.valueOf(info.getLastHealthUpdate())).append("'>")
             .append(Times.format(info.getLastHealthUpdate())).append("\",\"")
             .append(info.getHealthReport()).append("\",\"")
-            .append(String.valueOf(info.getUsedGPUs()))
-            .append(String.valueOf(info.getAvailableGPUs()))
-            .append(gpuAttribute)
             .append(String.valueOf(info.getNumContainers())).append("\",\"")
             .append("<br title='").append(String.valueOf(usedMemory))
             .append("'>").append(StringUtils.byteDesc(usedMemory * BYTES_IN_MB))
@@ -196,6 +196,11 @@ class NodesPage extends RmView {
             .append("\",\"").append(String.valueOf(info.getUsedVirtualCores()))
             .append("\",\"")
             .append(String.valueOf(info.getAvailableVirtualCores()))
+            .append("\",\"")
+            .append(String.valueOf(info.getUsedGPUs())).append("\",\"")
+            .append(String.valueOf(info.getAvailableGPUs()))
+            .append("\",\"")
+            .append(gpuAttribute)
             .append("\",\"");
 
         // If opportunistic containers are enabled, add extra fields.

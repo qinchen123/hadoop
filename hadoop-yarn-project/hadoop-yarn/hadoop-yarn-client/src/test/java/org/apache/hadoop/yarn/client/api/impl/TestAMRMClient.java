@@ -939,7 +939,7 @@ public class TestAMRMClient {
 
     // add exp=x then add exp=a to ANY in same priority, only exp=a should kept
     client.addContainerRequest(new ContainerRequest(Resource.newInstance(1024,
-        1, 1), null, null, Priority.UNDEFINED, true, "x"));
+        1), null, null, Priority.UNDEFINED, true, "x"));
     client.addContainerRequest(new ContainerRequest(Resource.newInstance(1024,
         1), null, null, Priority.UNDEFINED, true, "a"));
     assertEquals(1, client.ask.size());

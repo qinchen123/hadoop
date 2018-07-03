@@ -75,11 +75,6 @@ public class MetricsOverviewTable extends HtmlBlock {
         th().$class("ui-state-default")._("GPUs Used")._().
         th().$class("ui-state-default")._("GPUs Total")._().
         th().$class("ui-state-default")._("GPUs Reserved")._().
-        th().$class("ui-state-default")._("Active Nodes")._().
-        th().$class("ui-state-default")._("Decommissioned Nodes")._().
-        th().$class("ui-state-default")._("Lost Nodes")._().
-        th().$class("ui-state-default")._("Unhealthy Nodes")._().
-        th().$class("ui-state-default")._("Rebooted Nodes")._().
       _().
     _().
     tbody().$class("ui-widget-content").
@@ -100,6 +95,9 @@ public class MetricsOverviewTable extends HtmlBlock {
         td(String.valueOf(clusterMetrics.getAllocatedVirtualCores())).
         td(String.valueOf(clusterMetrics.getTotalVirtualCores())).
         td(String.valueOf(clusterMetrics.getReservedVirtualCores())).
+        td(String.valueOf(clusterMetrics.getAllocatedGPUs())).
+        td(String.valueOf(clusterMetrics.getTotalGPUs())).
+        td(String.valueOf(clusterMetrics.getReservedGPUs())).
       _().
     _()._();
 
@@ -118,9 +116,6 @@ public class MetricsOverviewTable extends HtmlBlock {
     _().
     tbody().$class("ui-widget-content").
       tr().
-        td(String.valueOf(clusterMetrics.getAllocatedGPUs())).
-        td(String.valueOf(clusterMetrics.getTotalGPUs())).
-        td(String.valueOf(clusterMetrics.getReservedGPUs())).
         td().a(url("nodes"),String.valueOf(clusterMetrics.getActiveNodes()))._().
         td().a(url("nodes/decommissioning"), String.valueOf(clusterMetrics.getDecommissioningNodes()))._().
         td().a(url("nodes/decommissioned"),String.valueOf(clusterMetrics.getDecommissionedNodes()))._().

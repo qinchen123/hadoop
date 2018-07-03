@@ -254,10 +254,11 @@ public class Resources {
     lhs.setGPUs(lhs.getGPUs() + rhs.getGPUs());
 
     if ( (lhs.getGPUAttribute() & rhs.getGPUAttribute()) != 0) {
-      LOG.warn("Resource.addTo: lhs GPU attribute is " +
-          lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute());
+      //LOG.warn("Resource.addTo: lhs GPU attribute is " +
+      //    lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute());
+    } else {
+      lhs.setGPUAttribute(lhs.getGPUAttribute() | rhs.getGPUAttribute());
     }
-    lhs.setGPUAttribute(lhs.getGPUAttribute() | rhs.getGPUAttribute());
 
     if (lhs.getPorts() != null) {
       lhs.setPorts(lhs.getPorts().addSelf(rhs.getPorts()));
@@ -277,11 +278,11 @@ public class Resources {
     lhs.setGPUs(lhs.getGPUs() - rhs.getGPUs());
 
     if ( (lhs.getGPUAttribute() | rhs.getGPUAttribute()) != lhs.getGPUAttribute()) {
-      LOG.warn("Resource.subtractFrom: lhs GPU attribute is " +
-          lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute());
+      //LOG.warn("Resource.subtractFrom: lhs GPU attribute is " +
+      //   lhs.getGPUAttribute() + "; rhs GPU attribute is " + rhs.getGPUAttribute());
+    } else {
+      lhs.setGPUAttribute(lhs.getGPUAttribute() & ~rhs.getGPUAttribute());
     }
-
-    lhs.setGPUAttribute(lhs.getGPUAttribute() & ~rhs.getGPUAttribute());
 
     if (lhs.getPorts() != null) {
       lhs.setPorts(lhs.getPorts().minusSelf(rhs.getPorts()));

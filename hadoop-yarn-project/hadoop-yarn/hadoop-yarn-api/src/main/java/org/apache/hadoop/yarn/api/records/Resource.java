@@ -305,7 +305,12 @@ public abstract class Resource implements Comparable<Resource> {
 
   @Override
   public String toString() {
-      return "<memory:" + getMemory() + ", vCores:" + getVirtualCores() + ", GPUs:" + getGPUs() + ", GPUAttribute:" + getGPUAttribute() + ", ports: " + getPorts() + ">";
+      return "<memory:" + getMemorySize() + ", vCores:" + getVirtualCores() + ", GPUs:" + getGPUs() + ", GPUAttribute:" + getGPUAttribute() + ", ports: " + getPorts() + ">";
+  }
+
+
+  public String toNoAttributeString() {
+    return "<memory:" + getMemorySize() + ", vCores:" + getVirtualCores() + ", GPUs:" + getGPUs() + ">";
   }
 
   /**
