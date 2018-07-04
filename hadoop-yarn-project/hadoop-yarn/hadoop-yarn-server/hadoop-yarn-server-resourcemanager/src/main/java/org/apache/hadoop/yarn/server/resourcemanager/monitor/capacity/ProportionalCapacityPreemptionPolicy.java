@@ -446,7 +446,7 @@ public class ProportionalCapacityPreemptionPolicy
             RMNodeLabelsManager.NO_LABEL)));
 
     // compute total preemption allowed
-    Resource totalPreemptionAllowed = Resources.multiply(clusterResources,
+    Resource totalPreemptionAllowed = Resources.multiplyAndRoundUp(clusterResources,
         percentageClusterPreemptionAllowed);
 
     // based on ideal allocation select containers to be preemptionCandidates from each

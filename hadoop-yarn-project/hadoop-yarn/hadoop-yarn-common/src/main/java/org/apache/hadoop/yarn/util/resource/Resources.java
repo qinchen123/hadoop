@@ -347,7 +347,7 @@ public class Resources {
   }
 
   public static Resource multiplyAndNormalizeUp(
-      ResourceCalculator calculator,Resource lhs, double by, Resource factor) {
+      ResourceCalculator calculator, Resource lhs, double by, Resource factor) {
     return calculator.multiplyAndNormalizeUp(lhs, by, factor);
   }
 
