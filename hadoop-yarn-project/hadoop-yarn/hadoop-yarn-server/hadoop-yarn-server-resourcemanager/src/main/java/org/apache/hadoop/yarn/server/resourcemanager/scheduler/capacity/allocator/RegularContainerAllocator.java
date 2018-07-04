@@ -539,10 +539,11 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
     boolean reservationsContinueLooking =
         application.getCSLeafQueue().getReservationContinueLooking();
 
+    Resource availableAndKillable = Resources.clone(available);
+
     // Check if we need to kill some containers to allocate this one
     List<RMContainer> toKillContainers = null;
     if (availableContainers == 0 && currentResoureLimits.isAllowPreemption()) {
-      Resource availableAndKillable = Resources.clone(available);
       for (RMContainer killableContainer : node
           .getKillableContainers().values()) {
         if (null == toKillContainers) {
@@ -557,11 +558,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
                              availableAndKillable)) {
           // Stop if we find enough spaces
           availableContainers = 1;
-          if(capability.getGPUs() > 0 && capability.getGPUAttribute() == 0) {
-            LOG.info("GPU/Ports allocation request: " + capability + " from availability: " + available);
-            long allocated = Resources.allocateGPUs(capability, available);
-            capability.setGPUAttribute(allocated);
-          }
+
           break;
         }
       }
@@ -571,6 +568,13 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
       // Allocate...
       // We will only do continuous reservation when this is not allocated from
       // reserved container
+
+      if(capability.getGPUs() > 0 && capability.getGPUAttribute() == 0) {
+        LOG.info("GPU/Ports allocation request: " + capability + " from availableAndKillable: " + availableAndKillable);
+        long allocated = Resources.allocateGPUs(capability, availableAndKillable);
+        capability.setGPUAttribute(allocated);
+      }
+
       if (rmContainer == null && reservationsContinueLooking
           && node.getLabels().isEmpty()) {
         // when reservationsContinueLooking is set, we may need to unreserve

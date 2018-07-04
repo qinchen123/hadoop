@@ -127,6 +127,10 @@ public class DominantResourceCalculator extends ResourceCalculator {
       // required ports resource, so we can not allocate more than one container
       num = 1;
     }
+    if (required.getGPUAttribute() > 0 && required.getGPUs() > 0) {
+      // required gpu attribute resource, so we can not allocate more than one container
+      num = 1;
+    }
     num = Math.min(
         (int) Math.min(
             available.getMemorySize() / required.getMemorySize(),
