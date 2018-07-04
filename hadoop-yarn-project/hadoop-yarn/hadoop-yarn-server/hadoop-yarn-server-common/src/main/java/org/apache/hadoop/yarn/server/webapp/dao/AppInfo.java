@@ -61,8 +61,10 @@ public class AppInfo {
   protected int priority;
   private long allocatedCpuVcores;
   private long allocatedMemoryMB;
+  private int allocatedGPUs;
   private long reservedCpuVcores;
   private long reservedMemoryMB;
+  private int reservedGPUs;
   protected boolean unmanagedApplication;
   private String appNodeLabelExpression;
   private String amNodeLabelExpression;
@@ -103,10 +105,14 @@ public class AppInfo {
             .getUsedResources().getVirtualCores();
         allocatedMemoryMB = app.getApplicationResourceUsageReport()
             .getUsedResources().getMemorySize();
+        allocatedGPUs = app.getApplicationResourceUsageReport()
+            .getUsedResources().getGPUs();
         reservedCpuVcores = app.getApplicationResourceUsageReport()
             .getReservedResources().getVirtualCores();
         reservedMemoryMB = app.getApplicationResourceUsageReport()
             .getReservedResources().getMemorySize();
+        reservedGPUs = app.getApplicationResourceUsageReport()
+            .getReservedResources().getGPUs();
       }
     }
     progress = app.getProgress() * 100; // in percent
@@ -166,12 +172,20 @@ public class AppInfo {
     return allocatedMemoryMB;
   }
 
+  public long getAllocatedGPUs() {
+    return allocatedGPUs;
+  }
+
   public long getReservedCpuVcores() {
     return reservedCpuVcores;
   }
 
   public long getReservedMemoryMB() {
     return reservedMemoryMB;
+  }
+
+  public long getReservedGPUs() {
+    return reservedGPUs;
   }
 
   public float getProgress() {

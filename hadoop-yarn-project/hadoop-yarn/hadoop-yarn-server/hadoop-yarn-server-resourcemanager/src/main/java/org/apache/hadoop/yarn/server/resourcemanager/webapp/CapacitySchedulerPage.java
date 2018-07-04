@@ -527,13 +527,13 @@ class CapacitySchedulerPage extends RmView {
         .td(Times.format(healthInfo.getLastSchedulerRunTime()))
         .td(
           healthInfo.getAllocationCount().toString() + " - "
-              + healthInfo.getResourcesAllocated().toString())
+              + healthInfo.getResourcesAllocated().toNoAttributeString())
         .td(
           healthInfo.getReservationCount().toString() + " - "
-              + healthInfo.getResourcesReserved().toString())
+              + healthInfo.getResourcesReserved().toNoAttributeString())
         .td(
           healthInfo.getReleaseCount().toString() + " - "
-              + healthInfo.getResourcesReleased().toString())._()._()._();
+              + healthInfo.getResourcesReleased().toNoAttributeString())._()._()._();
       Map<String, SchedulerHealth.DetailedInformation> info = new HashMap<>();
       info.put("Allocation", healthInfo.getLastAllocationDetails());
       info.put("Reservation", healthInfo.getLastReservationDetails());

@@ -52,6 +52,8 @@ public class ClusterMetricsInfo {
 
   private long totalMB;
   private long totalVirtualCores;
+  private int totalGPUs;
+
   private int totalNodes;
   private int lostNodes;
   private int unhealthyNodes;
@@ -61,10 +63,9 @@ public class ClusterMetricsInfo {
   private int activeNodes;
   private int shutdownNodes;
 
-  private long reservedGPUs;
-  private long availableGPUs;
-  private long allocatedGPUs;
-  private long totalGPUs;
+  private int reservedGPUs;
+  private int availableGPUs;
+  private int allocatedGPUs;
 
   public ClusterMetricsInfo() {
   } // JAXB needs this
@@ -170,15 +171,15 @@ public class ClusterMetricsInfo {
     return this.allocatedVirtualCores;
   }
 
-  public long getReservedGPUs() {
+  public int getReservedGPUs() {
     return this.reservedGPUs;
   }
 
-  public long getAvailableGPUs() {
+  public int getAvailableGPUs() {
     return this.availableGPUs;
   }
 
-  public long getAllocatedGPUs() {
+  public int getAllocatedGPUs() {
     return this.allocatedGPUs;
   }
 
@@ -202,7 +203,7 @@ public class ClusterMetricsInfo {
     return this.totalVirtualCores;
   }
 
-  public long getTotalGPUs() {
+  public int getTotalGPUs() {
     return this.totalGPUs;
   }
 
@@ -294,6 +295,18 @@ public class ClusterMetricsInfo {
     this.allocatedVirtualCores = allocatedVirtualCores;
   }
 
+  public void setReservedGPUs(int reservedGPUs) {
+    this.reservedGPUs = reservedGPUs;
+  }
+
+  public void setAvailableGPUs(int availableGPUs) {
+    this.availableGPUs = availableGPUs;
+  }
+
+  public void setAllocatedGPUs(int allocatedGPUs) {
+    this.allocatedGPUs = allocatedGPUs;
+  }
+
   public void setContainersAllocated(int containersAllocated) {
     this.containersAllocated = containersAllocated;
   }
@@ -304,6 +317,10 @@ public class ClusterMetricsInfo {
 
   public void setTotalVirtualCores(long totalVirtualCores) {
     this.totalVirtualCores = totalVirtualCores;
+  }
+
+  public void setTotalGPUs(int totalGPUs) {
+    this.totalGPUs = totalGPUs;
   }
 
   public void setTotalNodes(int totalNodes) {

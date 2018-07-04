@@ -323,6 +323,8 @@ public final class RouterWebServiceUtil {
         am.getPreemptedResourceMB() + uam.getPreemptedResourceMB());
     am.setPreemptedResourceVCores(
         am.getPreemptedResourceVCores() + uam.getPreemptedResourceVCores());
+    am.setPreemptedResourceGPUs(
+        am.getPreemptedResourceGPUs() + uam.getPreemptedResourceGPUs());
     am.setNumNonAMContainerPreempted(am.getNumNonAMContainerPreempted()
         + uam.getNumNonAMContainerPreempted());
     am.setNumAMContainerPreempted(
@@ -331,6 +333,8 @@ public final class RouterWebServiceUtil {
         am.getPreemptedMemorySeconds() + uam.getPreemptedMemorySeconds());
     am.setPreemptedVcoreSeconds(
         am.getPreemptedVcoreSeconds() + uam.getPreemptedVcoreSeconds());
+    am.setPreemptedGPUSeconds(
+        am.getPreemptedGPUSeconds() + uam.getPreemptedGPUSeconds());
 
     if (am.getState() == YarnApplicationState.RUNNING
         && uam.getState() == am.getState()) {
@@ -339,12 +343,17 @@ public final class RouterWebServiceUtil {
 
       am.setAllocatedMB(am.getAllocatedMB() + uam.getAllocatedMB());
       am.setAllocatedVCores(am.getAllocatedVCores() + uam.getAllocatedVCores());
+      am.setAllocatedGPUs(am.getAllocatedGPUs() + uam.getAllocatedGPUs());
+
       am.setReservedMB(am.getReservedMB() + uam.getReservedMB());
       am.setReservedVCores(am.getReservedVCores() + uam.getReservedMB());
+      am.setReservedGPUs(am.getReservedGPUs() + uam.getReservedGPUs());
+
       am.setRunningContainers(
           am.getRunningContainers() + uam.getRunningContainers());
       am.setMemorySeconds(am.getMemorySeconds() + uam.getMemorySeconds());
       am.setVcoreSeconds(am.getVcoreSeconds() + uam.getVcoreSeconds());
+      am.setGPUSeconds(am.getGPUSeconds() + uam.getGPUSeconds());
     }
   }
 
@@ -411,6 +420,13 @@ public final class RouterWebServiceUtil {
     metrics.setAllocatedVirtualCores(metrics.getAllocatedVirtualCores()
         + metricsResponse.getAllocatedVirtualCores());
 
+    metrics.setReservedGPUs(
+        metrics.getReservedGPUs() + metricsResponse.getReservedGPUs());
+    metrics.setAvailableMB(
+        metrics.getAvailableGPUs() + metricsResponse.getAvailableGPUs());
+    metrics.setAllocatedMB(
+        metrics.getAllocatedGPUs() + metricsResponse.getAllocatedGPUs());
+
     metrics.setContainersAllocated(metrics.getContainersAllocated()
         + metricsResponse.getContainersAllocated());
     metrics.setContainersReserved(metrics.getReservedContainers()
@@ -422,6 +438,8 @@ public final class RouterWebServiceUtil {
         + metricsResponse.getTotalMB());
     metrics.setTotalVirtualCores(metrics.getTotalVirtualCores()
         + metricsResponse.getTotalVirtualCores());
+    metrics.setTotalGPUs(metrics.getTotalGPUs()
+        + metricsResponse.getTotalGPUs());
     metrics.setTotalNodes(metrics.getTotalNodes()
         + metricsResponse.getTotalNodes());
     metrics.setLostNodes(metrics.getLostNodes()
