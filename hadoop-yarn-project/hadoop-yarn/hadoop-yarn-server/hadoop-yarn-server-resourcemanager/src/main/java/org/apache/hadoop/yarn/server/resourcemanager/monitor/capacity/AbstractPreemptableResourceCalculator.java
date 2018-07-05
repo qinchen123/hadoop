@@ -41,7 +41,7 @@ public class AbstractPreemptableResourceCalculator {
   protected final ResourceCalculator rc;
   private boolean isReservedPreemptionCandidatesSelector;
   private static final Log LOG =
-      LogFactory.getLog(PreemptableResourceCalculator.class);
+      LogFactory.getLog(AbstractPreemptableResourceCalculator.class);
 
   static class TQComparator implements Comparator<TempQueuePerPartition> {
     private ResourceCalculator rc;
@@ -128,7 +128,7 @@ public class AbstractPreemptableResourceCalculator {
       Resource used = q.getUsed();
 
       if(LOG.isDebugEnabled()) {
-        LOG.debug("totGuarant:" + totGuarant + " detailQueue:" + q.toString());
+        LOG.debug("totGuarant:" + totGuarant.toNoAttributeString() + " detailQueue:" + q.toString());
       }
 
       if (Resources.greaterThan(rc, totGuarant, used, q.getGuaranteed())) {
@@ -138,7 +138,7 @@ public class AbstractPreemptableResourceCalculator {
       }
 
       if(LOG.isDebugEnabled()) {
-        LOG.debug("totGuarant:" + totGuarant + " detailQueue:" + q.toString());
+        LOG.debug("totGuarant:" + totGuarant.toNoAttributeString() + " detailQueue:" + q.toString());
       }
 
       Resources.subtractFrom(unassigned, q.idealAssigned);
@@ -178,6 +178,9 @@ public class AbstractPreemptableResourceCalculator {
             isReservedPreemptionCandidatesSelector);
         Resource wQdone = Resources.subtract(wQavail, wQidle);
 
+        if(LOG.isDebugEnabled()) {
+          LOG.debug("unassigned:" + unassigned.toNoAttributeString() + " wQavail:" + wQavail + " wQidle:" + wQidle + " qdetailDate:" + sub.toString());
+        }
         if (Resources.greaterThan(rc, totGuarant, wQdone, Resources.none())) {
           // The queue is still asking for more. Put it back in the priority
           // queue, recalculating its order based on need.
@@ -225,7 +228,7 @@ public class AbstractPreemptableResourceCalculator {
             q.getGuaranteed(), activeCap);
 
         if(LOG.isDebugEnabled()) {
-          LOG.debug("activeCap:" + activeCap + " detailQueue:" + q.toString());
+          LOG.debug("activeCap:" + activeCap.toNoAttributeString() + " detailQueue:" + q.toString());
         }
 
       }
