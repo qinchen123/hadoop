@@ -223,14 +223,14 @@ public class TempQueuePerPartition extends AbstractPreemptionEntity {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append(" NAME: " + queueName).append(" CUR: ").append(current)
-        .append(" PEN: ").append(pending).append(" RESERVED: ").append(reserved)
-        .append(" GAR: ").append(getGuaranteed()).append(" NORM: ")
+    sb.append(" NAME: " + queueName).append(" CUR: ").append(current.toNoAttributeString())
+        .append(" PEN: ").append(pending).append(" RESERVED: ").append(reserved.toNoAttributeString())
+        .append(" GAR: ").append(getGuaranteed().toNoAttributeString()).append(" NORM: ")
         .append(normalizedGuarantee).append(" IDEAL_ASSIGNED: ")
-        .append(idealAssigned).append(" IDEAL_PREEMPT: ").append(toBePreempted)
+        .append(idealAssigned.toNoAttributeString()).append(" IDEAL_PREEMPT: ").append(toBePreempted.toNoAttributeString())
         .append(" ACTUAL_PREEMPT: ").append(getActuallyToBePreempted())
-        .append(" UNTOUCHABLE: ").append(untouchableExtra)
-        .append(" PREEMPTABLE: ").append(preemptableExtra).append("\n");
+        .append(" UNTOUCHABLE: ").append(untouchableExtra.toNoAttributeString())
+        .append(" PREEMPTABLE: ").append(preemptableExtra.toNoAttributeString()).append("\n");
 
     return sb.toString();
   }
@@ -273,18 +273,24 @@ public class TempQueuePerPartition extends AbstractPreemptionEntity {
   }
 
   void appendLogString(StringBuilder sb) {
-    sb.append(queueName).append(", ").append(current.getMemorySize())
-        .append(", ").append(current.getVirtualCores()).append(", ")
-        .append(pending.getMemorySize()).append(", ")
-        .append(pending.getVirtualCores()).append(", ")
-        .append(getGuaranteed().getMemorySize()).append(", ")
-        .append(getGuaranteed().getVirtualCores()).append(", ")
-        .append(idealAssigned.getMemorySize()).append(", ")
-        .append(idealAssigned.getVirtualCores()).append(", ")
-        .append(toBePreempted.getMemorySize()).append(", ")
-        .append(toBePreempted.getVirtualCores()).append(", ")
-        .append(getActuallyToBePreempted().getMemorySize()).append(", ")
-        .append(getActuallyToBePreempted().getVirtualCores());
+    sb.append(queueName).append(", currentMem:").append(current.getMemorySize())
+        .append(", currentCPU:").append(current.getVirtualCores()).append(", currentGPU:")
+        .append(current.getGPUs()).append(", pendingMem:")
+        .append(pending.getMemorySize()).append(", pendingCPU:")
+        .append(pending.getVirtualCores()).append(", pendingGPU:")
+        .append(pending.getGPUs()).append(", GuaranteedMem:")
+        .append(getGuaranteed().getMemorySize()).append(", GuaranteedCPU:")
+        .append(getGuaranteed().getVirtualCores()).append(", GuaranteedGPU:")
+        .append(getGuaranteed().getGPUs()).append(", idealAssignedMem:")
+        .append(idealAssigned.getMemorySize()).append(", idealAssignedCPU:")
+        .append(idealAssigned.getVirtualCores()).append(", idealAssignedGPU:")
+        .append(idealAssigned.getGPUs()).append(", toBePreemptedMem:")
+        .append(toBePreempted.getMemorySize()).append(", toBePreemptedCPU:")
+        .append(toBePreempted.getVirtualCores()).append(", toBePreemptedGPU:")
+        .append(toBePreempted.getGPUs()).append(", ActuallyToBePreemptedMem:")
+        .append(getActuallyToBePreempted().getMemorySize()).append(", ActuallyToBePreemptedCPU:")
+        .append(getActuallyToBePreempted().getVirtualCores()).append(", ActuallyToBePreempted:GPU")
+        .append(getActuallyToBePreempted().getGPUs());
   }
 
   public void addAllApps(Collection<TempAppPerPartition> orderedApps) {
