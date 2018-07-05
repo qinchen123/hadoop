@@ -171,6 +171,7 @@ public class TempQueuePerPartition extends AbstractPreemptionEntity {
       accepted = Resources.min(rc, clusterResource, accepted,
           maxOfGuranteedAndUsedDeductAssigned);
     }
+    accepted = Resources.componentwiseMin(avail, accepted);
     Resource remain = Resources.subtract(avail, accepted);
     Resources.addTo(idealAssigned, accepted);
     return remain;
