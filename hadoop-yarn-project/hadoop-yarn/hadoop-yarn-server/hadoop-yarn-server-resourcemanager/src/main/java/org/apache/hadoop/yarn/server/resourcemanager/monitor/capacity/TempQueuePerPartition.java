@@ -289,7 +289,7 @@ public class TempQueuePerPartition extends AbstractPreemptionEntity {
         .append(toBePreempted.getVirtualCores()).append(", toBePreemptedGPU:")
         .append(toBePreempted.getGPUs()).append(", ActuallyToBePreemptedMem:")
         .append(getActuallyToBePreempted().getMemorySize()).append(", ActuallyToBePreemptedCPU:")
-        .append(getActuallyToBePreempted().getVirtualCores()).append(", ActuallyToBePreempted:GPU")
+        .append(getActuallyToBePreempted().getVirtualCores()).append(", ActuallyToBePreemptedGPU:")
         .append(getActuallyToBePreempted().getGPUs());
   }
 

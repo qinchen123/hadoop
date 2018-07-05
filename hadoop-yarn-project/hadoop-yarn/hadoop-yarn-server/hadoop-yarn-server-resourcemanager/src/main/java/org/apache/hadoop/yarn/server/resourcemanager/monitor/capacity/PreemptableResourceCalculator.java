@@ -198,7 +198,7 @@ public class PreemptableResourceCalculator
            */
           Resource resToObtain = qT.toBePreempted;
           if (!isReservedPreemptionCandidatesSelector) {
-            resToObtain = Resources.multiply(qT.toBePreempted,
+            resToObtain = Resources.multiplyAndRoundUp(qT.toBePreempted,
                 context.getNaturalTerminationFactor());
           }
 
