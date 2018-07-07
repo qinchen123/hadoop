@@ -88,7 +88,6 @@ public class FifoCandidatesSelector
           CapacitySchedulerPreemptionUtils
               .getResToObtainByPartitionForLeafQueue(preemptionContext,
                   queueName, clusterResource);
-
       try {
         leafQueue.getReadLock().lock();
         // go through all ignore-partition-exclusivity containers first to make
@@ -97,6 +96,11 @@ public class FifoCandidatesSelector
             leafQueue.getIgnoreExclusivityRMContainers();
         for (String partition : resToObtainByPartition.keySet()) {
           if (ignorePartitionExclusivityContainers.containsKey(partition)) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("queue=" + queueName
+                  + " partition:" + partition + " resToObtain:" +  resToObtainByPartition.get(partition).toNoAttributeString());
+            }
+
             TreeSet<RMContainer> rmContainers =
                 ignorePartitionExclusivityContainers.get(partition);
             // We will check container from reverse order, so latter submitted
