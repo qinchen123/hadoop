@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CSQueue;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.LeafQueue;
@@ -34,6 +36,9 @@ import java.util.Map;
  * need, current utilization. This is per-queue-per-partition data structure
  */
 public class TempQueuePerPartition extends AbstractPreemptionEntity {
+
+  private static final Log LOG =
+      LogFactory.getLog(TempQueuePerPartition.class);
   // Following fields are copied from scheduler
   final String partition;
 
@@ -260,6 +265,12 @@ public class TempQueuePerPartition extends AbstractPreemptionEntity {
           scalingFactor);
     } else {
       toBePreempted = Resources.none();
+    }
+
+    if(LOG.isDebugEnabled()) {
+      LOG.debug("minimumQueueResource:" + minimumQueueResource.toNoAttributeString() + " clusterResource:" + clusterResource.toNoAttributeString() +
+          " usedDeductKillable:" + usedDeductKillable.toNoAttributeString() + " totalResource:" + totalResource.toNoAttributeString() +
+          " toBePreempted:" + toBePreempted.toNoAttributeString());
     }
   }
 

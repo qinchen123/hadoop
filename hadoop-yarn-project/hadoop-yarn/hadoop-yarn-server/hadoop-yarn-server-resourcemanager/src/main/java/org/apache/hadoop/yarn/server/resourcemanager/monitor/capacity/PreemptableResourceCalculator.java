@@ -128,6 +128,10 @@ public class PreemptableResourceCalculator
           totPreemptionNeeded);
     }
 
+    if(LOG.isDebugEnabled()) {
+      LOG.debug("tot_guarant:" + tot_guarant.toNoAttributeString() + " totPreemptionNeeded:" + totPreemptionNeeded.toNoAttributeString() +
+      " totalPreemptionAllowed:" + totalPreemptionAllowed.toNoAttributeString() + " scalingFactor:" + scalingFactor);
+    }
     // assign to each queue the amount of actual preemption based on local
     // information of ideal preemption and scaling factor
     for (TempQueuePerPartition t : queues) {
@@ -203,7 +207,7 @@ public class PreemptableResourceCalculator
           }
 
           // Only add resToObtain when it >= 0
-          if (Resources.greaterThan(rc, clusterResource, resToObtain,
+          if (Resources.greaterThan(rc, null, resToObtain,
               Resources.none())) {
             if (LOG.isDebugEnabled()) {
               LOG.debug("Queue=" + queueName + " partition=" + qT.partition

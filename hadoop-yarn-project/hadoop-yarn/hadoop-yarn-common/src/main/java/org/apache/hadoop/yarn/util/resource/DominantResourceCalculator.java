@@ -113,8 +113,8 @@ public class DominantResourceCalculator extends ResourceCalculator {
               ); 
       
       if(resource.getGPUs() != 0 && clusterResource.getGPUs() != 0) {
-          maxV = Math.max(maxV, (float)resource.getGPUs()/clusterResource.getGPUs());
-          minV = Math.min(minV, (float)resource.getGPUs()/clusterResource.getGPUs());
+          maxV = Math.max(maxV, (float)resource.getGPUs() / clusterResource.getGPUs());
+          minV = Math.min(minV, (float)resource.getGPUs() / clusterResource.getGPUs());
       }
       return (dominant) ? maxV:minV;
   }
