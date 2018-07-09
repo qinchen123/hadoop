@@ -49,6 +49,9 @@ public class NodeInfo {
   protected long availMemoryMB;
   protected long usedVirtualCores;
   protected long availableVirtualCores;
+  protected int usedGPUs;
+  protected int availableGPUs;
+  protected long availableGPUAttribute;
   protected ArrayList<String> nodeLabels = new ArrayList<String>();
 
   public NodeInfo() {
@@ -66,6 +69,9 @@ public class NodeInfo {
       this.availMemoryMB = report.getAvailableResource().getMemory();
       this.usedVirtualCores = report.getUsedResource().getVirtualCores();
       this.availableVirtualCores = report.getAvailableResource().getVirtualCores();
+      this.usedGPUs = report.getUsedResource().getGPUs();
+      this.availableGPUs = report.getAvailableResource().getGPUs();
+      this.availableGPUAttribute =  report.getAvailableResource().getGPUAttribute();
     }
     this.id = id.toString();
     this.rack = ni.getRackName();
@@ -136,6 +142,17 @@ public class NodeInfo {
     return this.availableVirtualCores;
   }
 
+  public int getUsedGPUs() {
+    return this.usedGPUs;
+  }
+
+  public int getAvailableGPUs() {
+    return this.availableGPUs;
+  }
+  
+  public long getAvailableGPUAttribute(){
+      return this.availableGPUAttribute;
+  }
   public ArrayList<String> getNodeLabels() {
     return this.nodeLabels;
   }
