@@ -152,7 +152,7 @@ public class DominantResourceCalculator extends ResourceCalculator {
   
   @Override
   public boolean isInvalidDivisor(Resource r) {
-    if (r.getMemorySize() == 0.0f || r.getVirtualCores() == 0.0f) {
+    if (r == null || r.getMemorySize() == 0.0f || r.getVirtualCores() == 0.0f) {
       return true;
     }
     return false;
