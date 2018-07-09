@@ -18,13 +18,167 @@
 
 package org.apache.hadoop.yarn.server.nodemanager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.service.AbstractService;
+import org.apache.hadoop.yarn.api.records.ValueRanges;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.util.ResourceCalculatorPlugin;
 
 public class NodeResourceMonitorImpl extends AbstractService implements
     NodeResourceMonitor {
 
+  /** Logging infrastructure. */
+  final static Log LOG = LogFactory
+      .getLog(NodeResourceMonitorImpl.class);
+
+  /** Interval to monitor the node resource utilization. */
+  private long monitoringInterval = 60 * 1000;
+  /** Thread to monitor the node resource utilization. */
+  private MonitoringThread monitoringThread;
+
+  /** Resource calculator. */
+  private ResourceCalculatorPlugin resourceCalculatorPlugin;
+
+  /** Current <em>resource utilization</em> of the node. */
+  private long gpuAttribute = 0;
+
+  private String usedPorts = null;
+
+  // Exclude the Gpus are being used by un-know program.
+  // Usually, the Gpu memory status is non-zero, but the process of this GPU is empty.
+  private boolean excludeOwnerlessUsingGpus;
+  private int gpuNotReadyMemoryThreshold;
+
+  /**
+   * Initialize the node resource monitor.
+   */
   public NodeResourceMonitorImpl() {
     super(NodeResourceMonitorImpl.class.getName());
+
+    this.monitoringThread = new MonitoringThread();
   }
 
+  /**
+   * Initialize the service with the proper parameters.
+   */
+  @Override
+  protected void serviceInit(Configuration conf) throws Exception {
+
+    this.resourceCalculatorPlugin =
+        ResourceCalculatorPlugin.getResourceCalculatorPlugin(null, null);
+
+    this.excludeOwnerlessUsingGpus =
+        conf.getBoolean(YarnConfiguration.GPU_EXCLUDE_OWNERLESS_GPUS,
+            YarnConfiguration.DEFAULT_GPU_EXCLUDE_OWNERLESS_GPUS);
+
+    this.gpuNotReadyMemoryThreshold =
+        conf.getInt(YarnConfiguration.GPU_NOT_READY_MEMORY_THRESHOLD,
+            YarnConfiguration.DEFAULT_GPU_NOT_READY_MEMORY_THRESHOLD);
+
+    LOG.info(" Using ResourceCalculatorPlugin : "
+        + this.resourceCalculatorPlugin);
+  }
+
+  /**
+   * Check if we should be monitoring.
+   * @return <em>true</em> if we can monitor the node resource utilization.
+   */
+  private boolean isEnabled() {
+    if (resourceCalculatorPlugin == null) {
+      LOG.info("ResourceCalculatorPlugin is unavailable on this system. "
+          + this.getClass().getName() + " is disabled.");
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Start the thread that does the node resource utilization monitoring.
+   */
+  @Override
+  protected void serviceStart() throws Exception {
+    if (this.isEnabled()) {
+      this.monitoringThread.start();
+    }
+    super.serviceStart();
+  }
+
+  /**
+   * Stop the thread that does the node resource utilization monitoring.
+   */
+  @Override
+  protected void serviceStop() throws Exception {
+    if (this.isEnabled()) {
+      this.monitoringThread.interrupt();
+      try {
+        this.monitoringThread.join(10 * 1000);
+      } catch (InterruptedException e) {
+        LOG.warn("Could not wait for the thread to join");
+      }
+    }
+    super.serviceStop();
+  }
+
+  /**
+   * Thread that monitors the resource utilization of this node.
+   */
+  private class MonitoringThread extends Thread {
+    /**
+     * Initialize the node resource monitoring thread.
+     */
+    public MonitoringThread() {
+      super("Node Resource Monitor");
+      this.setDaemon(true);
+    }
+
+    /**
+     * Periodically monitor the resource utilization of the node.
+     */
+    @Override
+    public void run() {
+      while (true) {
+        // Get node utilization and save it into the health status
+        long gpus = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+
+        String portString = resourceCalculatorPlugin.getPortsUsage();
+        // Check if the reading is invalid
+        if (gpus < 0) {
+          LOG.error("Cannot get gpu information, leaving it as 0");
+          gpuAttribute = 0;
+        } else {
+          gpuAttribute = gpus;
+        }
+
+        usedPorts = portString;
+
+        try {
+          Thread.sleep(monitoringInterval);
+        } catch (InterruptedException e) {
+          LOG.warn(NodeResourceMonitorImpl.class.getName()
+              + " is interrupted. Exiting.");
+          break;
+        }
+      }
+    }
+  }
+
+  /**
+   * Get the <em>gpu utilization</em> of the node.
+   * @return <em>gpu utilization</em> of the node.
+   */
+  @Override
+  public long getGpuAttribute() {
+    return this.gpuAttribute;
+  }
+
+  /**
+   * Get the <em>Ports utilization</em> of the node.
+   * @return <em>Ports utilization</em> of the node.
+   */
+  @Override
+  public String getUsedPorts() {
+    return this.usedPorts;
+  }
 }

@@ -84,6 +84,7 @@ public class NodeManager extends CompositeService
   private Context context;
   private AsyncDispatcher dispatcher;
   private ContainerManagerImpl containerManager;
+  private NodeResourceMonitor nodeResourceMonitor;
   private NodeStatusUpdater nodeStatusUpdater;
   private static CompositeServiceShutdownHook nodeManagerShutdownHook; 
   private NMStateStoreService nmStore = null;
@@ -233,8 +234,9 @@ public class NodeManager extends CompositeService
     nodeStatusUpdater =
         createNodeStatusUpdater(context, dispatcher, nodeHealthChecker);
 
-    NodeResourceMonitor nodeResourceMonitor = createNodeResourceMonitor();
+    nodeResourceMonitor = createNodeResourceMonitor();
     addService(nodeResourceMonitor);
+    ((NMContext) context).setNodeResourceMonitor(nodeResourceMonitor);
 
     containerManager =
         createContainerManager(context, exec, del, nodeStatusUpdater,
@@ -347,6 +349,7 @@ public class NodeManager extends CompositeService
     private final NMContainerTokenSecretManager containerTokenSecretManager;
     private final NMTokenSecretManagerInNM nmTokenSecretManager;
     private ContainerManagementProtocol containerManager;
+    private NodeResourceMonitor nodeResourceMonitor;
     private final LocalDirsHandlerService dirsHandler;
     private final ApplicationACLsManager aclsManager;
     private WebServer webServer;
@@ -416,6 +419,14 @@ public class NodeManager extends CompositeService
       this.containerManager = containerManager;
     }
 
+    public NodeResourceMonitor getNodeResourceMonitor() {
+      return this.nodeResourceMonitor;
+    }
+
+    public void setNodeResourceMonitor(NodeResourceMonitor nodeResourceMonitor) {
+      this.nodeResourceMonitor = nodeResourceMonitor;
+    }
+
     public void setWebServer(WebServer webServer) {
       this.webServer = webServer;
     }
@@ -458,6 +469,7 @@ public class NodeManager extends CompositeService
         Map<ApplicationId, Credentials> systemCredentials) {
       this.systemCredentials = systemCredentials;
     }
+
   }
 
 
