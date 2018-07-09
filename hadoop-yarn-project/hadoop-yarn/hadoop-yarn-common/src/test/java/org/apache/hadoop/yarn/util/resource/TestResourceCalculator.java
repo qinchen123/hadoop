@@ -69,6 +69,30 @@ public class TestResourceCalculator {
           Resource.newInstance(1, 2), Resource.newInstance(1, 1)));
       Assert.assertFalse(resourceCalculator.fitsIn(cluster,
           Resource.newInstance(2, 1), Resource.newInstance(1, 2)));
+
+      Assert.assertFalse(resourceCalculator.fitsIn(cluster,
+          Resource.newInstance(1, 1, 1), Resource.newInstance(2, 1, 0)));
+      Assert.assertTrue(resourceCalculator.fitsIn(cluster,
+          Resource.newInstance(1, 2, 2), Resource.newInstance(2, 2, 2)));
+      Assert.assertTrue(resourceCalculator.fitsIn(cluster,
+          Resource.newInstance(1, 2, 2), Resource.newInstance(1, 2, 2)));
+      Assert.assertFalse(resourceCalculator.fitsIn(cluster,
+          Resource.newInstance(1, 2, 1), Resource.newInstance(1, 1, 1)));
+      Assert.assertFalse(resourceCalculator.fitsIn(cluster,
+          Resource.newInstance(2, 1, 1), Resource.newInstance(1, 2, 1)));
+
+      //GPU: left: 11, right:1110, no fit
+      Assert.assertFalse(resourceCalculator.fitsIn(cluster,
+          Resource.newInstance(1, 1, 2, 3), Resource.newInstance(1, 1, 3, 14)));
+      //GPU: left: 111, right:1111, fit
+      Assert.assertTrue(resourceCalculator.fitsIn(cluster,
+          Resource.newInstance(1, 1, 3, 7), Resource.newInstance(1, 1, 4, 15)));
+      //GPU: left: 1, right:10, no fit
+      Assert.assertFalse(resourceCalculator.fitsIn(cluster,
+          Resource.newInstance(1, 1, 1, 1), Resource.newInstance(1, 1, 1, 2)));
+      //GPU: left: 1, right:1, no fit
+      Assert.assertTrue(resourceCalculator.fitsIn(cluster,
+          Resource.newInstance(1, 1, 1, 1), Resource.newInstance(1, 1, 1, 1)));
     }
   }
 
@@ -120,6 +144,26 @@ public class TestResourceCalculator {
     assertResourcesOperations(clusterResource, lhs, rhs, true, true, false,
         false, rhs, lhs);
 
+    //GPU related compare: clusterResource = none
+    lhs = Resource.newInstance(0L, 1, 1);
+    rhs = Resource.newInstance(1L, 1, 1);
+    assertResourcesOperations(clusterResource, lhs, rhs, true, true, false,
+        false, rhs, lhs);
+
+    lhs = Resource.newInstance(0L, 1, 0);
+    rhs = Resource.newInstance(1L, 1, 1);
+    assertResourcesOperations(clusterResource, lhs, rhs, true, true, false,
+        false, rhs, lhs);
+
+    lhs = Resource.newInstance(0L, 1, 1);
+    rhs = Resource.newInstance(1L, 1, 0);
+    assertResourcesOperations(clusterResource, lhs, rhs, false, true, false,
+        true, rhs, lhs);
+
+    lhs = Resource.newInstance(0L, 1, 1);
+    rhs = Resource.newInstance(1L, 1, 0);
+    assertResourcesOperations(clusterResource, lhs, rhs, false, true, false,
+        true, rhs, lhs);
   }
 
   private void assertResourcesOperations(Resource clusterResource,

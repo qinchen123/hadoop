@@ -268,7 +268,7 @@ public class TempQueuePerPartition extends AbstractPreemptionEntity {
     }
 
     if(LOG.isDebugEnabled()) {
-      LOG.debug("minimumQueueResource:" + minimumQueueResource.toNoAttributeString() + " clusterResource:" + clusterResource.toNoAttributeString() +
+      LOG.debug("queueName:" + queueName + " minimumQueueResource:" + minimumQueueResource.toNoAttributeString() + " clusterResource:" + clusterResource.toNoAttributeString() +
           " usedDeductKillable:" + usedDeductKillable.toNoAttributeString() + " totalResource:" + totalResource.toNoAttributeString() +
           " toBePreempted:" + toBePreempted.toNoAttributeString());
     }
