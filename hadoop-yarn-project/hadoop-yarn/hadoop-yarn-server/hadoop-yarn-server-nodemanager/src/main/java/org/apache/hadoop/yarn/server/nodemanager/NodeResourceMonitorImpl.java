@@ -141,8 +141,8 @@ public class NodeResourceMonitorImpl extends AbstractService implements
     public void run() {
 
       LOG.info("Start NodeResourceMonitorImpl");
+      int simulatorCount = 0;
       while (true) {
-
         // Get node utilization and save it into the health status
         long gpus = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
 
@@ -155,11 +155,15 @@ public class NodeResourceMonitorImpl extends AbstractService implements
           gpuAttribute = gpus;
         }
         usedPorts = portString;
-
         lastUpdateTime = System.currentTimeMillis();
 
         try {
-          Thread.sleep(monitoringInterval);
+            simulatorCount ++;
+            if(simulatorCount%10 == 0) {
+              Thread.sleep(monitoringInterval * 20);
+            } else  {
+              Thread.sleep(monitoringInterval);
+            }
         } catch (InterruptedException e) {
           LOG.warn(NodeResourceMonitorImpl.class.getName()
               + " is interrupted. Exiting.");
@@ -178,7 +182,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
     long now = System.currentTimeMillis();
     if(now > lastUpdateTime + monitoringInterval * 10) {
       LOG.warn(NodeResourceMonitorImpl.class.getName()
-          + " Too long to get the GPU information, set GPU Capacity as 0 to avoid new job coming.");
+          + " Too long to get the GPU information, set GPU Capacity to 0. LastUpdateTime=" + lastUpdateTime + "nowTime=" + now);
      return 0L;
     }
     return this.gpuAttribute;

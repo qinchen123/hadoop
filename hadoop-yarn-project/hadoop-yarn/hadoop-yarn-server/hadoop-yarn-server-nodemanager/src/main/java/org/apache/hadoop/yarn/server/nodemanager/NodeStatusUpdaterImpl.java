@@ -172,18 +172,13 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
             YarnConfiguration.DEFAULT_PORTS_BITSET_STORE_ENABLE);
 
 
-    long GPUAttribute = ((NMContext)context).getNodeResourceMonitor().getGpuAttribute();
-    int GPUs = Long.bitCount(GPUAttribute);
-
     ValueRanges ports = null;
 
     if (enablePortsAsResource) {
       ports = ValueRanges.iniFromExpression(conf.get(YarnConfiguration.NM_PORTS, YarnConfiguration.DEFAULT_NM_PORTS), enablePortsBitSetStore);
-      ValueRanges usedPorts = ValueRanges.iniFromExpression(((NMContext)context).getNodeResourceMonitor().getUsedPorts(), enablePortsBitSetStore);
-      ports = ports.minusSelf(usedPorts);
     }
 
-    this.totalResource = Resource.newInstance(memoryMb, virtualCores, GPUs, GPUAttribute, ports);
+    this.totalResource = Resource.newInstance(memoryMb, virtualCores);
 
     metrics.addResource(totalResource);
     this.tokenKeepAliveEnabled = isTokenKeepAliveEnabled(conf);
@@ -215,7 +210,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
     super.serviceInit(conf);
     LOG.info("Initialized nodeManager for " + nodeId + ":" +
       " physical-memory=" + memoryMb + " virtual-memory=" + virtualMemoryMb +
-      " virtual-cores=" + virtualCores + " gpus=" + GPUs + " gpu-attribute=" + GPUAttribute + " ports=" + ports + "enablePortsAsResource=" + enablePortsAsResource);
+      " virtual-cores=" + virtualCores);
   }
 
   @Override
@@ -632,12 +627,15 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
             NodeStatus nodeStatus = getNodeStatus(lastHeartBeatID);
             if (enablePortsAsResource) {
               if (rounds++ >= numOfRoundsToUpdatePorts) {
-                ValueRanges ports = ValueRanges.iniFromExpression(((NMContext)context).getNodeResourceMonitor().getUsedPorts(), enablePortsBitSetStore);
-                if (lastUpdatePorts == null || !lastUpdatePorts.equals(ports)) {
-                  nodeStatus.setLocalUsedPortsSnapshot(ports);
-                  lastUpdatePorts = ports;
+                String usedPost = ((NMContext) context).getNodeResourceMonitor().getUsedPorts();
+                if (!usedPost.isEmpty()) {
+                  ValueRanges ports = ValueRanges.iniFromExpression(usedPost, enablePortsBitSetStore);
+                  if (lastUpdatePorts == null || !lastUpdatePorts.equals(ports)) {
+                    nodeStatus.setLocalUsedPortsSnapshot(ports);
+                    lastUpdatePorts = ports;
+                  }
+                  rounds = 0;
                 }
-                rounds = 0;
               }
             }
 
