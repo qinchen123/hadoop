@@ -179,7 +179,11 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
       ValueRanges used = ValueRanges.iniFromExpression(((NMContext)context).getNodeResourceMonitor().getUsedPorts(), enablePortsBitSetStore);
       ports.minusSelf(used);
     }
-    this.totalResource = Resource.newInstance(memoryMb, virtualCores, 0, 0L, ports);
+
+    long GPUAttribute = ((NMContext)context).getNodeResourceMonitor().getGpuAttribute();
+    int GPUs = Long.bitCount(GPUAttribute);
+
+    this.totalResource = Resource.newInstance(memoryMb, virtualCores, GPUs, GPUAttribute, ports);
 
     metrics.addResource(totalResource);
     this.tokenKeepAliveEnabled = isTokenKeepAliveEnabled(conf);

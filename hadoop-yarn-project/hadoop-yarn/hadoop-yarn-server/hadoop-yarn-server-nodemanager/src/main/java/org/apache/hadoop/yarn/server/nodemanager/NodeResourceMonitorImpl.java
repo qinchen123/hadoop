@@ -41,7 +41,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
   /** Resource calculator. */
   private ResourceCalculatorPlugin resourceCalculatorPlugin;
 
-  private long lastUpdateTime = 0;
+  private long lastUpdateTime = -1;
   /** Current <em>resource utilization</em> of the node. */
   private long gpuAttribute = 0;
 
@@ -77,6 +77,8 @@ public class NodeResourceMonitorImpl extends AbstractService implements
 
     LOG.info("NodeResourceMonitorImpl: Using ResourceCalculatorPlugin : "
         + this.resourceCalculatorPlugin);
+    this.gpuAttribute = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+    lastUpdateTime = System.currentTimeMillis();
   }
 
   /**
@@ -142,8 +144,6 @@ public class NodeResourceMonitorImpl extends AbstractService implements
       while (true) {
         // Get node utilization and save it into the health status
         long gpus = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
-
-
         // Check if the reading is invalid
         if (gpus < 0) {
           LOG.error("Cannot get gpu information, set it to 0");
@@ -172,6 +172,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
   @Override
   public long getGpuAttribute() {
     long now = System.currentTimeMillis();
+
     if(now > lastUpdateTime + monitoringInterval * 10) {
       LOG.warn(NodeResourceMonitorImpl.class.getName()
           + " Too long to get the GPU information, set GPU Capacity to 0. LastUpdateTime=" + lastUpdateTime + "nowTime=" + now);
