@@ -176,9 +176,10 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
     if (enablePortsAsResource) {
       ports = ValueRanges.iniFromExpression(conf.get(YarnConfiguration.NM_PORTS, YarnConfiguration.DEFAULT_NM_PORTS), enablePortsBitSetStore);
+      ValueRanges used = ValueRanges.iniFromExpression(((NMContext)context).getNodeResourceMonitor().getUsedPorts(), enablePortsBitSetStore);
+      ports.minusSelf(used);
     }
-
-    this.totalResource = Resource.newInstance(memoryMb, virtualCores);
+    this.totalResource = Resource.newInstance(memoryMb, virtualCores, 0, 0L, ports);
 
     metrics.addResource(totalResource);
     this.tokenKeepAliveEnabled = isTokenKeepAliveEnabled(conf);

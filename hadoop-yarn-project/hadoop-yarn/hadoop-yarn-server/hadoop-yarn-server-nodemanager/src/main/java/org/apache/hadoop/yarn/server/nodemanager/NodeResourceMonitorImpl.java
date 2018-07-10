@@ -45,8 +45,6 @@ public class NodeResourceMonitorImpl extends AbstractService implements
   /** Current <em>resource utilization</em> of the node. */
   private long gpuAttribute = 0;
 
-  private String usedPorts = null;
-
   // Exclude the Gpus are being used by un-know program.
   // Usually, the Gpu memory status is non-zero, but the process of this GPU is empty.
   private boolean excludeOwnerlessUsingGpus;
@@ -146,7 +144,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
         // Get node utilization and save it into the health status
         long gpus = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
 
-        String portString = resourceCalculatorPlugin.getPortsUsage();
+
         // Check if the reading is invalid
         if (gpus < 0) {
           LOG.error("Cannot get gpu information, leaving it as 0");
@@ -154,7 +152,6 @@ public class NodeResourceMonitorImpl extends AbstractService implements
         } else {
           gpuAttribute = gpus;
         }
-        usedPorts = portString;
         lastUpdateTime = System.currentTimeMillis();
 
         try {
@@ -194,6 +191,6 @@ public class NodeResourceMonitorImpl extends AbstractService implements
    */
   @Override
   public String getUsedPorts() {
-    return this.usedPorts;
+    return resourceCalculatorPlugin.getPortsUsage();
   }
 }
