@@ -41,6 +41,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
   /** Resource calculator. */
   private ResourceCalculatorPlugin resourceCalculatorPlugin;
 
+  private long lastUpdateTime = 0;
   /** Current <em>resource utilization</em> of the node. */
   private long gpuAttribute = 0;
 
@@ -77,7 +78,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
         conf.getInt(YarnConfiguration.GPU_NOT_READY_MEMORY_THRESHOLD,
             YarnConfiguration.DEFAULT_GPU_NOT_READY_MEMORY_THRESHOLD);
 
-    LOG.info(" Using ResourceCalculatorPlugin : "
+    LOG.info("NodeResourceMonitorImpl: Using ResourceCalculatorPlugin : "
         + this.resourceCalculatorPlugin);
   }
 
@@ -138,7 +139,10 @@ public class NodeResourceMonitorImpl extends AbstractService implements
      */
     @Override
     public void run() {
+
+      LOG.info("Start NodeResourceMonitorImpl");
       while (true) {
+
         // Get node utilization and save it into the health status
         long gpus = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
 
@@ -150,8 +154,9 @@ public class NodeResourceMonitorImpl extends AbstractService implements
         } else {
           gpuAttribute = gpus;
         }
-
         usedPorts = portString;
+
+        lastUpdateTime = System.currentTimeMillis();
 
         try {
           Thread.sleep(monitoringInterval);
@@ -170,6 +175,12 @@ public class NodeResourceMonitorImpl extends AbstractService implements
    */
   @Override
   public long getGpuAttribute() {
+    long now = System.currentTimeMillis();
+    if(now > lastUpdateTime + monitoringInterval * 10) {
+      LOG.warn(NodeResourceMonitorImpl.class.getName()
+          + " Too long to get the GPU information, set GPU Capacity as 0 to avoid new job coming.");
+     return 0L;
+    }
     return this.gpuAttribute;
   }
 
