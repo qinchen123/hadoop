@@ -62,9 +62,12 @@ public class FifoCandidatesSelector
     // Previous selectors (with higher priority) could have already
     // selected containers. We need to deduct preemptable resources
     // based on already selected candidates.
+    LOG.info("input selected Candidates:" + selectedCandidates.size());
     CapacitySchedulerPreemptionUtils
         .deductPreemptableResourcesBasedSelectedCandidates(preemptionContext,
             selectedCandidates);
+
+    LOG.info("selected Candidates:" + selectedCandidates.size());
 
     List<RMContainer> skippedAMContainerlist = new ArrayList<>();
 
@@ -79,6 +82,8 @@ public class FifoCandidatesSelector
         }
         continue;
       }
+
+      LOG.debug("check selected Candidates for queue:" + queueName);
 
       // compute resToObtainByPartition considered inter-queue preemption
       LeafQueue leafQueue = preemptionContext.getQueueByPartition(queueName,
@@ -110,6 +115,10 @@ public class FifoCandidatesSelector
                   selectedCandidates)) {
                 // Skip already selected containers
                 continue;
+              }
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("tryPreemptContainerAndDeductResToObtain queue =" + queueName
+                    + " partition:" + partition + " RMContainer:" + c);
               }
               boolean preempted = CapacitySchedulerPreemptionUtils
                   .tryPreemptContainerAndDeductResToObtain(rc,
