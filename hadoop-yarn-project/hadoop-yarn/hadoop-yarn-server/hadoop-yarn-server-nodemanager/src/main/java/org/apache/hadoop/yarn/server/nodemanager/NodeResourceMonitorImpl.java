@@ -77,7 +77,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
 
     LOG.info("NodeResourceMonitorImpl: Using ResourceCalculatorPlugin : "
         + this.resourceCalculatorPlugin);
-    this.gpuAttribute = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+    this.gpuAttribute = 0;
     lastUpdateTime = System.currentTimeMillis();
   }
 
@@ -139,8 +139,8 @@ public class NodeResourceMonitorImpl extends AbstractService implements
     @Override
     public void run() {
 
+      int count = 0;
       LOG.info("Start NodeResourceMonitorImpl");
-      int simulatorCount = 0;
       while (true) {
         // Get node utilization and save it into the health status
         long gpus = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
@@ -151,10 +151,12 @@ public class NodeResourceMonitorImpl extends AbstractService implements
         } else {
           gpuAttribute = gpus;
         }
+        if(count++ % 60 == 0) {
+          count = 0;
+          LOG.info("get GPU attribute:" + Long.toBinaryString(gpus));
+        }
         lastUpdateTime = System.currentTimeMillis();
-
         try {
-            simulatorCount ++;
             Thread.sleep(monitoringInterval);
         } catch (InterruptedException e) {
           LOG.warn(NodeResourceMonitorImpl.class.getName()

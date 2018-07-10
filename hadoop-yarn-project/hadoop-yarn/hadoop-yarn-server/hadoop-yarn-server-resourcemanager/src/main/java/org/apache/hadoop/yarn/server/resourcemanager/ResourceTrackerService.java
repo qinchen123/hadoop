@@ -526,6 +526,14 @@ public class ResourceTrackerService extends AbstractService implements
     //newCapacityPorts equals availablePorts + containerAllocatedPorts,
     ValueRanges newCapacityPorts = ValueRanges.add(rmNode.getAvailablePorts(), rmNode.getContainerAllocatedPorts());
     rmNode.getTotalCapability().setPorts(newCapacityPorts);
+
+    if(LOG.isDebugEnabled()) {
+      String message =
+          "NodeManager heartbeat from node " + rmNode.getHostName() + "with new capability: " + remoteNodeStatus.getResource();
+      LOG.debug(message);
+
+    }
+
     return nodeHeartBeatResponse;
   }
 
