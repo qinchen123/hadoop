@@ -28,6 +28,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -460,7 +461,7 @@ public class LinuxResourceCalculatorPlugin extends ResourceCalculatorPlugin {
   private InputStreamReader getInputGpuInfoStreamReader() throws Exception {
     if (procfsGpuFile == null) {
       Process pos = Runtime.getRuntime().exec(REFRESH_GPU_INFO_CMD);
-      pos.waitFor();
+      pos.waitFor(2, TimeUnit.MINUTES);
       return new InputStreamReader(pos.getInputStream());
     } else {
       LOG.info("read GPU info from file:" + procfsGpuFile);
