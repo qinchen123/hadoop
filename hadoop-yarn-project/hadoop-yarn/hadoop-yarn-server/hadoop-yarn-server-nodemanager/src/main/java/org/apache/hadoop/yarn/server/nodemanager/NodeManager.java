@@ -224,17 +224,17 @@ public class NodeManager extends CompositeService
     // NodeManager level dispatcher
     this.dispatcher = new AsyncDispatcher();
 
-    nodeResourceMonitor = createNodeResourceMonitor();
-    addService(nodeResourceMonitor);
-    ((NMContext) context).setNodeResourceMonitor(nodeResourceMonitor);
-
     nodeHealthChecker = new NodeHealthCheckerService();
     addService(nodeHealthChecker);
     dirsHandler = nodeHealthChecker.getDiskHandler();
 
     this.context = createNMContext(containerTokenSecretManager,
         nmTokenSecretManager, nmStore);
-    
+
+    nodeResourceMonitor = createNodeResourceMonitor();
+    addService(nodeResourceMonitor);
+    ((NMContext) context).setNodeResourceMonitor(nodeResourceMonitor);
+
     nodeStatusUpdater =
         createNodeStatusUpdater(context, dispatcher, nodeHealthChecker);
 
