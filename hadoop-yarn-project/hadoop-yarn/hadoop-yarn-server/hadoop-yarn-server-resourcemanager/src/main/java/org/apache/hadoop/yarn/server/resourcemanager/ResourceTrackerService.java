@@ -500,6 +500,9 @@ public class ResourceTrackerService extends AbstractService implements
         new RMNodeStatusEvent(nodeId, remoteNodeStatus.getNodeHealthStatus(),
             remoteNodeStatus.getContainersStatuses(),
             remoteNodeStatus.getKeepAliveApplications(), nodeHeartBeatResponse));
+    if(LOG.isDebugEnabled()) {
+      LOG.debug("received node=" + rmNode.getHostName() + " heartBeat");
+    }
     return nodeHeartBeatResponse;
   }
 
