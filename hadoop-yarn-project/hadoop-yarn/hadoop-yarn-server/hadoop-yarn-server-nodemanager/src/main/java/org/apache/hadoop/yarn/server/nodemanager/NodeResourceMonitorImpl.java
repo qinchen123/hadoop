@@ -140,7 +140,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
     public void run() {
 
       int count = 0;
-      LOG.info("Start NodeResourceMonitorImpl");
+      LOG.info("Start NodeResourceMonitorImpl thread:" + Thread.currentThread().getName());
       while (true) {
         // Get node utilization and save it into the health status
         long gpus = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);

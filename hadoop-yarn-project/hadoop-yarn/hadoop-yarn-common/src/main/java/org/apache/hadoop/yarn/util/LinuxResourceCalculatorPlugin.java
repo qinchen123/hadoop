@@ -461,7 +461,9 @@ public class LinuxResourceCalculatorPlugin extends ResourceCalculatorPlugin {
   private InputStreamReader getInputGpuInfoStreamReader() throws Exception {
     if (procfsGpuFile == null) {
       Process pos = Runtime.getRuntime().exec(REFRESH_GPU_INFO_CMD);
-      pos.waitFor(2, TimeUnit.MINUTES);
+      if(!pos.waitFor(2, TimeUnit.MINUTES)) {
+        LOG.warn("TimeOut to execute:" + REFRESH_GPU_INFO_CMD);
+      }
       return new InputStreamReader(pos.getInputStream());
     } else {
       LOG.info("read GPU info from file:" + procfsGpuFile);
