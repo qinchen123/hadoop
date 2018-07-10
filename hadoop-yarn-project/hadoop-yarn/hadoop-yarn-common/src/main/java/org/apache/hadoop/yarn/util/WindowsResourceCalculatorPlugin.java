@@ -167,4 +167,25 @@ public class WindowsResourceCalculatorPlugin extends ResourceCalculatorPlugin {
     refreshIfNeeded();
     return cpuUsage;
   }
+
+  /** {@inheritDoc} */
+  @Override
+  public int getNumGPUs(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold) {
+    refreshIfNeeded();
+    return -1;
+  }
+  
+  /** {@inheritDoc} */
+  @Override
+  public long getGpuAttributeCapacity(boolean excludeOwnerlessUsingGpu, int gpuNotReadyMemoryThreshold) {
+      //Not support
+      return 0;
+  }
+
+  @Override
+  public String getPortsUsage() {
+    // Not support;
+    return null;
+  }
+
 }
