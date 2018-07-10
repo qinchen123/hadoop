@@ -55,7 +55,6 @@ public class NodeResourceMonitorImpl extends AbstractService implements
    */
   public NodeResourceMonitorImpl() {
     super(NodeResourceMonitorImpl.class.getName());
-
     this.monitoringThread = new MonitoringThread();
   }
 
@@ -147,7 +146,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
 
         // Check if the reading is invalid
         if (gpus < 0) {
-          LOG.error("Cannot get gpu information, leaving it as 0");
+          LOG.error("Cannot get gpu information, set it to 0");
           gpuAttribute = 0;
         } else {
           gpuAttribute = gpus;
@@ -156,11 +155,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
 
         try {
             simulatorCount ++;
-            if(simulatorCount%10 == 0) {
-              Thread.sleep(monitoringInterval * 20);
-            } else  {
-              Thread.sleep(monitoringInterval);
-            }
+            Thread.sleep(monitoringInterval);
         } catch (InterruptedException e) {
           LOG.warn(NodeResourceMonitorImpl.class.getName()
               + " is interrupted. Exiting.");
