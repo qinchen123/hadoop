@@ -145,7 +145,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
         // Get node utilization and save it into the health status
         long gpus = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
         // Check if the reading is invalid
-        if (gpus < 0) {
+        if (gpus <= 0) {
           LOG.error("Cannot get gpu information, set it to 0");
           gpuAttribute = 0;
         } else {
