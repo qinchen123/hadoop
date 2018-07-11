@@ -151,7 +151,7 @@ public class NodeResourceMonitorImpl extends AbstractService implements
         } else {
           gpuAttribute = gpus;
         }
-        if(count++ % 60 == 0) {
+        if(count++ % 20 == 0) {
           count = 0;
           LOG.info("get GPU attribute:" + Long.toBinaryString(gpus));
         }
