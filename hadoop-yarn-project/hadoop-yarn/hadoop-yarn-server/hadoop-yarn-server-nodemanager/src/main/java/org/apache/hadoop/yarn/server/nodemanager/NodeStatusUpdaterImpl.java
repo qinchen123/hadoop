@@ -627,7 +627,6 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
         while (!isStopped) {
           // Send heartbeat
-          LOG.info("HeartBeat getNodeStatus:" + Thread.currentThread().getName());
           try {
             NodeHeartbeatResponse response = null;
             NodeStatus nodeStatus = getNodeStatus(lastHeartBeatID);
@@ -645,16 +644,12 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
                 }
               }
             }
-
-            LOG.info("HeartBeat get GPU:" + Thread.currentThread().getName());
-
             long GPUAttribute = ((NMContext)context).getNodeResourceMonitor().getGpuAttribute();
             int GPUs = Long.bitCount(GPUAttribute);
             totalResource.setGPUAttribute(GPUAttribute);
             totalResource.setGPUs(GPUs);
             nodeStatus.setResource(totalResource);
 
-            LOG.info("HeartBeat Create request:" + Thread.currentThread().getName());
             NodeHeartbeatRequest request =
               NodeHeartbeatRequest.newInstance(nodeStatus,
                 NodeStatusUpdaterImpl.this.context
@@ -665,8 +660,6 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
             //get next heartbeat interval from response
             nextHeartBeatInterval = response.getNextHeartBeatInterval();
             updateMasterKeys(response);
-
-            LOG.info("HeartBeat done send heartBeat: nextHeartBeatInterval=" + nextHeartBeatInterval);
 
             if (response.getNodeAction() == NodeAction.SHUTDOWN) {
               LOG

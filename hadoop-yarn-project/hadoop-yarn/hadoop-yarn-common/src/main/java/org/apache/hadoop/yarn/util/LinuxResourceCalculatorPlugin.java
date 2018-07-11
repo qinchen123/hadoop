@@ -57,6 +57,7 @@ public class LinuxResourceCalculatorPlugin extends ResourceCalculatorPlugin {
   private static final String INACTIVE_STRING = "Inactive";
 
   public static final long REFRESH_INTERVAL_MS = 60 * 1000;
+  public static final long REFRESH_COMMAND_TIMEOUT_MS = 5 * 60 * 1000;
 
   private static final String REFRESH_GPU_INFO_CMD = "nvidia-smi";
   private static final String REFRESH_PORTS_CMD = "netstat -anlut";
@@ -463,8 +464,8 @@ public class LinuxResourceCalculatorPlugin extends ResourceCalculatorPlugin {
       Process pos = Runtime.getRuntime().exec(REFRESH_GPU_INFO_CMD);
 
       //Temp solution, wait 2 minutes for this command complete.
-      if(!pos.waitFor(2, TimeUnit.MINUTES)) {
-        LOG.warn("TimeOut to execute:" + REFRESH_GPU_INFO_CMD);
+      if(!pos.waitFor(REFRESH_COMMAND_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+        LOG.warn("Timeout to execute:" + REFRESH_GPU_INFO_CMD);
       }
       return new InputStreamReader(pos.getInputStream());
     } else {
@@ -549,8 +550,8 @@ public class LinuxResourceCalculatorPlugin extends ResourceCalculatorPlugin {
     if (procfsPortsFile == null) {
       Process pos = Runtime.getRuntime().exec(cmdLine);
       //Temp solution, wait 2 minutes for this command complete.
-      if(!pos.waitFor(1, TimeUnit.MINUTES)) {
-        LOG.warn("TimeOut to execute:" + cmdLine);
+      if(!pos.waitFor(REFRESH_COMMAND_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+        LOG.warn("Timeout to execute:" + cmdLine);
       }
       return new InputStreamReader(pos.getInputStream());
 

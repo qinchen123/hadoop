@@ -41,7 +41,6 @@ public class NodeResourceMonitorImpl extends AbstractService implements
   /** Resource calculator. */
   private ResourceCalculatorPlugin resourceCalculatorPlugin;
 
-  private long lastUpdateTime = -1;
   /** Current <em>resource utilization</em> of the node. */
   private long gpuAttribute = 0;
   private String portString = "";
@@ -78,8 +77,9 @@ public class NodeResourceMonitorImpl extends AbstractService implements
 
     LOG.info("NodeResourceMonitorImpl: Using ResourceCalculatorPlugin : "
         + this.resourceCalculatorPlugin);
-    this.gpuAttribute = 0;
-    lastUpdateTime = System.currentTimeMillis();
+
+    this.gpuAttribute = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+    portString = resourceCalculatorPlugin.getPortsUsage();;
   }
 
   /**
@@ -141,7 +141,6 @@ public class NodeResourceMonitorImpl extends AbstractService implements
     public void run() {
 
       int count = 0;
-      LOG.info("Start NodeResourceMonitorImpl thread:" + Thread.currentThread().getName());
       while (true) {
         // Get node utilization and save it into the health status
         long gpus = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
@@ -152,13 +151,14 @@ public class NodeResourceMonitorImpl extends AbstractService implements
         } else {
           gpuAttribute = gpus;
         }
-        portString = resourceCalculatorPlugin.getPortsUsage();
-
-        if(count++ % 20 == 0) {
-          count = 0;
-          LOG.info("get GPU attribute:" + Long.toBinaryString(gpus));
+        String port = resourceCalculatorPlugin.getPortsUsage();
+        if(!port.isEmpty()) {
+          portString = port;
+        } else
+        {
+          portString = "";
         }
-        lastUpdateTime = System.currentTimeMillis();
+
         try {
             Thread.sleep(monitoringInterval);
         } catch (InterruptedException e) {
@@ -176,13 +176,6 @@ public class NodeResourceMonitorImpl extends AbstractService implements
    */
   @Override
   public long getGpuAttribute() {
-    long now = System.currentTimeMillis();
-
-    if(now > lastUpdateTime + monitoringInterval * 10) {
-      LOG.warn(NodeResourceMonitorImpl.class.getName()
-          + " Too long to get the GPU information, set GPU Capacity to 0. LastUpdateTime=" + lastUpdateTime + "nowTime=" + now);
-     return 0L;
-    }
     return this.gpuAttribute;
   }
 
@@ -192,13 +185,6 @@ public class NodeResourceMonitorImpl extends AbstractService implements
    */
   @Override
   public String getUsedPorts() {
-
-    long now = System.currentTimeMillis();
-    if(now > lastUpdateTime + monitoringInterval * 10) {
-      LOG.warn(NodeResourceMonitorImpl.class.getName()
-          + " Too long to get the portString, set port to to empty. LastUpdateTime=" + lastUpdateTime + "nowTime=" + now);
-      return "";
-    }
     return portString;
   }
 }
