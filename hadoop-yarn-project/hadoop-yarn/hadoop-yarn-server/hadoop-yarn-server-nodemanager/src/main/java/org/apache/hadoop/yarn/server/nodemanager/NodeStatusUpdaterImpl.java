@@ -627,10 +627,11 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
         while (!isStopped) {
           // Send heartbeat
-          LOG.info("HeartBeat getPorts:" + Thread.currentThread().getName());
+          LOG.info("HeartBeat getNodeStatus:" + Thread.currentThread().getName());
           try {
             NodeHeartbeatResponse response = null;
             NodeStatus nodeStatus = getNodeStatus(lastHeartBeatID);
+            LOG.info("HeartBeat getPorts:" + Thread.currentThread().getName());
             if (enablePortsAsResource) {
               if (rounds++ >= numOfRoundsToUpdatePorts) {
                 String usedPost = ((NMContext) context).getNodeResourceMonitor().getUsedPorts();

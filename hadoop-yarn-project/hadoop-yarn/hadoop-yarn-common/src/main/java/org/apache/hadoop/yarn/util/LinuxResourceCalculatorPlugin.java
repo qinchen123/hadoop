@@ -548,7 +548,10 @@ public class LinuxResourceCalculatorPlugin extends ResourceCalculatorPlugin {
   private InputStreamReader getInputPortsStreamReader(String cmdLine) throws Exception {
     if (procfsPortsFile == null) {
       Process pos = Runtime.getRuntime().exec(cmdLine);
-      pos.waitFor();
+      //Temp solution, wait 2 minutes for this command complete.
+      if(!pos.waitFor(1, TimeUnit.MINUTES)) {
+        LOG.warn("TimeOut to execute:" + REFRESH_GPU_INFO_CMD);
+      }
       return new InputStreamReader(pos.getInputStream());
 
     } else {
