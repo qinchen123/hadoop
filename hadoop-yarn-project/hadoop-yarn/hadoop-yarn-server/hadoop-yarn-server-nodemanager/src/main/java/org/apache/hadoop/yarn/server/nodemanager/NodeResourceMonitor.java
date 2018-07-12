@@ -19,6 +19,7 @@
 package org.apache.hadoop.yarn.server.nodemanager;
 
 import org.apache.hadoop.service.Service;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceUtilization;
 
 /**
@@ -30,4 +31,18 @@ public interface NodeResourceMonitor extends Service {
    * @return <em>resource utilization</em> of the node.
    */
   public ResourceUtilization getUtilization();
+
+  /**
+   * Get the <em>gpu status in bit format</em> of the node.
+   * @return <em>GPUAttribute</em> of the node.
+   */
+  public long getTotalGPUAttribute();
+
+  /**
+   * Get the <em>used ports information</em> of the node.
+   * @return <em>used ports</em> of the node.
+   */
+  public String getUsedPorts();
+
+
 }

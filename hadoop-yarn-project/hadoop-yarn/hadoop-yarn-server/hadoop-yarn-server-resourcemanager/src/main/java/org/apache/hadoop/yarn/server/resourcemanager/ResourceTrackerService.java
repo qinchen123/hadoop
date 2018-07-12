@@ -42,14 +42,7 @@ import org.apache.hadoop.security.authorize.PolicyProvider;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.VersionUtil;
-import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.Container;
-import org.apache.hadoop.yarn.api.records.ContainerState;
-import org.apache.hadoop.yarn.api.records.ContainerStatus;
-import org.apache.hadoop.yarn.api.records.NodeId;
-import org.apache.hadoop.yarn.api.records.NodeState;
-import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
@@ -74,20 +67,13 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMApp;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppImpl;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.event.RMAppAttemptContainerFinishedEvent;
-import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
-import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeEvent;
-import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeEventType;
-import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeImpl;
-import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeReconnectEvent;
-import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeStartedEvent;
-import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNodeStatusEvent;
+import org.apache.hadoop.yarn.server.resourcemanager.rmnode.*;
 import org.apache.hadoop.yarn.server.resourcemanager.security.NMTokenSecretManagerInRM;
 import org.apache.hadoop.yarn.server.resourcemanager.security.RMContainerTokenSecretManager;
 import org.apache.hadoop.yarn.server.resourcemanager.security.authorize.RMPolicyProvider;
 import org.apache.hadoop.yarn.server.utils.YarnServerBuilderUtils;
 import org.apache.hadoop.yarn.util.RackResolver;
 import org.apache.hadoop.yarn.util.YarnVersionInfo;
-import org.apache.hadoop.yarn.api.records.ValueRanges;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -705,11 +691,14 @@ public class ResourceTrackerService extends AbstractService implements
         rmNode.setAvailablePorts(availablePorts);
       }
     }
-    rmNode.getTotalCapability().setGPUs(remoteNodeStatus.getResource().getGPUs());
-    rmNode.getTotalCapability().setGPUAttribute(remoteNodeStatus.getResource().getGPUAttribute());
-    //newCapacityPorts equals availablePorts + containerAllocatedPorts,
-    ValueRanges newCapacityPorts = ValueRanges.add(rmNode.getAvailablePorts(), rmNode.getContainerAllocatedPorts());
-    rmNode.getTotalCapability().setPorts(newCapacityPorts);
+
+    if(LOG.isDebugEnabled()) {
+      String message =
+          "NodeManager heartbeat from node " + rmNode.getHostName() + " with newTotalCapacity: " + rmNode.getTotalCapability();
+      LOG.debug(message);
+
+    }
+
     return nodeHeartBeatResponse;
   }
 

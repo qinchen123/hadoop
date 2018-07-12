@@ -145,8 +145,6 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   private final NodeHealthCheckerService healthChecker;
   private final NodeManagerMetrics metrics;
 
-  private ResourceCalculatorPlugin resourceCalculatorPlugin;
-
   private Runnable statusUpdaterRunnable;
   private Thread  statusUpdater;
   private boolean failedToConnect = false;
@@ -156,11 +154,6 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
   Set<ContainerId> pendingContainersToRemove = new HashSet<ContainerId>();
   private boolean enablePortsAsResource;
   private boolean enablePortsBitSetStore;
-
-  // Exclude the Gpus are being used by un-know program.
-  // Usually, the Gpu memory status is non-zero, but the process of this GPU is empty.
-  private boolean excludeOwnerlessUsingGpus;
-  private int gpuNotReadyMemoryThreshold;
 
   /**
    * this parameter is circle controller for updating local allocated ports
@@ -218,27 +211,16 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
       conf.getBoolean(YarnConfiguration.PORTS_BITSET_STORE_ENABLE,
         YarnConfiguration.DEFAULT_PORTS_BITSET_STORE_ENABLE);
 
-    excludeOwnerlessUsingGpus =
-      conf.getBoolean(YarnConfiguration.GPU_EXCLUDE_OWNERLESS_GPUS,
-        YarnConfiguration.DEFAULT_GPU_EXCLUDE_OWNERLESS_GPUS);
 
-    gpuNotReadyMemoryThreshold =
-      conf.getInt(YarnConfiguration.GPU_NOT_READY_MEMORY_THRESHOLD,
-        YarnConfiguration.DEFAULT_GPU_NOT_READY_MEMORY_THRESHOLD);
-
-    resourceCalculatorPlugin = ResourceCalculatorPlugin.getResourceCalculatorPlugin(null, null);
-    int GPUs = resourceCalculatorPlugin.getNumGPUs(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
-    long GPUAttribute = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+    long GPUAttribute = this.context.getNodeResourceMonitor().getTotalGPUAttribute();
+    int GPUs = Long.bitCount(GPUAttribute);
 
     ValueRanges ports = null;
-
     if (enablePortsAsResource) {
-
       ports = ValueRanges.iniFromExpression(conf.get(YarnConfiguration.NM_PORTS, YarnConfiguration.DEFAULT_NM_PORTS), enablePortsBitSetStore);
-      ValueRanges usedPorts = ValueRanges.iniFromExpression(resourceCalculatorPlugin.getPortsUsage(), enablePortsBitSetStore);
+      ValueRanges usedPorts = ValueRanges.iniFromExpression(this.context.getNodeResourceMonitor().getUsedPorts(), enablePortsBitSetStore);
       ports = ports.minusSelf(usedPorts);
     }
-
     this.totalResource = Resource.newInstance(memoryMb, virtualCores, GPUs, GPUAttribute, ports);
 
     metrics.addResource(totalResource);
@@ -289,8 +271,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
     LOG.info("Initialized nodeManager for " + nodeId + ":" +
       " physical-memory=" + memoryMb + " virtual-memory=" + virtualMemoryMb +
-      " virtual-cores=" + virtualCores + " gpus=" + GPUs + " gpu-attribute=" + GPUAttribute + " ports=" + ports +
-      " excludeOwnerlessUsingGpus=" + excludeOwnerlessUsingGpus + " enablePortsAsResource=" + enablePortsAsResource  + " gpuNotReadyMemoryThreshold=" + gpuNotReadyMemoryThreshold);
+      " virtual-cores=" + virtualCores + " gpus=" + GPUs + " gpu-attribute=" + GPUAttribute + " ports=" + ports);
   }
 
   @Override
@@ -405,7 +386,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
 
     ValueRanges ports = null;
     if (enablePortsAsResource) {
-      ports = ValueRanges.iniFromExpression(resourceCalculatorPlugin.getPortsUsage(), enablePortsBitSetStore);
+      ports = ValueRanges.iniFromExpression(this.context.getNodeResourceMonitor().getUsedPorts(), enablePortsBitSetStore);
     }
 
     // Synchronize NM-RM registration with
@@ -828,6 +809,7 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
       @SuppressWarnings("unchecked")
       public void run() {
         int lastHeartbeatID = 0;
+        ValueRanges lastUpdatePorts = null;
         while (!isStopped) {
           // Send heartbeat
           try {
@@ -836,23 +818,17 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
                 nodeLabelsHandler.getNodeLabelsForHeartbeat();
             NodeStatus nodeStatus = getNodeStatus(lastHeartbeatID);
 
-            ValueRanges lastUpdatePorts = null;
-            int rounds = 0;
-
             if (enablePortsAsResource) {
-              if (rounds++ >= numOfRoundsToUpdatePorts) {
-                ValueRanges ports =
-                    new PortsInfo().GetAllocatedPorts(enablePortsBitSetStore);
+                ValueRanges ports = ValueRanges.iniFromExpression(this.context.getNodeResourceMonitor().getUsedPorts(), enablePortsBitSetStore);
                 if (lastUpdatePorts == null || !lastUpdatePorts.equals(ports)) {
                   nodeStatus.setLocalUsedPortsSnapshot(ports);
                   lastUpdatePorts = ports;
                 }
-                rounds = 0;
-              }
             }
 
-            int GPUs = resourceCalculatorPlugin.getNumGPUs(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
-            long GPUAttribute = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+            long GPUAttribute = this.context.getNodeResourceMonitor().getTotalGPUAttribute();
+            int GPUs = Long.bitCount(GPUAttribute);
+
             totalResource.setGPUAttribute(GPUAttribute);
             totalResource.setGPUs(GPUs);
             nodeStatus.setResource(totalResource);

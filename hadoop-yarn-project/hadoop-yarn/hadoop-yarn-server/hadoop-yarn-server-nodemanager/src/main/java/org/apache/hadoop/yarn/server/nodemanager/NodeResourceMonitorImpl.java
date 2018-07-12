@@ -20,6 +20,7 @@ package org.apache.hadoop.yarn.server.nodemanager;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.service.AbstractService;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.api.records.ResourceUtilization;
 import org.apache.hadoop.yarn.util.ResourceCalculatorPlugin;
@@ -48,6 +49,19 @@ public class NodeResourceMonitorImpl extends AbstractService implements
   /** Current <em>resource utilization</em> of the node. */
   private ResourceUtilization nodeUtilization;
 
+  /** total <em> gpu capacity</em> of the node. */
+  private long gpuAttribute;
+
+  /** total <em> gpu capacity</em> of the node. */
+  private String usedPorts;
+
+  /** Current <em>resource utilization</em> of the node. */
+
+  // Exclude the Gpus are being used by un-know program.
+  // Usually, the Gpu memory status is non-zero, but the process of this GPU is empty.
+  private boolean excludeOwnerlessUsingGpus;
+  private int gpuNotReadyMemoryThreshold;
+
   /**
    * Initialize the node resource monitor.
    */
@@ -71,6 +85,17 @@ public class NodeResourceMonitorImpl extends AbstractService implements
 
     LOG.info(" Using ResourceCalculatorPlugin : "
         + this.resourceCalculatorPlugin);
+
+    excludeOwnerlessUsingGpus =
+        conf.getBoolean(YarnConfiguration.GPU_EXCLUDE_OWNERLESS_GPUS,
+            YarnConfiguration.DEFAULT_GPU_EXCLUDE_OWNERLESS_GPUS);
+
+    gpuNotReadyMemoryThreshold =
+        conf.getInt(YarnConfiguration.GPU_NOT_READY_MEMORY_THRESHOLD,
+            YarnConfiguration.DEFAULT_GPU_NOT_READY_MEMORY_THRESHOLD);
+
+    this.gpuAttribute = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+    this.usedPorts = resourceCalculatorPlugin.getPortsUsage();
   }
 
   /**
@@ -149,6 +174,9 @@ public class NodeResourceMonitorImpl extends AbstractService implements
                 (int) (vmem >> 20), // B -> MB
                 vcores); // Used Virtual Cores
 
+        gpuAttribute = resourceCalculatorPlugin.getGpuAttributeCapacity(excludeOwnerlessUsingGpus, gpuNotReadyMemoryThreshold);
+        usedPorts = resourceCalculatorPlugin.getPortsUsage();
+
         try {
           Thread.sleep(monitoringInterval);
         } catch (InterruptedException e) {
@@ -167,5 +195,23 @@ public class NodeResourceMonitorImpl extends AbstractService implements
   @Override
   public ResourceUtilization getUtilization() {
     return this.nodeUtilization;
+  }
+
+  /**
+   * Get the <em>system available GPU information</em> of the node.
+   * @return <em>total available GPU</em> of the node.
+   */
+  @Override
+  public long getTotalGPUAttribute() {
+    return this.gpuAttribute;
+  }
+
+  /**
+   * Get the <em>ports utilization</em> of the node.
+   * @return <em>ports utilization</em> of the node.
+   */
+  @Override
+  public String getUsedPorts() {
+    return this.usedPorts;
   }
 }

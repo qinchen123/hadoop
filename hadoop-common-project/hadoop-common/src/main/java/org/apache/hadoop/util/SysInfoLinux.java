@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,7 +120,7 @@ public class SysInfoLinux extends SysInfo {
 
 
   public static final long REFRESH_INTERVAL_MS = 60 * 1000;
-
+  public static final long REFRESH_TIMEOUT_MS = 5 * 60 * 1000;
   private static final String REFRESH_GPU_INFO_CMD = "nvidia-smi";
   private static final String REFRESH_PORTS_CMD = "netstat -anlut";
 
@@ -784,7 +785,9 @@ public class SysInfoLinux extends SysInfo {
   private InputStreamReader getInputGpuInfoStreamReader() throws Exception {
     if (procfsGpuFile == null) {
       Process pos = Runtime.getRuntime().exec(REFRESH_GPU_INFO_CMD);
-      pos.waitFor();
+      if(!pos.waitFor(REFRESH_TIMEOUT_MS, TimeUnit.MILLISECONDS)){
+        LOG.warn("TimeOut to execute command:" + REFRESH_GPU_INFO_CMD);
+      }
       return new InputStreamReader(pos.getInputStream());
     } else {
       LOG.info("read GPU info from file:" + procfsGpuFile);
@@ -867,7 +870,9 @@ public class SysInfoLinux extends SysInfo {
   private InputStreamReader getInputPortsStreamReader(String cmdLine) throws Exception {
     if (procfsPortsFile == null) {
       Process pos = Runtime.getRuntime().exec(cmdLine);
-      pos.waitFor();
+      if(!pos.waitFor(REFRESH_TIMEOUT_MS, TimeUnit.MILLISECONDS)){
+        LOG.warn("TimeOut to execute command:" + cmdLine);
+      }
       return new InputStreamReader(pos.getInputStream());
 
     } else {

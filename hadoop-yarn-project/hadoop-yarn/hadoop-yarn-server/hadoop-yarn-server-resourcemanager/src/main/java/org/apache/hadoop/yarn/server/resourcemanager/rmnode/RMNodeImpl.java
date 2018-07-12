@@ -452,6 +452,10 @@ public class RMNodeImpl implements RMNode, EventHandler<RMNodeEvent> {
     return this.totalCapability;
   }
 
+  public void setTotalCapability(Resource capacity) {
+    this.totalCapability = capacity;
+  }
+
   @Override
   public String getRackName() {
     return node.getNetworkLocation();
