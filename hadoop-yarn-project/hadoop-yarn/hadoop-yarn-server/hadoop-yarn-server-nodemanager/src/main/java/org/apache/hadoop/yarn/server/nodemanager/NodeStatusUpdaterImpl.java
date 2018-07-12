@@ -819,14 +819,14 @@ public class NodeStatusUpdaterImpl extends AbstractService implements
             NodeStatus nodeStatus = getNodeStatus(lastHeartbeatID);
 
             if (enablePortsAsResource) {
-                ValueRanges ports = ValueRanges.iniFromExpression(this.context.getNodeResourceMonitor().getUsedPorts(), enablePortsBitSetStore);
+                ValueRanges ports = ValueRanges.iniFromExpression(context.getNodeResourceMonitor().getUsedPorts(), enablePortsBitSetStore);
                 if (lastUpdatePorts == null || !lastUpdatePorts.equals(ports)) {
                   nodeStatus.setLocalUsedPortsSnapshot(ports);
                   lastUpdatePorts = ports;
                 }
             }
 
-            long GPUAttribute = this.context.getNodeResourceMonitor().getTotalGPUAttribute();
+            long GPUAttribute = context.getNodeResourceMonitor().getTotalGPUAttribute();
             int GPUs = Long.bitCount(GPUAttribute);
 
             totalResource.setGPUAttribute(GPUAttribute);
