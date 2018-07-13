@@ -100,6 +100,11 @@ public class FifoCandidatesSelector
         Map<String, TreeSet<RMContainer>> ignorePartitionExclusivityContainers =
             leafQueue.getIgnoreExclusivityRMContainers();
         for (String partition : resToObtainByPartition.keySet()) {
+
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("resToObtainByPartition:" + partition + " resource:" + resToObtainByPartition.get(partition).toNoAttributeString());
+          }
+
           if (ignorePartitionExclusivityContainers.containsKey(partition)) {
             if (LOG.isDebugEnabled()) {
               LOG.debug("queue=" + queueName
@@ -116,15 +121,13 @@ public class FifoCandidatesSelector
                 // Skip already selected containers
                 continue;
               }
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("tryPreemptContainerAndDeductResToObtain queue =" + queueName
-                    + " partition:" + partition + " RMContainer:" + c);
-              }
+
               boolean preempted = CapacitySchedulerPreemptionUtils
                   .tryPreemptContainerAndDeductResToObtain(rc,
                       preemptionContext, resToObtainByPartition, c,
                       clusterResource, selectedCandidates,
                       totalPreemptionAllowed);
+
               if (!preempted) {
                 continue;
               }

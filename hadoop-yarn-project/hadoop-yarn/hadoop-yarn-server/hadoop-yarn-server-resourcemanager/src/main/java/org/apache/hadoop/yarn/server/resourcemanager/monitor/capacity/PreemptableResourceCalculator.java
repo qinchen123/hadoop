@@ -207,14 +207,14 @@ public class PreemptableResourceCalculator
           }
 
           // Only add resToObtain when it >= 0
-          if (Resources.greaterThan(rc, null, resToObtain,
+          if (Resources.greaterThan(rc, clusterResource, resToObtain,
               Resources.none())) {
             if (LOG.isDebugEnabled()) {
               LOG.debug("Queue=" + queueName + " partition=" + qT.partition
                   + " resource-to-obtain=" + resToObtain);
             }
+            qT.setActuallyToBePreempted(Resources.clone(resToObtain));
           }
-          qT.setActuallyToBePreempted(Resources.clone(resToObtain));
         } else {
           qT.setActuallyToBePreempted(Resources.none());
         }

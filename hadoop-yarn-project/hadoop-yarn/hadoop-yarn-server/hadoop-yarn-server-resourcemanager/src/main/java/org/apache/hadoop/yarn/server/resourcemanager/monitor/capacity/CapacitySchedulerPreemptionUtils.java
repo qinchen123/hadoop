@@ -18,6 +18,8 @@
 
 package org.apache.hadoop.yarn.server.resourcemanager.monitor.capacity;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.api.records.Resource;
@@ -33,6 +35,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class CapacitySchedulerPreemptionUtils {
+  private static final Log LOG =
+      LogFactory.getLog(FifoCandidatesSelector.class);
   public static Map<String, Resource> getResToObtainByPartitionForLeafQueue(
       CapacitySchedulerPreemptionContext context, String queueName,
       Resource clusterResource) {
@@ -153,10 +157,10 @@ public class CapacitySchedulerPreemptionUtils {
     Resource toObtainByPartition = resourceToObtainByPartitions
         .get(nodePartition);
 
-    if (null != toObtainByPartition
+  if (null != toObtainByPartition
         && Resources.greaterThan(rc, clusterResource, toObtainByPartition,
             Resources.none())
-        && Resources.fitsIn(rc, clusterResource,
+        && Resources.lessThanOrEqual(rc, clusterResource,
             rmContainer.getAllocatedResource(), totalPreemptionAllowed)
         && !Resources.isAnyMajorResourceZero(rc, toObtainByPartition)) {
       Resources.subtractFrom(toObtainByPartition,
