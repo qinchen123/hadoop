@@ -301,6 +301,6 @@ public class DominantResourceCalculator extends ResourceCalculator {
 
   @Override
   public boolean isAnyMajorResourceZero(Resource resource) {
-    return resource.getMemorySize() == 0f || resource.getVirtualCores() == 0;
+    return resource.getMemorySize() == 0f || resource.getVirtualCores() == 0 || resource.getGPUs() == 0;
   }
 }
