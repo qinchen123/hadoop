@@ -229,7 +229,7 @@ public class QueuePriorityContainerCandidateSelector
 
     // If we already can allocate the reserved container after preemption,
     // skip following steps
-    if (Resources.fitsIn(rc, clusterResource, lacking,
+    if (Resources.lessThanOrEqual(rc, clusterResource, lacking,
         Resources.none())) {
       return true;
     }
@@ -270,7 +270,7 @@ public class QueuePriorityContainerCandidateSelector
       }
 
       // Lacking <= 0 means we can allocate the reserved container
-      if (Resources.fitsIn(rc, clusterResource, lacking, Resources.none())) {
+      if (Resources.lessThanOrEqual(rc, clusterResource, lacking, Resources.none())) {
         return true;
       }
     }

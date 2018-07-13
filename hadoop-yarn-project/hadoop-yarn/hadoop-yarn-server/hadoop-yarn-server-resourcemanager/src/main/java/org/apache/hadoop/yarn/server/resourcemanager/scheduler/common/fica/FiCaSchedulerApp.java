@@ -355,7 +355,7 @@ public class FiCaSchedulerApp extends SchedulerApplicationAttempt {
         }
       }
     }
-    if (!Resources.fitsIn(rc, cluster,
+    if (!Resources.lessThanOrEqual(rc, cluster,
         allocation.getAllocatedOrReservedResource(),
         availableResource)) {
       if (LOG.isDebugEnabled()) {
@@ -738,7 +738,7 @@ public class FiCaSchedulerApp extends SchedulerApplicationAttempt {
 
         // make sure we unreserve one with at least the same amount of
         // resources, otherwise could affect capacity limits
-        if (Resources.fitsIn(rc, clusterResource, resourceNeedUnreserve,
+        if (Resources.lessThanOrEqual(rc, clusterResource, resourceNeedUnreserve,
             reservedResource)) {
           if (LOG.isDebugEnabled()) {
             LOG.debug(

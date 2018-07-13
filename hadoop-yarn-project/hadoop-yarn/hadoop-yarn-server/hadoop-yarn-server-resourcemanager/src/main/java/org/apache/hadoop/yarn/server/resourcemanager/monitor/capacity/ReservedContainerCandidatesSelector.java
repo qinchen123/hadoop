@@ -145,11 +145,11 @@ public class ReservedContainerCandidatesSelector
       return false;
     }
 
-    if (!Resources.fitsIn(rc, cluster, required, preemptable)) {
+    if (!Resources.lessThanOrEqual(rc, cluster, required, preemptable)) {
       return false;
     }
 
-    if (!Resources.fitsIn(rc, cluster, required, totalPreemptionAllowed)) {
+    if (!Resources.lessThanOrEqual(rc, cluster, required, totalPreemptionAllowed)) {
       return false;
     }
 
@@ -204,7 +204,7 @@ public class ReservedContainerCandidatesSelector
     String partition = node.getPartition();
 
     // Avoid preempt any container if required <= available + killable
-    if (Resources.fitsIn(rc, cluster, reservedContainer.getReservedResource(),
+    if (Resources.lessThanOrEqual(rc, cluster, reservedContainer.getReservedResource(),
         cur)) {
       return null;
     }
@@ -246,7 +246,7 @@ public class ReservedContainerCandidatesSelector
           Resources.addTo(totalSelected, c.getAllocatedResource());
         }
         Resources.addTo(cur, c.getAllocatedResource());
-        if (Resources.fitsIn(rc, cluster,
+        if (Resources.lessThanOrEqual(rc, cluster,
             reservedContainer.getReservedResource(), cur)) {
           canAllocateReservedContainer = true;
           break;
