@@ -602,7 +602,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
         }
       }
 
-      if(capability.getGPUs() > 0 && Long.bitCount(capability.getGPUAttribute()) != capability.getGPUs()) {
+      if(capability.getGPUs() > 0) {
         LOG.info("GPU/Ports allocation request: " + capability + " from availableAndKillable: " + availableAndKillable);
         long allocated = Resources.allocateGPUs(capability, availableAndKillable);
         capability.setGPUAttribute(allocated);
