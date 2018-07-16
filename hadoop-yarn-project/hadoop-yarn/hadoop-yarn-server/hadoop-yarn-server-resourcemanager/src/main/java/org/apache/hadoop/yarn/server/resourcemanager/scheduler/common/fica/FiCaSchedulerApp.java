@@ -143,7 +143,16 @@ public class FiCaSchedulerApp extends SchedulerApplicationAttempt {
     if (getTotalRequiredResources(priority) <= 0) {
       return null;
     }
-    
+    // Doublecheck the GPUCount and GPU Attribute are the same.
+    if(request.getCapability().getGPUs() > 0 &&
+    request.getCapability().getGPUs() != Long.bitCount(request.getCapability().getGPUs())){
+      LOG.warn("GPU count and GPUAttribute are not accordance: applicationAttemptId="
+          + container.getId().getApplicationAttemptId()
+          + " container=" + container.getId() + " host="
+          + container.getNodeId().getHost() + " request.getCapacity=" + request.getCapability());
+      return null;
+    }
+
     // Create RMContainer
     RMContainer rmContainer = new RMContainerImpl(container, this
         .getApplicationAttemptId(), node.getNodeID(),
