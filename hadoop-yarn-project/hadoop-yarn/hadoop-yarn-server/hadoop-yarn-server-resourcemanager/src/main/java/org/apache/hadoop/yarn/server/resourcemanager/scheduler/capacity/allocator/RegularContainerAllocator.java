@@ -558,7 +558,6 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
                              availableAndKillable)) {
           // Stop if we find enough spaces
           availableContainers = 1;
-
           break;
         }
       }
@@ -568,12 +567,6 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
       // Allocate...
       // We will only do continuous reservation when this is not allocated from
       // reserved container
-
-      if(capability.getGPUs() > 0 && capability.getGPUAttribute() == 0) {
-        LOG.info("GPU/Ports allocation request: " + capability + " from availableAndKillable: " + availableAndKillable);
-        long allocated = Resources.allocateGPUs(capability, availableAndKillable);
-        capability.setGPUAttribute(allocated);
-      }
 
       if (rmContainer == null && reservationsContinueLooking
           && node.getLabels().isEmpty()) {
@@ -607,6 +600,12 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
             return ContainerAllocation.LOCALITY_SKIPPED;
           }
         }
+      }
+
+      if(capability.getGPUs() > 0 && Long.bitCount(capability.getGPUAttribute()) != capability.getGPUs()) {
+        LOG.info("GPU/Ports allocation request: " + capability + " from availableAndKillable: " + availableAndKillable);
+        long allocated = Resources.allocateGPUs(capability, availableAndKillable);
+        capability.setGPUAttribute(allocated);
       }
 
       ContainerAllocation result = new ContainerAllocation(unreservedContainer,
@@ -747,8 +746,21 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
 
     if (allocationResult.getAllocationState() == AllocationState.ALLOCATED) {
       // When allocating container
-      allocationResult = handleNewContainerAllocation(allocationResult, node,
-          schedulerKey, container);
+      // double check the GPU and GPU attribute the resource.
+      if( allocationResult.getResourceToBeAllocated().getGPUs() > 0 &&
+          allocationResult.getResourceToBeAllocated().getGPUs() == Long.bitCount(allocationResult.getResourceToBeAllocated().getGPUAttribute())) {
+        allocationResult = handleNewContainerAllocation(allocationResult, node,
+            schedulerKey, container);
+      }else{
+        application
+            .updateAppSkipNodeDiagnostics("Scheduling of container failed. ");
+        LOG.warn("GPU count and GPU attribute do not accordance!");
+        ActivitiesLogger.APP.recordAppActivityWithoutAllocation(activitiesManager,
+            node, application, schedulerKey.getPriority(),
+            ActivityDiagnosticConstant.FAIL_TO_ALLOCATE,
+            ActivityState.REJECTED);
+        return ContainerAllocation.APP_SKIPPED;
+      }
     } else {
       // When reserving container
       RMContainer updatedContainer = reservedContainer;
