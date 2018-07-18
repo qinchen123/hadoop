@@ -449,7 +449,7 @@ class CapacitySchedulerPage extends RmView {
                 .getPartitionQueueCapacitiesInfo(csqinfo.label);
             used = capacities.getUsedCapacity() / 100;
             String partitionUiTag =
-                "Partition: " + nodeLabelDisplay + " " + label.getResource();
+                "Partition: " + nodeLabelDisplay + " " + label.getResource().toNoAttributeString();
             ul.li().
             a(_Q).$style(width(Q_MAX_WIDTH)).
               span().$style(join(width(used), ";left:0%;",
