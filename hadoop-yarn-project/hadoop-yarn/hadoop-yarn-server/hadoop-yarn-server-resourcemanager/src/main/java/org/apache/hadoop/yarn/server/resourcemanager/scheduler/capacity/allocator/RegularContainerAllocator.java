@@ -496,8 +496,9 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
           + " application=" + application.getApplicationId()
           + " priority=" + schedulerKey.getPriority()
           + " pendingAsk=" + pendingAsk + " type=" + type
-          + " ResourceLimits:" + currentResoureLimits.getLimit()
-          + " ResourceHeadroom:" + currentResoureLimits.getHeadroom()
+          + " clusterResource:" + clusterResource.toNoAttributeString()
+          + " ResourceLimits:" + currentResoureLimits.getLimit().toNoAttributeString()
+          + " ResourceHeadroom:" + currentResoureLimits.getHeadroom().toNoAttributeString()
           + " Node:" + node);
     }
 
@@ -509,7 +510,7 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
         capability, totalResource)) {
       LOG.warn("Node : " + node.getNodeID()
           + " does not have sufficient resource for ask : " + pendingAsk
-          + " node total capability : " + node.getTotalResource());
+          + " node total capability : " + node.getTotalResource().toNoAttributeString());
       // Skip this locality request
       ActivitiesLogger.APP.recordSkippedAppActivityWithoutAllocation(
           activitiesManager, node, application, priority,
@@ -748,18 +749,18 @@ public class RegularContainerAllocator extends AbstractContainerAllocator {
       // When allocating container
       // double check the GPU and GPU attribute the resource.
       if( allocationResult.getResourceToBeAllocated().getGPUs() > 0 &&
-          allocationResult.getResourceToBeAllocated().getGPUs() == Long.bitCount(allocationResult.getResourceToBeAllocated().getGPUAttribute())) {
-        allocationResult = handleNewContainerAllocation(allocationResult, node,
-            schedulerKey, container);
-      }else{
+          allocationResult.getResourceToBeAllocated().getGPUs() != Long.bitCount(allocationResult.getResourceToBeAllocated().getGPUAttribute())) {
         application
             .updateAppSkipNodeDiagnostics("Scheduling of container failed. ");
-        LOG.warn("GPU count and GPU attribute do not accordance!");
+        LOG.warn("GPU count and GPU attribute do not accordance! allocationResult:" + allocationResult.getResourceToBeAllocated());
         ActivitiesLogger.APP.recordAppActivityWithoutAllocation(activitiesManager,
             node, application, schedulerKey.getPriority(),
             ActivityDiagnosticConstant.FAIL_TO_ALLOCATE,
             ActivityState.REJECTED);
         return ContainerAllocation.APP_SKIPPED;
+      }else{
+        allocationResult = handleNewContainerAllocation(allocationResult, node,
+            schedulerKey, container);
       }
     } else {
       // When reserving container
