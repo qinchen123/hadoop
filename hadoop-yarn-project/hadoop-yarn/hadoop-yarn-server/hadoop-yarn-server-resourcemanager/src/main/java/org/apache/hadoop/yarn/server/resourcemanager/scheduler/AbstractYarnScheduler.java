@@ -582,7 +582,7 @@ public abstract class AbstractYarnScheduler
       Resources.addTo(clusterResource, newResource);
     } else {
       // Log resource change
-      LOG.warn("Update resource on node: " + node.getNodeName() 
+      LOG.debug("Update resource on node: " + node.getNodeName()
           + " with the same resource: " + newResource);
     }
   }
