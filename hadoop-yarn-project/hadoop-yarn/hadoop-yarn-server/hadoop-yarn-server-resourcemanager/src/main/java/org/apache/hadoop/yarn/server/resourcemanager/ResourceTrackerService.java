@@ -510,18 +510,20 @@ public class ResourceTrackerService extends AbstractService implements
     }
 
     // 6. Send new totalCapacity to RMNode;
+    if(rmNode.getTotalCapability().equalsWithGPUAttribute(remoteNodeStatus.getResource())) {
     Resource newTotalCapacity = Resource.newInstance(remoteNodeStatus.getResource().getMemory(),
         remoteNodeStatus.getResource().getVirtualCores(), remoteNodeStatus.getResource().getGPUs(), remoteNodeStatus.getResource().getGPUAttribute());
         ValueRanges newCapacityPorts = ValueRanges.add(rmNode.getAvailablePorts(), rmNode.getContainerAllocatedPorts());
     newTotalCapacity.setPorts(newCapacityPorts);
 
-    ResourceOption newResourceOption = ResourceOption.newInstance(newTotalCapacity, 1000);
-    this.rmContext.getDispatcher().getEventHandler()
-        .handle(new RMNodeResourceUpdateEvent(nodeId, newResourceOption));
+      ResourceOption newResourceOption = ResourceOption.newInstance(newTotalCapacity, 1000);
+      this.rmContext.getDispatcher().getEventHandler()
+          .handle(new RMNodeResourceUpdateEvent(nodeId, newResourceOption));
+    }
 
     if(LOG.isDebugEnabled()) {
       String message =
-          "NodeManager heartbeat from node " + rmNode.getHostName() + " with newTotalCapacity: " + newTotalCapacity.toNoPortsString();
+          "NodeManager heartbeat from node " + rmNode.getHostName() + " with newTotalCapacity: " + remoteNodeStatus.getResource().toNoPortsString();
       LOG.debug(message);
 
     }
